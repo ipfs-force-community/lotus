@@ -88,6 +88,7 @@ type FullNodeStruct struct {
 		ChainGetBlock                 func(context.Context, cid.Cid) (*types.BlockHeader, error)                                                         `perm:"read"`
 		ChainGetTipSet                func(context.Context, types.TipSetKey) (*types.TipSet, error)                                                      `perm:"read"`
 		ChainGetBlockMessages         func(context.Context, cid.Cid) (*api.BlockMessages, error)                                                         `perm:"read"`
+		ChainGetBlockSimpleMessages   func(ctx context.Context, bid cid.Cid) (*api.SimpleBlockMessages, error)                                           `perm:"read"`
 		ChainGetParentReceipts        func(context.Context, cid.Cid) ([]*types.MessageReceipt, error)                                                    `perm:"read"`
 		ChainGetParentMessages        func(context.Context, cid.Cid) ([]api.Message, error)                                                              `perm:"read"`
 		ChainGetTipSetByHeight        func(context.Context, abi.ChainEpoch, types.TipSetKey) (*types.TipSet, error)                                      `perm:"read"`
@@ -130,6 +131,10 @@ type FullNodeStruct struct {
 
 		MpoolPush          func(context.Context, *types.SignedMessage) (cid.Cid, error) `perm:"write"`
 		MpoolPushUntrusted func(context.Context, *types.SignedMessage) (cid.Cid, error) `perm:"write"`
+
+		MpoolSelects        func(ctx context.Context, key types.TipSetKey, float64s []float64) ([][]*types.SignedMessage, error) `perm:"read"`
+		MpoolPublishMessage func(ctx context.Context, smsg *types.SignedMessage) error                                           `perm:"write"`
+		MpoolPublishByAddr  func(ctx context.Context, a address.Address) error                                                   `perm:"write"`
 
 		MpoolPushMessage func(context.Context, *types.Message, *api.MessageSendSpec) (*types.SignedMessage, error) `perm:"sign"`
 		MpoolGetNonce    func(context.Context, address.Address) (uint64, error)                                    `perm:"read"`
@@ -272,6 +277,18 @@ type FullNodeStruct struct {
 
 		CreateBackup func(ctx context.Context, fpath string) error `perm:"admin"`
 	}
+}
+
+func (c *FullNodeStruct) MpoolSelects(ctx context.Context, key types.TipSetKey, float64s []float64) ([][]*types.SignedMessage, error) {
+	return c.Internal.MpoolSelects(ctx, key, float64s)
+}
+
+func (c *FullNodeStruct) MpoolPublishMessage(ctx context.Context, smsg *types.SignedMessage) error {
+	return c.Internal.MpoolPublishMessage(ctx, smsg)
+}
+
+func (c *FullNodeStruct) MpoolPublishByAddr(ctx context.Context, a address.Address) error {
+	return c.Internal.MpoolPublishByAddr(ctx, a)
 }
 
 func (c *FullNodeStruct) StateMinerSectorCount(ctx context.Context, addr address.Address, tsk types.TipSetKey) (api.MinerSectors, error) {
@@ -814,6 +831,10 @@ func (c *FullNodeStruct) MpoolGetNonce(ctx context.Context, addr address.Address
 
 func (c *FullNodeStruct) ChainGetBlock(ctx context.Context, b cid.Cid) (*types.BlockHeader, error) {
 	return c.Internal.ChainGetBlock(ctx, b)
+}
+
+func (c *FullNodeStruct) ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*api.SimpleBlockMessages, error) {
+	return c.Internal.ChainGetBlockSimpleMessages(ctx, bid)
 }
 
 func (c *FullNodeStruct) ChainGetTipSet(ctx context.Context, key types.TipSetKey) (*types.TipSet, error) {

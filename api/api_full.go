@@ -69,6 +69,8 @@ type FullNode interface {
 	// ChainGetBlockMessages returns messages stored in the specified block.
 	ChainGetBlockMessages(ctx context.Context, blockCid cid.Cid) (*BlockMessages, error)
 
+	ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*SimpleBlockMessages, error)
+
 	// ChainGetParentReceipts returns receipts for messages in parent tipset of
 	// the specified block.
 	ChainGetParentReceipts(ctx context.Context, blockCid cid.Cid) ([]*types.MessageReceipt, error)
@@ -202,6 +204,8 @@ type FullNode interface {
 	// MpoolSelect returns a list of pending messages for inclusion in the next block
 	MpoolSelect(context.Context, types.TipSetKey, float64) ([]*types.SignedMessage, error)
 
+	MpoolSelects(context.Context, types.TipSetKey, []float64) ([][]*types.SignedMessage, error) //perm:read
+
 	// MpoolPush pushes a signed message to mempool.
 	MpoolPush(context.Context, *types.SignedMessage) (cid.Cid, error)
 
@@ -215,6 +219,10 @@ type FullNode interface {
 	// When maxFee is set to 0, MpoolPushMessage will guess appropriate fee
 	// based on current chain conditions
 	MpoolPushMessage(ctx context.Context, msg *types.Message, spec *MessageSendSpec) (*types.SignedMessage, error)
+
+	MpoolPublishMessage(ctx context.Context, smsg *types.SignedMessage) error //perm:write
+
+	MpoolPublishByAddr(context.Context, address.Address) error //perm:write
 
 	// MpoolBatchPush batch pushes a signed message to mempool.
 	MpoolBatchPush(context.Context, []*types.SignedMessage) ([]cid.Cid, error)

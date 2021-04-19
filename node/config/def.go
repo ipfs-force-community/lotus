@@ -21,6 +21,7 @@ type Common struct {
 // FullNode is a full node config
 type FullNode struct {
 	Common
+	Auth       AuthService
 	Client     Client
 	Metrics    Metrics
 	Wallet     Wallet
@@ -110,6 +111,10 @@ type MinerAddressConfig struct {
 	// A control address that doesn't have enough funds will still be chosen
 	// over the worker address if this flag is set.
 	DisableWorkerFallback bool
+}
+
+type AuthService struct {
+	Endpoint string
 }
 
 // API contains configs for API endpoint
