@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/filecoin-project/lotus/chain/types"
 	"time"
 
 	datatransfer "github.com/filecoin-project/go-data-transfer"
@@ -48,7 +49,8 @@ type PubsubScore struct {
 }
 
 type MessageSendSpec struct {
-	MaxFee abi.TokenAmount
+	MaxFee            abi.TokenAmount
+	GasOverEstimation float64
 }
 
 type DataTransferChannel struct {
@@ -115,4 +117,14 @@ type ConnMgrInfo struct {
 	Value     int
 	Tags      map[string]int
 	Conns     map[string]time.Time
+}
+
+type EstimateMessage struct {
+	Msg  *types.Message
+	Spec *MessageSendSpec
+}
+
+type EstimateResult struct {
+	Msg *types.Message
+	Err string
 }
