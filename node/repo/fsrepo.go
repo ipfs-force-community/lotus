@@ -33,6 +33,7 @@ import (
 
 const (
 	fsAPI           = "api"
+	fsAuth          = "auth"
 	fsAPIToken      = "token"
 	fsConfig        = "config.toml"
 	fsStorageConfig = "storage.json"
@@ -215,6 +216,24 @@ func (fsr *FsRepo) APIToken() ([]byte, error) {
 	}
 
 	return bytes.TrimSpace(tb), nil
+}
+func (fsr *FsRepo) AuthEndpoint() string {
+	p := filepath.Join(fsr.path, fsAuth)
+	f, err := os.Open(p)
+
+	if os.IsNotExist(err) {
+		return ""
+	} else if err != nil {
+		return ""
+	}
+	defer f.Close() //nolint: errcheck // Read only op
+
+	tb, err := ioutil.ReadAll(f)
+	if err != nil {
+		return ""
+	}
+
+	return string(bytes.TrimSpace(tb))
 }
 
 // Lock acquires exclusive lock on this repo
@@ -456,6 +475,12 @@ func (fsr *fsLockedRepo) SetAPIEndpoint(ma multiaddr.Multiaddr) error {
 		return err
 	}
 	return ioutil.WriteFile(fsr.join(fsAPI), []byte(ma.String()), 0644)
+}
+func (fsr *fsLockedRepo) SetAuthEndpoint(url string) error {
+	if err := fsr.stillValid(); err != nil {
+		return err
+	}
+	return ioutil.WriteFile(fsr.join(fsAuth), []byte(url), 0644)
 }
 
 func (fsr *fsLockedRepo) SetAPIToken(token []byte) error {

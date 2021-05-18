@@ -2,6 +2,7 @@ package full
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"math/rand"
 	"sort"
@@ -29,6 +30,7 @@ import (
 
 type GasModuleAPI interface {
 	GasEstimateMessageGas(ctx context.Context, msg *types.Message, spec *api.MessageSendSpec, tsk types.TipSetKey) (*types.Message, error)
+	GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*api.EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*api.EstimateResult, error)
 }
 
 var _ GasModuleAPI = *new(api.FullNode)
@@ -124,6 +126,7 @@ func (m *GasModule) GasEstimateFeeCap(
 ) (types.BigInt, error) {
 	return gasEstimateFeeCap(m.Chain, msg, maxqueueblks)
 }
+
 func gasEstimateFeeCap(cstore *store.ChainStore, msg *types.Message, maxqueueblks int64) (types.BigInt, error) {
 	ts := cstore.GetHeaviestTipSet()
 
@@ -242,6 +245,7 @@ func (a *GasAPI) GasEstimateGasLimit(ctx context.Context, msgIn *types.Message, 
 	}
 	return gasEstimateGasLimit(ctx, a.Chain, a.Stmgr, a.Mpool, msgIn, ts)
 }
+
 func (m *GasModule) GasEstimateGasLimit(ctx context.Context, msgIn *types.Message, tsk types.TipSetKey) (int64, error) {
 	ts, err := m.Chain.GetTipSetFromKey(tsk)
 	if err != nil {
@@ -249,6 +253,7 @@ func (m *GasModule) GasEstimateGasLimit(ctx context.Context, msgIn *types.Messag
 	}
 	return gasEstimateGasLimit(ctx, m.Chain, m.Stmgr, m.Mpool, msgIn, ts)
 }
+
 func gasEstimateGasLimit(
 	ctx context.Context,
 	cstore *store.ChainStore,
@@ -257,11 +262,6 @@ func gasEstimateGasLimit(
 	msgIn *types.Message,
 	currTs *types.TipSet,
 ) (int64, error) {
-	msg := *msgIn
-	msg.GasLimit = build.BlockGasLimit
-	msg.GasFeeCap = types.NewInt(uint64(build.MinimumBaseFee) + 1)
-	msg.GasPremium = types.NewInt(1)
-
 	fromA, err := smgr.ResolveToKeyAddress(ctx, msgIn.From, currTs)
 	if err != nil {
 		return -1, xerrors.Errorf("getting key address: %w", err)
@@ -270,14 +270,23 @@ func gasEstimateGasLimit(
 	pending, ts := mpool.PendingFor(fromA)
 	priorMsgs := make([]types.ChainMsg, 0, len(pending))
 	for _, m := range pending {
-		if m.Message.Nonce == msg.Nonce {
+		if m.Message.Nonce == msgIn.Nonce {
 			break
 		}
 		priorMsgs = append(priorMsgs, m)
 	}
+	return evalMessage(ctx, smgr, cstore, msgIn, priorMsgs, ts)
+}
+
+func evalMessage(ctx context.Context, smgr *stmgr.StateManager, cstore *store.ChainStore, msgIn *types.Message, priorMsgs []types.ChainMsg, ts *types.TipSet) (int64, error) {
+	msg := *msgIn
+	msg.GasLimit = build.BlockGasLimit
+	msg.GasFeeCap = types.NewInt(uint64(build.MinimumBaseFee) + 1)
+	msg.GasPremium = types.NewInt(1)
 
 	// Try calling until we find a height with no migration.
 	var res *api.InvocResult
+	var err error
 	for {
 		res, err = smgr.CallWithGas(ctx, &msg, priorMsgs, ts)
 		if err != stmgr.ErrExpensiveFork {
@@ -314,7 +323,7 @@ func gasEstimateGasLimit(
 	if !builtin.IsPaymentChannelActor(act.Code) {
 		return res.MsgRct.GasUsed, nil
 	}
-	if msgIn.Method != paych.Methods.Collect {
+	if msg.Method != paych.Methods.Collect {
 		return res.MsgRct.GasUsed, nil
 	}
 
@@ -350,4 +359,79 @@ func (m *GasModule) GasEstimateMessageGas(ctx context.Context, msg *types.Messag
 	messagepool.CapGasFee(m.GetMaxFee, msg, spec)
 
 	return msg, nil
+}
+
+func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*api.EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*api.EstimateResult, error) {
+	if len(estimateMessages) == 0 {
+		return nil, nil
+	}
+
+	ts, err := m.Chain.GetTipSetFromKey(tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("getting tipset: %w", err)
+	}
+
+	fromA, err := m.Stmgr.ResolveToKeyAddress(ctx, estimateMessages[0].Msg.From, ts)
+	if err != nil {
+		return nil, xerrors.Errorf("getting key address: %w", err)
+	}
+
+	pending, ts := m.Mpool.PendingFor(fromA)
+	priorMsgs := make([]types.ChainMsg, 0, len(pending))
+	for _, m := range pending {
+		priorMsgs = append(priorMsgs, m)
+	}
+
+	var estimateResults []*api.EstimateResult
+	for _, estimateMessage := range estimateMessages {
+		estimateMsg := estimateMessage.Msg
+		estimateMsg.Nonce = fromNonce
+		if estimateMsg.GasLimit == 0 {
+			gasUsed, err := evalMessage(ctx, m.Stmgr, m.Chain, estimateMsg, priorMsgs, ts)
+			if err != nil {
+				estimateMsg.Nonce = 0
+				estimateResults = append(estimateResults, &api.EstimateResult{
+					Msg: estimateMsg,
+					Err: fmt.Sprintf("estimating gas price: %v", err),
+				})
+				continue
+			}
+			estimateMsg.GasLimit = int64(float64(gasUsed) * estimateMessage.Spec.GasOverEstimation)
+		}
+
+		if estimateMsg.GasPremium == types.EmptyInt || types.BigCmp(estimateMsg.GasPremium, types.NewInt(0)) == 0 {
+			gasPremium, err := m.GasEstimateGasPremium(ctx, 10, estimateMsg.From, estimateMsg.GasLimit, types.TipSetKey{})
+			if err != nil {
+				estimateMsg.Nonce = 0
+				estimateResults = append(estimateResults, &api.EstimateResult{
+					Msg: estimateMsg,
+					Err: fmt.Sprintf("estimating gas price: %v", err),
+				})
+				continue
+			}
+			estimateMsg.GasPremium = gasPremium
+		}
+
+		if estimateMsg.GasFeeCap == types.EmptyInt || types.BigCmp(estimateMsg.GasFeeCap, types.NewInt(0)) == 0 {
+			feeCap, err := m.GasEstimateFeeCap(ctx, estimateMsg, 20, types.EmptyTSK)
+			if err != nil {
+				estimateMsg.Nonce = 0
+				estimateResults = append(estimateResults, &api.EstimateResult{
+					Msg: estimateMsg,
+					Err: fmt.Sprintf("estimating fee cap: %v", err),
+				})
+				continue
+			}
+			estimateMsg.GasFeeCap = feeCap
+		}
+
+		messagepool.CapGasFee(m.GetMaxFee, estimateMsg, estimateMessage.Spec)
+
+		estimateResults = append(estimateResults, &api.EstimateResult{
+			Msg: estimateMsg,
+		})
+		priorMsgs = append(priorMsgs, estimateMsg)
+		fromNonce++
+	}
+	return estimateResults, nil
 }

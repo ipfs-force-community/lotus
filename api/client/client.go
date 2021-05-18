@@ -34,6 +34,7 @@ func NewFullNodeRPCV0(ctx context.Context, addr string, requestHeader http.Heade
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
 			&res.CommonStruct.Internal,
+			&res.VenusAPIStruct.Internal,
 			&res.Internal,
 		}, requestHeader)
 
@@ -46,6 +47,7 @@ func NewFullNodeRPCV1(ctx context.Context, addr string, requestHeader http.Heade
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		[]interface{}{
 			&res.CommonStruct.Internal,
+			&res.VenusAPIStruct.Internal,
 			&res.Internal,
 		}, requestHeader)
 

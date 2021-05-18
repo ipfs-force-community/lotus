@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"time"
 
 	"github.com/ipfs/go-cid"
@@ -21,6 +22,7 @@ type Common struct {
 // FullNode is a full node config
 type FullNode struct {
 	Common
+	Auth       AuthService
 	Client     Client
 	Metrics    Metrics
 	Wallet     Wallet
@@ -43,6 +45,23 @@ type StorageMiner struct {
 	Storage    sectorstorage.SealerConfig
 	Fees       MinerFeeConfig
 	Addresses  MinerAddressConfig
+	Venus      VenusConfig
+}
+
+type VenusConfig struct {
+	Messager         messager.MessagerConfig //connect to messager
+	RegisterProofAPI RegisterProofConfig     //register proof api to venus
+	Wallet           WalletConfig            //use for storage&retrieval signature
+}
+
+type WalletConfig struct {
+	Url   string
+	Token string
+}
+
+type RegisterProofConfig struct {
+	Urls  []string
+	Token string
 }
 
 type DealmakingConfig struct {
@@ -110,6 +129,10 @@ type MinerAddressConfig struct {
 	// A control address that doesn't have enough funds will still be chosen
 	// over the worker address if this flag is set.
 	DisableWorkerFallback bool
+}
+
+type AuthService struct {
+	Endpoint string
 }
 
 // API contains configs for API endpoint

@@ -16,6 +16,14 @@
 
 Lotus is an implementation of the Filecoin Distributed Storage Network. For more details about Filecoin, check out the [Filecoin Spec](https://spec.filecoin.io).
 
+## this branch is for compatable withe venus daemon, if anyone want to deploy a lotus with the same function with venus. plz use this branch, if outdate, plz notify @hunjixin
+
+1. new api publish msg
+2. new api publish msg by address
+3. multi select api
+4. new flag to specify venus-auth service
+
+
 ## Building & Documentation
 
 For instructions on how to build, install and setup lotus, please visit [https://docs.filecoin.io/get-started/lotus](https://docs.filecoin.io/get-started/lotus/).
