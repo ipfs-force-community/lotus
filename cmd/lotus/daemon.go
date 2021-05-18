@@ -81,6 +81,10 @@ var DaemonCmd = &cli.Command{
 			Value: "1234",
 		},
 		&cli.StringFlag{
+			Name:  "venus-auth",
+			Value: "",
+		},
+		&cli.StringFlag{
 			Name:   makeGenFlag,
 			Value:  "",
 			Hidden: true,
@@ -335,6 +339,10 @@ var DaemonCmd = &cli.Command{
 				node.Unset(node.RunPeerMgrKey),
 				node.Unset(new(*peermgr.PeerMgr)),
 			),
+			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("venus-auth") },
+				node.Override(node.SetAuthEndpoint, func(lr repo.LockedRepo) error {
+					return lr.SetAuthEndpoint(cctx.String("venus-auth"))
+				})),
 		)
 		if err != nil {
 			return xerrors.Errorf("initializing node: %w", err)
@@ -352,7 +360,7 @@ var DaemonCmd = &cli.Command{
 		}
 
 		// TODO: properly parse api endpoint (or make it a URL)
-		return serveRPC(api, stop, endpoint, shutdownChan, int64(cctx.Int("api-max-req-size")))
+		return serveRPC(api, r.AuthEndpoint(), stop, endpoint, shutdownChan, int64(cctx.Int("api-max-req-size")))
 	},
 	Subcommands: []*cli.Command{
 		daemonStopCmd,

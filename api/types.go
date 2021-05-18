@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/filecoin-project/go-address"
 	"time"
 
 	"github.com/filecoin-project/lotus/chain/types"
@@ -175,4 +176,18 @@ type MessageCheckStatus struct {
 type MessagePrototype struct {
 	Message    types.Message
 	ValidNonce bool
+}
+
+type SimpleBlockMessages struct {
+	BlsMessages   []*SimpleMessage
+	SecpkMessages []*SimpleMessage
+	Cids          []cid.Cid
+}
+
+type SimpleMessage struct {
+	Cid         cid.Cid
+	UnSignedCid cid.Cid
+	From        address.Address
+	To          address.Address
+	Nonce       uint64
 }

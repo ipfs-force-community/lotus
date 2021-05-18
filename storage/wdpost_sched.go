@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"time"
 
 	"golang.org/x/xerrors"
@@ -31,6 +32,7 @@ import (
 // turn calls the scheduler when the time arrives to do work.
 type WindowPoStScheduler struct {
 	api              fullNodeFilteredAPI
+	messagerApi      messager.IMessager
 	feeCfg           config.MinerFeeConfig
 	addrSel          *AddressSelector
 	prover           storage.Prover
@@ -57,7 +59,8 @@ func NewWindowedPoStScheduler(api fullNodeFilteredAPI,
 	verif ffiwrapper.Verifier,
 	ft sectorstorage.FaultTracker,
 	j journal.Journal,
-	actor address.Address) (*WindowPoStScheduler, error) {
+	actor address.Address,
+	messagerApi messager.IMessager) (*WindowPoStScheduler, error) {
 	mi, err := api.StateMinerInfo(context.TODO(), actor, types.EmptyTSK)
 	if err != nil {
 		return nil, xerrors.Errorf("getting sector size: %w", err)
@@ -65,6 +68,7 @@ func NewWindowedPoStScheduler(api fullNodeFilteredAPI,
 
 	return &WindowPoStScheduler{
 		api:              api,
+		messagerApi:      messagerApi,
 		feeCfg:           cfg,
 		addrSel:          as,
 		prover:           sp,

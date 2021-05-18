@@ -87,10 +87,13 @@
   * [MpoolGetConfig](#MpoolGetConfig)
   * [MpoolGetNonce](#MpoolGetNonce)
   * [MpoolPending](#MpoolPending)
+  * [MpoolPublishByAddr](#MpoolPublishByAddr)
+  * [MpoolPublishMessage](#MpoolPublishMessage)
   * [MpoolPush](#MpoolPush)
   * [MpoolPushMessage](#MpoolPushMessage)
   * [MpoolPushUntrusted](#MpoolPushUntrusted)
   * [MpoolSelect](#MpoolSelect)
+  * [MpoolSelects](#MpoolSelects)
   * [MpoolSetConfig](#MpoolSetConfig)
   * [MpoolSub](#MpoolSub)
 * [Msig](#Msig)
@@ -2101,6 +2104,57 @@ Inputs:
 
 Response: `null`
 
+### MpoolPublishByAddr
+
+
+Perms: write
+
+Inputs:
+```json
+[
+  "f01234"
+]
+```
+
+Response: `{}`
+
+### MpoolPublishMessage
+
+
+Perms: write
+
+Inputs:
+```json
+[
+  {
+    "Message": {
+      "Version": 42,
+      "To": "f01234",
+      "From": "f01234",
+      "Nonce": 42,
+      "Value": "0",
+      "GasLimit": 9,
+      "GasFeeCap": "0",
+      "GasPremium": "0",
+      "Method": 1,
+      "Params": "Ynl0ZSBhcnJheQ==",
+      "CID": {
+        "/": "bafy2bzacebbpdegvr3i4cosewthysg5xkxpqfn2wfcz6mv2hmoktwbdxkax4s"
+      }
+    },
+    "Signature": {
+      "Type": 2,
+      "Data": "Ynl0ZSBhcnJheQ=="
+    },
+    "CID": {
+      "/": "bafy2bzacebbpdegvr3i4cosewthysg5xkxpqfn2wfcz6mv2hmoktwbdxkax4s"
+    }
+  }
+]
+```
+
+Response: `{}`
+
 ### MpoolPush
 MpoolPush pushes a signed message to mempool.
 
@@ -2268,6 +2322,28 @@ Inputs:
     }
   ],
   12.3
+]
+```
+
+Response: `null`
+
+### MpoolSelects
+
+
+Perms: read
+
+Inputs:
+```json
+[
+  [
+    {
+      "/": "bafy2bzacea3wsdh6y3a36tb3skempjoxqpuyompjbmfeyf34fi3uy6uue42v4"
+    },
+    {
+      "/": "bafy2bzacebp3shtrn43k7g3unredz7fxn4gj533d3o43tqn2p2ipxxhrvchve"
+    }
+  ],
+  null
 ]
 ```
 

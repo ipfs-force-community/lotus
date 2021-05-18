@@ -32,9 +32,10 @@ type MemRepo struct {
 	repoLock chan struct{}
 	token    *byte
 
-	datastore  datastore.Datastore
-	keystore   map[string]types.KeyInfo
-	blockstore blockstore.Blockstore
+	authEndpoint string
+	datastore    datastore.Datastore
+	keystore     map[string]types.KeyInfo
+	blockstore   blockstore.Blockstore
 
 	// given a repo type, produce the default config
 	configF func(t RepoType) interface{}
@@ -53,6 +54,7 @@ type lockedMemRepo struct {
 
 	tempDir string
 	token   *byte
+	auth    string
 	sc      *stores.StorageConfig
 }
 
@@ -186,6 +188,10 @@ func (mem *MemRepo) APIToken() ([]byte, error) {
 	return mem.api.token, nil
 }
 
+func (mem *MemRepo) AuthEndpoint() string {
+	return mem.authEndpoint
+}
+
 func (mem *MemRepo) Lock(t RepoType) (LockedRepo, error) {
 	select {
 	case mem.repoLock <- struct{}{}:
@@ -317,6 +323,15 @@ func (lmem *lockedMemRepo) SetAPIToken(token []byte) error {
 	}
 	lmem.mem.api.Lock()
 	lmem.mem.api.token = token
+	lmem.mem.api.Unlock()
+	return nil
+}
+func (lmem *lockedMemRepo) SetAuthEndpoint(url string) error {
+	if err := lmem.checkToken(); err != nil {
+		return err
+	}
+	lmem.mem.api.Lock()
+	lmem.mem.authEndpoint = url
 	lmem.mem.api.Unlock()
 	return nil
 }

@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"time"
 
 	"github.com/filecoin-project/lotus/chain/actors/builtin"
@@ -179,7 +180,13 @@ type StorageMiner interface {
 
 	CheckProvable(ctx context.Context, pp abi.RegisteredPoStProof, sectors []storage.SectorRef, expensive bool) (map[abi.SectorNumber]string, error) //perm:admin
 
+	CheckProvable(ctx context.Context, pp abi.RegisteredPoStProof, sectors []storage.SectorRef, expensive bool) (map[abi.SectorNumber]string, error)
+
 	ComputeProof(ctx context.Context, ssi []builtin.SectorInfo, rand abi.PoStRandomness) ([]builtin.PoStProof, error) //perm:read
+	//messager
+	MessagerWaitMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error)
+	MessagerPushMessage(ctx context.Context, msg *types.Message, meta *messager.MsgMeta) (cid.Cid, error)
+	MessagerGetMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error)
 }
 
 var _ storiface.WorkerReturn = *new(StorageMiner)

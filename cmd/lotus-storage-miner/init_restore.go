@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"io/ioutil"
 	"os"
 
@@ -46,6 +47,8 @@ var initRestoreCmd = &cli.Command{
 			Name:  "storage-config",
 			Usage: "storage paths config (storage.json)",
 		},
+		messager.MessagerFlagUrl,
+		messager.MessagerFlagToken,
 	},
 	ArgsUsage: "[backupFile]",
 	Action: func(cctx *cli.Context) error {
@@ -58,11 +61,25 @@ var initRestoreCmd = &cli.Command{
 
 		log.Info("Trying to connect to full node RPC")
 
+		var messagerCfg messager.MessagerConfig
+		if cctx.IsSet("messager-url") {
+			messagerCfg.Url = cctx.String("messager-url")
+		}
+
+		if cctx.IsSet("messager-token") {
+			messagerCfg.Token = cctx.String("messager-token")
+		}
+
+		msgClient, err := messager.NewMessager(&messagerCfg)
+		if err != nil {
+			return err
+		}
+
 		if err := checkV1ApiSupport(ctx, cctx); err != nil {
 			return err
 		}
 
-		api, closer, err := lcli.GetFullNodeAPIV1(cctx) // TODO: consider storing full node address in config
+		api, closer, err := lcli.GetFullNodeAPI(cctx) // TODO: consider storing full node address in config
 		if err != nil {
 			return err
 		}
@@ -273,7 +290,7 @@ var initRestoreCmd = &cli.Command{
 
 		log.Info("Configuring miner actor")
 
-		if err := configureStorageMiner(ctx, api, maddr, peerid, big.Zero()); err != nil {
+		if err := configureStorageMiner(ctx, api, msgClient, maddr, peerid, big.Zero()); err != nil {
 			return err
 		}
 
