@@ -65,6 +65,7 @@
 * [Create](#Create)
   * [CreateBackup](#CreateBackup)
 * [Gas](#Gas)
+  * [GasBatchEstimateMessageGas](#GasBatchEstimateMessageGas)
   * [GasEstimateFeeCap](#GasEstimateFeeCap)
   * [GasEstimateGasLimit](#GasEstimateGasLimit)
   * [GasEstimateGasPremium](#GasEstimateGasPremium)
@@ -95,10 +96,13 @@
   * [MpoolGetConfig](#MpoolGetConfig)
   * [MpoolGetNonce](#MpoolGetNonce)
   * [MpoolPending](#MpoolPending)
+  * [MpoolPublishByAddr](#MpoolPublishByAddr)
+  * [MpoolPublishMessage](#MpoolPublishMessage)
   * [MpoolPush](#MpoolPush)
   * [MpoolPushMessage](#MpoolPushMessage)
   * [MpoolPushUntrusted](#MpoolPushUntrusted)
   * [MpoolSelect](#MpoolSelect)
+  * [MpoolSelects](#MpoolSelects)
   * [MpoolSetConfig](#MpoolSetConfig)
   * [MpoolSub](#MpoolSub)
 * [Msig](#Msig)
@@ -1656,6 +1660,7 @@ Response: `{}`
 
 ## Gas
 
+### GasBatchEstimateMessageGas
 
 ### GasEstimateFeeCap
 GasEstimateFeeCap estimates gas fee cap

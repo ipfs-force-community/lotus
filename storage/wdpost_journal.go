@@ -55,7 +55,7 @@ type WdPoStSchedulerEvt struct {
 type WdPoStProofsProcessedEvt struct {
 	evtCommon
 	Partitions []miner.PoStPartition
-	MessageCID cid.Cid `json:",omitempty"`
+	MessageUID string `json:",omitempty"`
 }
 
 // WdPoStRecoveriesProcessedEvt is the journal event that gets recorded when
@@ -63,7 +63,7 @@ type WdPoStProofsProcessedEvt struct {
 type WdPoStRecoveriesProcessedEvt struct {
 	evtCommon
 	Declarations []miner.RecoveryDeclaration
-	MessageCID   cid.Cid `json:",omitempty"`
+	MessageUID   string `json:",omitempty"`
 }
 
 // WdPoStFaultsProcessedEvt is the journal event that gets recorded when
@@ -71,5 +71,5 @@ type WdPoStRecoveriesProcessedEvt struct {
 type WdPoStFaultsProcessedEvt struct {
 	evtCommon
 	Declarations []miner.FaultDeclaration
-	MessageCID   cid.Cid `json:",omitempty"`
+	MessageUID   string `json:",omitempty"`
 }

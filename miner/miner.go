@@ -208,6 +208,8 @@ func (m *Miner) mine(ctx context.Context) {
 	defer span.End()
 
 	go m.doWinPoStWarmup(ctx)
+	log.Warnf("disable mine block local in venus pool")
+	return
 
 	var lastBase MiningBase
 minerLoop:

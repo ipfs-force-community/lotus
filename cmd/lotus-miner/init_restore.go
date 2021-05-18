@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/filecoin-project/lotus/api/v0api"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 
 	"github.com/docker/go-units"
 	"github.com/ipfs/go-datastore"
@@ -47,6 +48,8 @@ var restoreCmd = &cli.Command{
 			Name:  "storage-config",
 			Usage: "storage paths config (storage.json)",
 		},
+		messager.MessagerFlagUrl,
+		messager.AuthTokenFlag,
 	},
 	ArgsUsage: "[backupFile]",
 	Action: func(cctx *cli.Context) error {
@@ -72,6 +75,20 @@ var restoreCmd = &cli.Command{
 			}
 		}
 
+		var messagerCfg messager.MessagerConfig
+		if cctx.IsSet("messager-url") {
+			messagerCfg.Url = cctx.String("messager-url")
+		}
+
+		if cctx.IsSet("messager-token") {
+			messagerCfg.Token = cctx.String("messager-token")
+		}
+
+		msgClient, err := messager.NewMessager(&messagerCfg)
+		if err != nil {
+			return err
+		}
+
 		repoPath := cctx.String(FlagMinerRepo)
 
 		if err := restore(ctx, cctx, repoPath, storageCfg, nil, func(api lapi.FullNode, maddr address.Address, peerid peer.ID, mi miner.MinerInfo) error {
@@ -83,7 +100,7 @@ var restoreCmd = &cli.Command{
 
 			log.Info("Configuring miner actor")
 
-			if err := configureStorageMiner(ctx, api, maddr, peerid, big.Zero()); err != nil {
+			if err := configureStorageMiner(ctx, api, msgClient, maddr, peerid, big.Zero()); err != nil {
 				return err
 			}
 

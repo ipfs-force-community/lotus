@@ -123,7 +123,7 @@ var actorSetAddrsCmd = &cli.Command{
 
 		gasLimit := cctx.Int64("gas-limit")
 
-		smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := nodeAPI.MessagerPushMessage(ctx, &types.Message{
 			To:       maddr,
 			From:     minfo.Worker,
 			Value:    types.NewInt(0),
@@ -135,7 +135,7 @@ var actorSetAddrsCmd = &cli.Command{
 			return err
 		}
 
-		fmt.Printf("Requested multiaddrs change in message %s\n", smsg.Cid())
+		fmt.Printf("Requested multiaddrs change in message %s\n", mid)
 		return nil
 
 	},
@@ -188,7 +188,7 @@ var actorSetPeeridCmd = &cli.Command{
 
 		gasLimit := cctx.Int64("gas-limit")
 
-		smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := nodeAPI.MessagerPushMessage(ctx, &types.Message{
 			To:       maddr,
 			From:     minfo.Worker,
 			Value:    types.NewInt(0),
@@ -200,7 +200,7 @@ var actorSetPeeridCmd = &cli.Command{
 			return err
 		}
 
-		fmt.Printf("Requested peerid change in message %s\n", smsg.Cid())
+		fmt.Printf("Requested peerid change in message %s\n", mid)
 		return nil
 
 	},
@@ -268,7 +268,7 @@ var actorWithdrawCmd = &cli.Command{
 			return err
 		}
 
-		smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := nodeApi.MessagerPushMessage(ctx, &types.Message{
 			To:     maddr,
 			From:   mi.Owner,
 			Value:  types.NewInt(0),
@@ -279,11 +279,11 @@ var actorWithdrawCmd = &cli.Command{
 			return err
 		}
 
-		fmt.Printf("Requested rewards withdrawal in message %s\n", smsg.Cid())
+		fmt.Printf("Requested rewards withdrawal in message %s\n", mid)
 
 		// wait for it to get mined into a block
 		fmt.Printf("waiting for %d epochs for confirmation..\n", uint64(cctx.Int("confidence")))
-		wait, err := api.StateWaitMsg(ctx, smsg.Cid(), uint64(cctx.Int("confidence")))
+		wait, err := api.StateWaitMsg(ctx, mid, uint64(cctx.Int("confidence")))
 		if err != nil {
 			return err
 		}
@@ -397,7 +397,7 @@ var actorRepayDebtCmd = &cli.Command{
 			return xerrors.Errorf("sender isn't a controller of miner: %s", fromId)
 		}
 
-		smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := nodeApi.MessagerPushMessage(ctx, &types.Message{
 			To:     maddr,
 			From:   fromId,
 			Value:  amount,
@@ -408,7 +408,7 @@ var actorRepayDebtCmd = &cli.Command{
 			return err
 		}
 
-		fmt.Printf("Sent repay debt message %s\n", smsg.Cid())
+		fmt.Printf("Sent repay debt message %s\n", mid)
 
 		return nil
 	},
@@ -455,7 +455,7 @@ var actorControlList = &cli.Command{
 
 		ctx := lcli.ReqContext(cctx)
 
-		maddr, err := getActorAddress(ctx, cctx)
+		maddr, err := getActorAddress(ctx, nodeApi, cctx)
 		if err != nil {
 			return err
 		}
@@ -690,7 +690,7 @@ var actorControlSet = &cli.Command{
 			return xerrors.Errorf("serializing params: %w", err)
 		}
 
-		smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := nodeApi.MessagerPushMessage(ctx, &types.Message{
 			From:   mi.Owner,
 			To:     maddr,
 			Method: miner.Methods.ChangeWorkerAddress,
@@ -702,7 +702,7 @@ var actorControlSet = &cli.Command{
 			return xerrors.Errorf("mpool push: %w", err)
 		}
 
-		fmt.Println("Message CID:", smsg.Cid())
+		fmt.Println("Message CID:", mid)
 
 		return nil
 	},
@@ -782,7 +782,7 @@ var actorSetOwnerCmd = &cli.Command{
 			return xerrors.Errorf("serializing params: %w", err)
 		}
 
-		smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := nodeApi.MessagerPushMessage(ctx, &types.Message{
 			From:   fromAddrId,
 			To:     maddr,
 			Method: miner.Methods.ChangeOwnerAddress,
@@ -793,10 +793,10 @@ var actorSetOwnerCmd = &cli.Command{
 			return xerrors.Errorf("mpool push: %w", err)
 		}
 
-		fmt.Println("Message CID:", smsg.Cid())
+		fmt.Println("Message CID:", mid)
 
 		// wait for it to get mined into a block
-		wait, err := api.StateWaitMsg(ctx, smsg.Cid(), build.MessageConfidence)
+		wait, err := nodeApi.MessagerWaitMessage(ctx, mid)
 		if err != nil {
 			return err
 		}
@@ -888,7 +888,7 @@ var actorProposeChangeWorker = &cli.Command{
 			return xerrors.Errorf("serializing params: %w", err)
 		}
 
-		smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := nodeApi.MessagerPushMessage(ctx, &types.Message{
 			From:   mi.Owner,
 			To:     maddr,
 			Method: miner.Methods.ChangeWorkerAddress,
@@ -899,10 +899,10 @@ var actorProposeChangeWorker = &cli.Command{
 			return xerrors.Errorf("mpool push: %w", err)
 		}
 
-		fmt.Fprintln(cctx.App.Writer, "Propose Message CID:", smsg.Cid())
+		fmt.Fprintln(cctx.App.Writer, "Propose Message CID:", mid)
 
 		// wait for it to get mined into a block
-		wait, err := api.StateWaitMsg(ctx, smsg.Cid(), build.MessageConfidence)
+		wait, err := nodeApi.MessagerWaitMessage(ctx, mid)
 		if err != nil {
 			return err
 		}
@@ -913,7 +913,7 @@ var actorProposeChangeWorker = &cli.Command{
 			return err
 		}
 
-		mi, err = api.StateMinerInfo(ctx, maddr, wait.TipSet)
+		mi, err = api.StateMinerInfo(ctx, maddr, wait.TipSetKey)
 		if err != nil {
 			return err
 		}
@@ -995,7 +995,7 @@ var actorConfirmChangeWorker = &cli.Command{
 			return nil
 		}
 
-		smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := nodeApi.MessagerPushMessage(ctx, &types.Message{
 			From:   mi.Owner,
 			To:     maddr,
 			Method: miner.Methods.ConfirmUpdateWorkerKey,
@@ -1005,10 +1005,10 @@ var actorConfirmChangeWorker = &cli.Command{
 			return xerrors.Errorf("mpool push: %w", err)
 		}
 
-		fmt.Fprintln(cctx.App.Writer, "Confirm Message CID:", smsg.Cid())
+		fmt.Fprintln(cctx.App.Writer, "Confirm Message CID:", mid)
 
 		// wait for it to get mined into a block
-		wait, err := api.StateWaitMsg(ctx, smsg.Cid(), build.MessageConfidence)
+		wait, err := nodeApi.MessagerWaitMessage(ctx, mid)
 		if err != nil {
 			return err
 		}
@@ -1019,7 +1019,7 @@ var actorConfirmChangeWorker = &cli.Command{
 			return err
 		}
 
-		mi, err = api.StateMinerInfo(ctx, maddr, wait.TipSet)
+		mi, err = api.StateMinerInfo(ctx, maddr, wait.TipSetKey)
 		if err != nil {
 			return err
 		}

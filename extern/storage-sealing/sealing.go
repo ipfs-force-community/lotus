@@ -3,6 +3,7 @@ package sealing
 import (
 	"context"
 	"errors"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"sync"
 	"time"
 
@@ -75,6 +76,13 @@ type SealingAPI interface {
 	StateGetRandomnessFromBeacon(ctx context.Context, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte, tok TipSetToken) (abi.Randomness, error)
 	StateGetRandomnessFromTickets(ctx context.Context, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte, tok TipSetToken) (abi.Randomness, error)
 	ChainReadObj(context.Context, cid.Cid) ([]byte, error)
+
+	//messager
+	MessagerSendMsg(ctx context.Context, from, to address.Address, method abi.MethodNum, value, maxFee abi.TokenAmount, params []byte) (cid.Cid, error)
+	MessagerWaitMessage(ctx context.Context, id cid.Cid) (MsgLookup, error)
+	MessagerPushMessage(ctx context.Context, msg *types.Message, meta *messager.MsgMeta) (string, error)
+	MessagerPushMessageWithId(ctx context.Context, id string, msg *types.Message, meta *messager.MsgMeta) (string, error)
+	MessagerGetMessageByUid(ctx context.Context, id cid.Cid) (*MsgLookup, error)
 }
 
 type SectorStateNotifee func(before, after SectorInfo)

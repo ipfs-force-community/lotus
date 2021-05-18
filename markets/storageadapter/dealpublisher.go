@@ -3,6 +3,7 @@ package storageadapter
 import (
 	"context"
 	"fmt"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"strings"
 	"sync"
 	"time"
@@ -49,9 +50,9 @@ type dealPublisherAPI interface {
 // message. When the limit is reached the DealPublisher immediately submits a
 // publish message with all deals in the queue.
 type DealPublisher struct {
-	api dealPublisherAPI
-	as  *storage.AddressSelector
-
+	api      dealPublisherAPI
+	as       *storage.AddressSelector
+	msger    messager.IMessager
 	ctx      context.Context
 	Shutdown context.CancelFunc
 
@@ -98,14 +99,14 @@ type PublishMsgConfig struct {
 func NewDealPublisher(
 	feeConfig *config.MinerFeeConfig,
 	publishMsgCfg PublishMsgConfig,
-) func(lc fx.Lifecycle, full api.FullNode, as *storage.AddressSelector) *DealPublisher {
-	return func(lc fx.Lifecycle, full api.FullNode, as *storage.AddressSelector) *DealPublisher {
+) func(lc fx.Lifecycle, full api.FullNode, msger messager.IMessager, as *storage.AddressSelector) *DealPublisher {
+	return func(lc fx.Lifecycle, full api.FullNode, msger messager.IMessager, as *storage.AddressSelector) *DealPublisher {
 		maxFee := abi.NewTokenAmount(0)
 		if feeConfig != nil {
 			maxFee = abi.TokenAmount(feeConfig.MaxPublishDealsFee)
 		}
 		publishSpec := &api.MessageSendSpec{MaxFee: maxFee}
-		dp := newDealPublisher(full, as, publishMsgCfg, publishSpec)
+		dp := newDealPublisher(full, as, msger, publishMsgCfg, publishSpec)
 		lc.Append(fx.Hook{
 			OnStop: func(ctx context.Context) error {
 				dp.Shutdown()
@@ -119,6 +120,7 @@ func NewDealPublisher(
 func newDealPublisher(
 	dpapi dealPublisherAPI,
 	as *storage.AddressSelector,
+	msger messager.IMessager,
 	publishMsgCfg PublishMsgConfig,
 	publishSpec *api.MessageSendSpec,
 ) *DealPublisher {
@@ -126,6 +128,7 @@ func newDealPublisher(
 	return &DealPublisher{
 		api:                   dpapi,
 		as:                    as,
+		msger:                 msger,
 		ctx:                   ctx,
 		Shutdown:              cancel,
 		maxDealsPerPublishMsg: publishMsgCfg.MaxDealsPerMsg,
@@ -347,7 +350,7 @@ func (p *DealPublisher) validateDeal(deal market2.ClientDealProposal) error {
 		return xerrors.Errorf("serializing PublishStorageDeals params failed: %w", err)
 	}
 
-	addr, _, err := p.as.AddressFor(p.ctx, p.api, mi, api.DealPublishAddr, big.Zero(), big.Zero())
+	addr, _, err := p.as.AddressFor(p.ctx, p.api, p.msger, mi, api.DealPublishAddr, big.Zero(), big.Zero())
 	if err != nil {
 		return xerrors.Errorf("selecting address for publishing deals: %w", err)
 	}
@@ -404,7 +407,7 @@ func (p *DealPublisher) publishDealProposals(deals []market2.ClientDealProposal)
 		return cid.Undef, xerrors.Errorf("serializing PublishStorageDeals params failed: %w", err)
 	}
 
-	addr, _, err := p.as.AddressFor(p.ctx, p.api, mi, api.DealPublishAddr, big.Zero(), big.Zero())
+	addr, _, err := p.as.AddressFor(p.ctx, p.api, p.msger, mi, api.DealPublishAddr, big.Zero(), big.Zero())
 	if err != nil {
 		return cid.Undef, xerrors.Errorf("selecting address for publishing deals: %w", err)
 	}

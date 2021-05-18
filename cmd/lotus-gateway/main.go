@@ -10,6 +10,8 @@ import (
 	"go.opencensus.io/stats/view"
 	"golang.org/x/xerrors"
 
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
+
 	logging "github.com/ipfs/go-log/v2"
 
 	"github.com/filecoin-project/go-jsonrpc"
@@ -22,7 +24,6 @@ import (
 	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/chain/types"
 	lcli "github.com/filecoin-project/lotus/cli"
-	cliutil "github.com/filecoin-project/lotus/cli/util"
 	"github.com/filecoin-project/lotus/gateway"
 	"github.com/filecoin-project/lotus/lib/lotuslog"
 	"github.com/filecoin-project/lotus/metrics"
@@ -78,7 +79,7 @@ var checkCmd = &cli.Command{
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
 
-		ainfo := cliutil.ParseApiInfo(cctx.Args().First())
+		ainfo := apiinfo.ParseApiInfo(cctx.Args().First())
 
 		darg, err := ainfo.DialArgs("v1")
 		if err != nil {

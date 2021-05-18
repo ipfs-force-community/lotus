@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 	"errors"
+	"github.com/filecoin-project/lotus/cli"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"time"
 
 	"github.com/filecoin-project/go-bitfield"
@@ -56,7 +58,9 @@ type Miner struct {
 	prover  ffiwrapper.Prover
 	addrSel *AddressSelector
 
-	maddr address.Address
+	walletApi   cli.WalletClient
+	messagerApi messager.IMessager
+	maddr       address.Address
 
 	getSealConfig dtypes.GetSealingConfigFunc
 	sealing       *sealing.Sealing
@@ -137,8 +141,10 @@ func NewMiner(api fullNodeFilteredAPI,
 	gsd dtypes.GetSealingConfigFunc,
 	feeCfg config.MinerFeeConfig,
 	journal journal.Journal,
-	as *AddressSelector) (*Miner, error) {
+	as *AddressSelector,
+	messagerApi messager.IMessager) (*Miner, error) {
 	m := &Miner{
+		messagerApi: messagerApi,
 		api:     api,
 		feeCfg:  feeCfg,
 		sealer:  sealer,
@@ -179,7 +185,7 @@ func (m *Miner) Run(ctx context.Context) error {
 	// with the API that Lotus is capable of providing.
 	// The shim translates between "tipset tokens" and tipset keys, and
 	// provides extra methods.
-	adaptedAPI := NewSealingAPIAdapter(m.api)
+	adaptedAPI := NewSealingAPIAdapter(m.api, m.messagerApi)
 
 	// Instantiate a precommit policy.
 	cfg := sealing.GetSealingConfigFunc(m.getSealConfig)
@@ -189,7 +195,7 @@ func (m *Miner) Run(ctx context.Context) error {
 
 	// address selector.
 	as := func(ctx context.Context, mi miner.MinerInfo, use api.AddrUse, goodFunds, minFunds abi.TokenAmount) (address.Address, abi.TokenAmount, error) {
-		return m.addrSel.AddressFor(ctx, m.api, mi, use, goodFunds, minFunds)
+		return m.addrSel.AddressFor(ctx, m.api, m.messagerApi, mi, use, goodFunds, minFunds)
 	}
 
 	// Instantiate the sealing FSM.
@@ -229,7 +235,7 @@ func (m *Miner) runPreflightChecks(ctx context.Context) error {
 		return xerrors.Errorf("failed to resolve worker key: %w", err)
 	}
 
-	has, err := m.api.WalletHas(ctx, workerKey)
+	has, err := m.messagerApi.WalletHas(ctx, workerKey)
 	if err != nil {
 		return xerrors.Errorf("failed to check wallet for worker key: %w", err)
 	}

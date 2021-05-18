@@ -5,6 +5,7 @@ import (
 
 	"github.com/filecoin-project/lotus/chain/types"
 	sectorstorage "github.com/filecoin-project/lotus/extern/sector-storage"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 )
 
 // // NOTE: ONLY PUT STRUCT DEFINITIONS IN THIS FILE
@@ -50,6 +51,7 @@ type StorageMiner struct {
 	Fees       MinerFeeConfig
 	Addresses  MinerAddressConfig
 	DAGStore   DAGStoreConfig
+	Venus      VenusConfig
 }
 
 type DAGStoreConfig struct {
@@ -374,4 +376,20 @@ type Wallet struct {
 
 type FeeConfig struct {
 	DefaultMaxFee types.FIL
+}
+
+type VenusConfig struct {
+	Messager         messager.MessagerConfig //connect to messager
+	RegisterProofAPI RegisterProofConfig     //register proof api to venus
+	Wallet           WalletConfig            //use for storage&retrieval signature
+}
+
+type WalletConfig struct {
+	Url   string
+	Token string
+}
+
+type RegisterProofConfig struct {
+	Urls  []string
+	Token string
 }

@@ -120,6 +120,9 @@ const (
 
 	SetApiEndpointKey
 
+	//venus
+	SetAuthEndpoint
+	StartProofEventKey
 	_nInvokes // keep this last
 )
 
