@@ -3,7 +3,7 @@ package storage
 import (
 	"bytes"
 	"context"
-
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"github.com/ipfs/go-cid"
 	cbg "github.com/whyrusleeping/cbor-gen"
 	"golang.org/x/xerrors"
@@ -19,7 +19,6 @@ import (
 
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/blockstore"
-	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/chain/actors"
 	"github.com/filecoin-project/lotus/chain/actors/builtin/market"
 	"github.com/filecoin-project/lotus/chain/actors/builtin/miner"
@@ -31,11 +30,12 @@ import (
 var _ sealing.SealingAPI = new(SealingAPIAdapter)
 
 type SealingAPIAdapter struct {
-	delegate storageMinerApi
+	delegate    storageMinerApi
+	messagerApi messager.IMessager
 }
 
-func NewSealingAPIAdapter(api storageMinerApi) SealingAPIAdapter {
-	return SealingAPIAdapter{delegate: api}
+func NewSealingAPIAdapter(api storageMinerApi, messagerApi messager.IMessager) SealingAPIAdapter {
+	return SealingAPIAdapter{delegate: api, messagerApi: messagerApi}
 }
 
 func (s SealingAPIAdapter) StateMinerSectorSize(ctx context.Context, maddr address.Address, tok sealing.TipSetToken) (abi.SectorSize, error) {
@@ -100,44 +100,6 @@ func (s SealingAPIAdapter) StateMinerSectorAllocated(ctx context.Context, maddr 
 	}
 
 	return s.delegate.StateMinerSectorAllocated(ctx, maddr, sid, tsk)
-}
-
-func (s SealingAPIAdapter) StateWaitMsg(ctx context.Context, mcid cid.Cid) (sealing.MsgLookup, error) {
-	wmsg, err := s.delegate.StateWaitMsg(ctx, mcid, build.MessageConfidence)
-	if err != nil {
-		return sealing.MsgLookup{}, err
-	}
-
-	return sealing.MsgLookup{
-		Receipt: sealing.MessageReceipt{
-			ExitCode: wmsg.Receipt.ExitCode,
-			Return:   wmsg.Receipt.Return,
-			GasUsed:  wmsg.Receipt.GasUsed,
-		},
-		TipSetTok: wmsg.TipSet.Bytes(),
-		Height:    wmsg.Height,
-	}, nil
-}
-
-func (s SealingAPIAdapter) StateSearchMsg(ctx context.Context, c cid.Cid) (*sealing.MsgLookup, error) {
-	wmsg, err := s.delegate.StateSearchMsg(ctx, c)
-	if err != nil {
-		return nil, err
-	}
-
-	if wmsg == nil {
-		return nil, nil
-	}
-
-	return &sealing.MsgLookup{
-		Receipt: sealing.MessageReceipt{
-			ExitCode: wmsg.Receipt.ExitCode,
-			Return:   wmsg.Receipt.Return,
-			GasUsed:  wmsg.Receipt.GasUsed,
-		},
-		TipSetTok: wmsg.TipSet.Bytes(),
-		Height:    wmsg.Height,
-	}, nil
 }
 
 func (s SealingAPIAdapter) StateComputeDataCommitment(ctx context.Context, maddr address.Address, sectorType abi.RegisteredSealProof, deals []abi.DealID, tok sealing.TipSetToken) (cid.Cid, error) {
@@ -302,23 +264,6 @@ func (s SealingAPIAdapter) StateMinerProvingDeadline(ctx context.Context, maddr 
 	return s.delegate.StateMinerProvingDeadline(ctx, maddr, tsk)
 }
 
-func (s SealingAPIAdapter) SendMsg(ctx context.Context, from, to address.Address, method abi.MethodNum, value, maxFee abi.TokenAmount, params []byte) (cid.Cid, error) {
-	msg := types.Message{
-		To:     to,
-		From:   from,
-		Value:  value,
-		Method: method,
-		Params: params,
-	}
-
-	smsg, err := s.delegate.MpoolPushMessage(ctx, &msg, &api.MessageSendSpec{MaxFee: maxFee})
-	if err != nil {
-		return cid.Undef, err
-	}
-
-	return smsg.Cid(), nil
-}
-
 func (s SealingAPIAdapter) ChainHead(ctx context.Context) (sealing.TipSetToken, abi.ChainEpoch, error) {
 	head, err := s.delegate.ChainHead(ctx)
 	if err != nil {
@@ -352,4 +297,143 @@ func (s SealingAPIAdapter) ChainGetRandomnessFromTickets(ctx context.Context, to
 
 func (s SealingAPIAdapter) ChainReadObj(ctx context.Context, ocid cid.Cid) ([]byte, error) {
 	return s.delegate.ChainReadObj(ctx, ocid)
+}
+
+func (s SealingAPIAdapter) StateWaitMsg(ctx context.Context, mcid cid.Cid) (sealing.MsgLookup, error) {
+	/*wmsg, err := s.delegate.StateWaitMsg(ctx, mcid, build.MessageConfidence)
+	if err != nil {
+		return sealing.MsgLookup{}, err
+	}
+
+	return sealing.MsgLookup{
+		Receipt: sealing.MessageReceipt{
+			ExitCode: wmsg.Receipt.ExitCode,
+			Return:   wmsg.Receipt.Return,
+			GasUsed:  wmsg.Receipt.GasUsed,
+		},
+		TipSetTok: wmsg.TipSet.Bytes(),
+		Height:    wmsg.Height,
+	}, nil*/
+	return s.MessagerWaitMessage(ctx, mcid)
+}
+
+func (s SealingAPIAdapter) StateSearchMsg(ctx context.Context, c cid.Cid) (*sealing.MsgLookup, error) {
+	/*wmsg, err := s.delegate.StateSearchMsg(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+
+	if wmsg == nil {
+		return nil, nil
+	}
+
+	return &sealing.MsgLookup{
+		Receipt: sealing.MessageReceipt{
+			ExitCode: wmsg.Receipt.ExitCode,
+			Return:   wmsg.Receipt.Return,
+			GasUsed:  wmsg.Receipt.GasUsed,
+		},
+		TipSetTok: wmsg.TipSet.Bytes(),
+		Height:    wmsg.Height,
+	}, nil*/
+	return s.MessagerGetMessageByUid(ctx, c)
+}
+
+func (s SealingAPIAdapter) SendMsg(ctx context.Context, from, to address.Address, method abi.MethodNum, value, maxFee abi.TokenAmount, params []byte) (cid.Cid, error) {
+	/*	msg := types.Message{
+			To:     to,
+			From:   from,
+			Value:  value,
+			Method: method,
+			Params: params,
+		}
+
+		smsg, err := s.delegate.MpoolPushMessage(ctx, &msg, &api.MessageSendSpec{MaxFee: maxFee})
+		if err != nil {
+			return cid.Undef, err
+		}*/
+
+	return s.MessagerSendMsg(ctx, from, to, method, value, maxFee, params)
+}
+
+//custom code
+func (s SealingAPIAdapter) MessagerSendMsg(ctx context.Context, from, to address.Address, method abi.MethodNum, value, maxFee abi.TokenAmount, params []byte) (cid.Cid, error) {
+	mid, err := messager.NewMIdFromBytes(params)
+	if err != nil {
+		return cid.Undef, err
+	}
+	msg := types.Message{
+		To:     to,
+		From:   from,
+		Value:  value,
+		Method: method,
+		Params: params,
+	}
+
+	uid, err := s.messagerApi.PushMessageWithId(ctx, mid.String(), &msg, &messager.MsgMeta{MaxFee: maxFee})
+	if err != nil {
+		return cid.Undef, err
+	}
+
+	log.Warnw("PreCommit or Commit Message CID", "cid", uid, "feecap", msg.GasFeeCap)
+
+	return mid, nil
+}
+
+func (s SealingAPIAdapter) MessagerWaitMessage(ctx context.Context, id cid.Cid) (sealing.MsgLookup, error) {
+	has, err := s.messagerApi.HasMessageByUid(ctx, id.String())
+	if err != nil {
+		return sealing.MsgLookup{}, err
+	}
+
+	if has {
+		msgDetail, err := s.messagerApi.WaitMessage(ctx, id.String(), 5)
+		if err != nil {
+			return sealing.MsgLookup{}, err
+		}
+		return sealing.MsgLookup{
+			Receipt: sealing.MessageReceipt{
+				ExitCode: msgDetail.Receipt.ExitCode,
+				Return:   msgDetail.Receipt.Return,
+				GasUsed:  msgDetail.Receipt.GasUsed,
+			},
+			TipSetTok: msgDetail.TipSetKey.Bytes(),
+			Height:    abi.ChainEpoch(msgDetail.Height),
+		}, nil
+	} else {
+		return s.StateWaitMsg(ctx, id)
+	}
+}
+
+func (s SealingAPIAdapter) MessagerPushMessage(ctx context.Context, msg *types.Message, meta *messager.MsgMeta) (string, error) {
+	return s.messagerApi.PushMessage(ctx, msg, meta)
+}
+
+func (s SealingAPIAdapter) MessagerPushMessageWithId(ctx context.Context, id string, msg *types.Message, meta *messager.MsgMeta) (string, error) {
+	return s.messagerApi.PushMessageWithId(ctx, id, msg, meta)
+}
+
+func (s SealingAPIAdapter) MessagerGetMessageByUid(ctx context.Context, id cid.Cid) (*sealing.MsgLookup, error) {
+	has, err := s.messagerApi.HasMessageByUid(ctx, id.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if has {
+		msgDetail, err := s.messagerApi.GetMessageByUid(ctx, id.String())
+		if err != nil {
+			return nil, err
+		}
+		return &sealing.MsgLookup{
+			Receipt: sealing.MessageReceipt{
+				ExitCode: msgDetail.Receipt.ExitCode,
+				Return:   msgDetail.Receipt.Return,
+				GasUsed:  msgDetail.Receipt.GasUsed,
+			},
+			TipSetTok: msgDetail.TipSetKey.Bytes(),
+			Height:    abi.ChainEpoch(msgDetail.Height),
+		}, nil
+	} else {
+		return s.StateSearchMsg(ctx, id)
+	}
 }

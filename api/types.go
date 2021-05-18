@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/filecoin-project/go-address"
 	"time"
 
 	datatransfer "github.com/filecoin-project/go-data-transfer"
@@ -114,4 +115,18 @@ type ConnMgrInfo struct {
 	Value     int
 	Tags      map[string]int
 	Conns     map[string]time.Time
+}
+
+type SimpleBlockMessages struct {
+	BlsMessages   []*SimpleMessage
+	SecpkMessages []*SimpleMessage
+	Cids          []cid.Cid
+}
+
+type SimpleMessage struct {
+	Cid         cid.Cid
+	UnSignedCid cid.Cid
+	From        address.Address
+	To          address.Address
+	Nonce       uint64
 }

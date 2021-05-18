@@ -3,6 +3,10 @@ package node
 import (
 	"context"
 	"errors"
+	"github.com/filecoin-project/lotus/cli"
+	"github.com/filecoin-project/lotus/miner"
+	"github.com/filecoin-project/lotus/node/impl/proof_client"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"os"
 	"time"
 
@@ -63,7 +67,6 @@ import (
 	_ "github.com/filecoin-project/lotus/lib/sigs/secp"
 	"github.com/filecoin-project/lotus/markets/dealfilter"
 	"github.com/filecoin-project/lotus/markets/storageadapter"
-	"github.com/filecoin-project/lotus/miner"
 	"github.com/filecoin-project/lotus/node/config"
 	"github.com/filecoin-project/lotus/node/impl"
 	"github.com/filecoin-project/lotus/node/impl/common"
@@ -149,6 +152,9 @@ const (
 
 	SetApiEndpointKey
 
+	//venus
+	SetAuthEndpoint
+	StartProofEventKey
 	_nInvokes // keep this last
 )
 
@@ -359,6 +365,12 @@ var MinerNode = Options(
 	Override(new(api.Common), From(new(common.CommonAPI))),
 	Override(new(sectorstorage.StorageAuth), modules.StorageAuth),
 
+	//venus
+	Override(new(messager.IMessager), messager.NewMessager),                        //start messager
+	Override(new(cli.IWalletClient), cli.NewWalletClient),                          //connect a local wallet
+	Override(new(proof_client.ProofEventClient), proof_client.NewProofEventClient), //register api to venus pool proof
+	Override(StartProofEventKey, proof_client.StartProofEvent),
+
 	// Actor config
 	Override(new(dtypes.MinerAddress), modules.MinerAddress),
 	Override(new(dtypes.MinerID), modules.MinerID),
@@ -500,7 +512,6 @@ func ConfigCommon(cfg *config.Common) Option {
 				cfg.Libp2p.ProtectedPeers)),
 			Override(new(*pubsub.PubSub), lp2p.GossipSub),
 			Override(new(*config.Pubsub), &cfg.Pubsub),
-
 			ApplyIf(func(s *Settings) bool { return len(cfg.Libp2p.BootstrapPeers) > 0 },
 				Override(new(dtypes.BootstrapPeers), modules.ConfigBootstrap(cfg.Libp2p.BootstrapPeers)),
 			),
@@ -570,6 +581,9 @@ func ConfigStorageMiner(c interface{}) Option {
 		})),
 		Override(new(storagemarket.StorageProviderNode), storageadapter.NewProviderNodeAdapter(&cfg.Fees, &cfg.Dealmaking)),
 
+		Override(new(*messager.MessagerConfig), &cfg.Venus.Messager),
+		Override(new(*config.WalletConfig), &cfg.Venus.Wallet),
+		Override(new(*config.RegisterProofConfig), &cfg.Venus.RegisterProofAPI),
 		Override(new(sectorstorage.SealerConfig), cfg.Storage),
 		Override(new(*storage.AddressSelector), modules.AddressSelector(&cfg.Addresses)),
 		Override(new(*storage.Miner), modules.StorageMiner(cfg.Fees)),

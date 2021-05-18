@@ -7,6 +7,8 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"github.com/filecoin-project/lotus/node/config"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -116,6 +118,10 @@ var initCmd = &cli.Command{
 			Name:  "from",
 			Usage: "select which address to send actor creation message from",
 		},
+		messager.MessagerFlagUrl,
+		messager.MessagerFlagToken,
+		messager.WalletUrlFlagWallet,
+		messager.WalletTokenFlagWallet,
 	},
 	Subcommands: []*cli.Command{
 		initRestoreCmd,
@@ -192,12 +198,42 @@ var initCmd = &cli.Command{
 
 		log.Info("Initializing repo")
 
+		var messagerCfg messager.MessagerConfig
+		if cctx.IsSet("messager-url") {
+			messagerCfg.Url = cctx.String("messager-url")
+		}
+
+		if cctx.IsSet("messager-token") {
+			messagerCfg.Token = cctx.String("messager-token")
+		}
+
+		var walletCfg config.WalletConfig
+		if cctx.IsSet("wallet-url") {
+			walletCfg.Url = cctx.String("wallet-url")
+		}
+		if cctx.IsSet("wallet-token") {
+			walletCfg.Token = cctx.String("wallet-token")
+		}
+
+		msgClient, err := messager.NewMessager(&messagerCfg)
+		if err != nil {
+			return err
+		}
+
 		if err := r.Init(repo.StorageMiner); err != nil {
 			return err
 		}
 
 		{
 			lr, err := r.Lock(repo.StorageMiner)
+			if err != nil {
+				return err
+			}
+
+			err = lr.SetConfig(func(i interface{}) {
+				i.(*config.StorageMiner).Venus.Messager = messagerCfg
+				i.(*config.StorageMiner).Venus.Wallet = walletCfg
+			})
 			if err != nil {
 				return err
 			}
@@ -249,7 +285,7 @@ var initCmd = &cli.Command{
 			}
 		}
 
-		if err := storageMinerInit(ctx, cctx, api, r, ssize, gasPrice); err != nil {
+		if err := storageMinerInit(ctx, cctx, api, msgClient, r, ssize, gasPrice); err != nil {
 			log.Errorf("Failed to initialize lotus-miner: %+v", err)
 			path, err := homedir.Expand(repoPath)
 			if err != nil {
@@ -398,7 +434,7 @@ func findMarketDealID(ctx context.Context, api lapi.FullNode, deal market2.DealP
 	return 0, xerrors.New("deal not found")
 }
 
-func storageMinerInit(ctx context.Context, cctx *cli.Context, api lapi.FullNode, r repo.Repo, ssize abi.SectorSize, gasPrice types.BigInt) error {
+func storageMinerInit(ctx context.Context, cctx *cli.Context, api lapi.FullNode, msgClient messager.IMessager, r repo.Repo, ssize abi.SectorSize, gasPrice types.BigInt) error {
 	lr, err := r.Lock(repo.StorageMiner)
 	if err != nil {
 		return err
@@ -474,7 +510,7 @@ func storageMinerInit(ctx context.Context, cctx *cli.Context, api lapi.FullNode,
 					return xerrors.Errorf("failed to start up genesis miner: %w", err)
 				}
 
-				cerr := configureStorageMiner(ctx, api, a, peerid, gasPrice)
+				cerr := configureStorageMiner(ctx, api, msgClient, a, peerid, gasPrice)
 
 				if err := m.Stop(ctx); err != nil {
 					log.Error("failed to shut down miner: ", err)
@@ -514,13 +550,13 @@ func storageMinerInit(ctx context.Context, cctx *cli.Context, api lapi.FullNode,
 			}
 		}
 
-		if err := configureStorageMiner(ctx, api, a, peerid, gasPrice); err != nil {
+		if err := configureStorageMiner(ctx, api, msgClient, a, peerid, gasPrice); err != nil {
 			return xerrors.Errorf("failed to configure miner: %w", err)
 		}
 
 		addr = a
 	} else {
-		a, err := createStorageMiner(ctx, api, peerid, gasPrice, cctx)
+		a, err := createStorageMiner(ctx, api, msgClient, peerid, gasPrice, cctx)
 		if err != nil {
 			return xerrors.Errorf("creating miner failed: %w", err)
 		}
@@ -562,7 +598,7 @@ func makeHostKey(lr repo.LockedRepo) (crypto.PrivKey, error) {
 	return pk, nil
 }
 
-func configureStorageMiner(ctx context.Context, api lapi.FullNode, addr address.Address, peerid peer.ID, gasPrice types.BigInt) error {
+func configureStorageMiner(ctx context.Context, api lapi.FullNode, msgClient messager.IMessager, addr address.Address, peerid peer.ID, gasPrice types.BigInt) error {
 	mi, err := api.StateMinerInfo(ctx, addr, types.EmptyTSK)
 	if err != nil {
 		return xerrors.Errorf("getWorkerAddr returned bad address: %w", err)
@@ -582,13 +618,13 @@ func configureStorageMiner(ctx context.Context, api lapi.FullNode, addr address.
 		GasPremium: gasPrice,
 	}
 
-	smsg, err := api.MpoolPushMessage(ctx, msg, nil)
+	mid, err := msgClient.PushMessage(ctx, msg, nil)
 	if err != nil {
 		return err
 	}
 
-	log.Info("Waiting for message: ", smsg.Cid())
-	ret, err := api.StateWaitMsg(ctx, smsg.Cid(), build.MessageConfidence)
+	log.Info("Waiting for message: ", mid)
+	ret, err := msgClient.WaitMessage(ctx, mid, build.MessageConfidence)
 	if err != nil {
 		return err
 	}
@@ -600,7 +636,7 @@ func configureStorageMiner(ctx context.Context, api lapi.FullNode, addr address.
 	return nil
 }
 
-func createStorageMiner(ctx context.Context, api lapi.FullNode, peerid peer.ID, gasPrice types.BigInt, cctx *cli.Context) (address.Address, error) {
+func createStorageMiner(ctx context.Context, api lapi.FullNode, msgClient messager.IMessager, peerid peer.ID, gasPrice types.BigInt, cctx *cli.Context) (address.Address, error) {
 	var err error
 	var owner address.Address
 	if cctx.String("owner") != "" {
@@ -630,7 +666,7 @@ func createStorageMiner(ctx context.Context, api lapi.FullNode, peerid peer.ID, 
 	// make sure the worker account exists on chain
 	_, err = api.StateLookupID(ctx, worker, types.EmptyTSK)
 	if err != nil {
-		signed, err := api.MpoolPushMessage(ctx, &types.Message{
+		mid, err := msgClient.PushMessage(ctx, &types.Message{
 			From:  owner,
 			To:    worker,
 			Value: types.NewInt(0),
@@ -639,10 +675,10 @@ func createStorageMiner(ctx context.Context, api lapi.FullNode, peerid peer.ID, 
 			return address.Undef, xerrors.Errorf("push worker init: %w", err)
 		}
 
-		log.Infof("Initializing worker account %s, message: %s", worker, signed.Cid())
+		log.Infof("Initializing worker account %s, message: %s", worker, mid)
 		log.Infof("Waiting for confirmation")
 
-		mw, err := api.StateWaitMsg(ctx, signed.Cid(), build.MessageConfidence)
+		mw, err := msgClient.WaitMessage(ctx, mid, build.MessageConfidence)
 		if err != nil {
 			return address.Undef, xerrors.Errorf("waiting for worker init: %w", err)
 		}
@@ -692,15 +728,15 @@ func createStorageMiner(ctx context.Context, api lapi.FullNode, peerid peer.ID, 
 		GasPremium: gasPrice,
 	}
 
-	signed, err := api.MpoolPushMessage(ctx, createStorageMinerMsg, nil)
+	mid, err := msgClient.PushMessage(ctx, createStorageMinerMsg, nil)
 	if err != nil {
 		return address.Undef, xerrors.Errorf("pushing createMiner message: %w", err)
 	}
 
-	log.Infof("Pushed CreateMiner message: %s", signed.Cid())
+	log.Infof("Pushed CreateMiner message: %s", mid)
 	log.Infof("Waiting for confirmation")
 
-	mw, err := api.StateWaitMsg(ctx, signed.Cid(), build.MessageConfidence)
+	mw, err := msgClient.WaitMessage(ctx, mid, build.MessageConfidence)
 	if err != nil {
 		return address.Undef, xerrors.Errorf("waiting for createMiner message: %w", err)
 	}

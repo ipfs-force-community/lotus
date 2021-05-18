@@ -43,6 +43,7 @@ var log = logging.Logger("fullnode")
 type ChainModuleAPI interface {
 	ChainNotify(context.Context) (<-chan []*api.HeadChange, error)
 	ChainGetBlockMessages(context.Context, cid.Cid) (*api.BlockMessages, error)
+	ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*api.SimpleBlockMessages, error)
 	ChainHasObj(context.Context, cid.Cid) (bool, error)
 	ChainHead(context.Context) (*types.TipSet, error)
 	ChainGetMessage(ctx context.Context, mc cid.Cid) (*types.Message, error)
@@ -141,6 +142,49 @@ func (m *ChainModule) ChainGetBlockMessages(ctx context.Context, msg cid.Cid) (*
 		SecpkMessages: smsgs,
 		Cids:          cids,
 	}, nil
+}
+
+func (m *ChainModule) ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*api.SimpleBlockMessages, error) {
+	b, err := m.Chain.GetBlock(bid)
+	if err != nil {
+		return nil, err
+	}
+
+	bmsgs, smsgs, err := m.Chain.MessagesForBlock(b)
+	if err != nil {
+		return nil, err
+	}
+
+	cids := make([]cid.Cid, len(bmsgs)+len(smsgs))
+
+	msgs := &api.SimpleBlockMessages{
+		BlsMessages:   make([]*api.SimpleMessage, len(bmsgs)),
+		SecpkMessages: make([]*api.SimpleMessage, len(smsgs)),
+		Cids:          cids,
+	}
+	for i, m := range bmsgs {
+		cids[i] = m.Cid()
+		msgs.BlsMessages[i] = &api.SimpleMessage{
+			Cid:         m.Cid(),
+			UnSignedCid: m.Cid(),
+			From:        m.From,
+			To:          m.To,
+			Nonce:       m.Nonce,
+		}
+	}
+
+	for i, m := range smsgs {
+		cids[i+len(bmsgs)] = m.Cid()
+		msgs.SecpkMessages[i] = &api.SimpleMessage{
+			Cid:         m.Cid(),
+			UnSignedCid: m.Message.Cid(),
+			From:        m.Message.From,
+			To:          m.Message.To,
+			Nonce:       m.Message.Nonce,
+		}
+	}
+
+	return msgs, nil
 }
 
 func (a *ChainAPI) ChainGetPath(ctx context.Context, from types.TipSetKey, to types.TipSetKey) ([]*api.HeadChange, error) {

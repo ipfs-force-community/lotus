@@ -36,6 +36,7 @@ var (
 type gatewayDepsAPI interface {
 	Version(context.Context) (api.APIVersion, error)
 	ChainGetBlockMessages(context.Context, cid.Cid) (*api.BlockMessages, error)
+	ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*api.SimpleBlockMessages, error)
 	ChainGetMessage(ctx context.Context, mc cid.Cid) (*types.Message, error)
 	ChainGetNode(ctx context.Context, p string) (*api.IpldObject, error)
 	ChainGetTipSet(ctx context.Context, tsk types.TipSetKey) (*types.TipSet, error)
@@ -136,6 +137,10 @@ func (a *GatewayAPI) Version(ctx context.Context) (api.APIVersion, error) {
 
 func (a *GatewayAPI) ChainGetBlockMessages(ctx context.Context, c cid.Cid) (*api.BlockMessages, error) {
 	return a.api.ChainGetBlockMessages(ctx, c)
+}
+
+func (a *GatewayAPI) ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*api.SimpleBlockMessages, error) {
+	return a.api.ChainGetBlockSimpleMessages(ctx, bid)
 }
 
 func (a *GatewayAPI) ChainHasObj(ctx context.Context, c cid.Cid) (bool, error) {

@@ -4,6 +4,8 @@ package storageadapter
 
 import (
 	"context"
+	"github.com/filecoin-project/lotus/cli"
+	"github.com/filecoin-project/venus-wallet/core"
 	"io"
 	"time"
 
@@ -43,6 +45,7 @@ var log = logging.Logger("storageadapter")
 
 type ProviderNodeAdapter struct {
 	api.FullNode
+	walletClient cli.IWalletClient
 
 	// this goes away with the data transfer module
 	dag dtypes.StagingDAG
@@ -58,14 +61,14 @@ type ProviderNodeAdapter struct {
 	scMgr                       *SectorCommittedManager
 }
 
-func NewProviderNodeAdapter(fc *config.MinerFeeConfig, dc *config.DealmakingConfig) func(mctx helpers.MetricsCtx, lc fx.Lifecycle, dag dtypes.StagingDAG, secb *sectorblocks.SectorBlocks, full api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
-	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle, dag dtypes.StagingDAG, secb *sectorblocks.SectorBlocks, full api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
+func NewProviderNodeAdapter(fc *config.MinerFeeConfig, dc *config.DealmakingConfig) func(mctx helpers.MetricsCtx, lc fx.Lifecycle, dag dtypes.StagingDAG, walletClient cli.IWalletClient, secb *sectorblocks.SectorBlocks, full api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
+	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle, dag dtypes.StagingDAG, walletClient cli.IWalletClient, secb *sectorblocks.SectorBlocks, full api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
 		ctx := helpers.LifecycleCtx(mctx, lc)
 
 		ev := events.NewEvents(ctx, full)
 		na := &ProviderNodeAdapter{
-			FullNode: full,
-
+			FullNode:      full,
+			walletClient:  walletClient,
 			dag:           dag,
 			secb:          secb,
 			ev:            ev,
@@ -182,7 +185,9 @@ func (n *ProviderNodeAdapter) SignBytes(ctx context.Context, signer address.Addr
 		return nil, err
 	}
 
-	localSignature, err := n.WalletSign(ctx, signer, b)
+	localSignature, err := n.walletClient.WalletSign(ctx, signer, b, core.MsgMeta{
+		Type: api.MTUnknown,
+	})
 	if err != nil {
 		return nil, err
 	}

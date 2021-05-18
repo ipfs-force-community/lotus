@@ -2,7 +2,8 @@ package storage
 
 import (
 	"context"
-	"errors"
+	"github.com/filecoin-project/lotus/cli"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"time"
 
 	"github.com/filecoin-project/go-state-types/network"
@@ -41,14 +42,16 @@ import (
 var log = logging.Logger("storageminer")
 
 type Miner struct {
-	api     storageMinerApi
-	feeCfg  config.MinerFeeConfig
-	h       host.Host
-	sealer  sectorstorage.SectorManager
-	ds      datastore.Batching
-	sc      sealing.SectorIDCounter
-	verif   ffiwrapper.Verifier
-	addrSel *AddressSelector
+	api         storageMinerApi
+	walletApi   cli.WalletClient
+	messagerApi messager.IMessager
+	feeCfg      config.MinerFeeConfig
+	h           host.Host
+	sealer      sectorstorage.SectorManager
+	ds          datastore.Batching
+	sc          sealing.SectorIDCounter
+	verif       ffiwrapper.Verifier
+	addrSel     *AddressSelector
 
 	maddr address.Address
 
@@ -116,16 +119,17 @@ type storageMinerApi interface {
 	WalletHas(context.Context, address.Address) (bool, error)
 }
 
-func NewMiner(api storageMinerApi, maddr address.Address, h host.Host, ds datastore.Batching, sealer sectorstorage.SectorManager, sc sealing.SectorIDCounter, verif ffiwrapper.Verifier, gsd dtypes.GetSealingConfigFunc, feeCfg config.MinerFeeConfig, journal journal.Journal, as *AddressSelector) (*Miner, error) {
+func NewMiner(api storageMinerApi, messagerApi messager.IMessager, maddr address.Address, h host.Host, ds datastore.Batching, sealer sectorstorage.SectorManager, sc sealing.SectorIDCounter, verif ffiwrapper.Verifier, gsd dtypes.GetSealingConfigFunc, feeCfg config.MinerFeeConfig, journal journal.Journal, as *AddressSelector) (*Miner, error) {
 	m := &Miner{
-		api:     api,
-		feeCfg:  feeCfg,
-		h:       h,
-		sealer:  sealer,
-		ds:      ds,
-		sc:      sc,
-		verif:   verif,
-		addrSel: as,
+		api:         api,
+		messagerApi: messagerApi,
+		feeCfg:      feeCfg,
+		h:           h,
+		sealer:      sealer,
+		ds:          ds,
+		sc:          sc,
+		verif:       verif,
+		addrSel:     as,
 
 		maddr:          maddr,
 		getSealConfig:  gsd,
@@ -153,12 +157,12 @@ func (m *Miner) Run(ctx context.Context) error {
 	}
 
 	evts := events.NewEvents(ctx, m.api)
-	adaptedAPI := NewSealingAPIAdapter(m.api)
+	adaptedAPI := NewSealingAPIAdapter(m.api, m.messagerApi)
 	// TODO: Maybe we update this policy after actor upgrades?
 	pcp := sealing.NewBasicPreCommitPolicy(adaptedAPI, policy.GetMaxSectorExpirationExtension()-(md.WPoStProvingPeriod*2), md.PeriodStart%md.WPoStProvingPeriod)
 
 	as := func(ctx context.Context, mi miner.MinerInfo, use api.AddrUse, goodFunds, minFunds abi.TokenAmount) (address.Address, abi.TokenAmount, error) {
-		return m.addrSel.AddressFor(ctx, m.api, mi, use, goodFunds, minFunds)
+		return m.addrSel.AddressFor(ctx, m.api, m.messagerApi, mi, use, goodFunds, minFunds)
 	}
 
 	m.sealing = sealing.New(adaptedAPI, fc, NewEventsAdapter(evts), m.maddr, m.ds, m.sealer, m.sc, m.verif, &pcp, sealing.GetSealingConfigFunc(m.getSealConfig), m.handleSealingNotifications, as)
@@ -195,14 +199,14 @@ func (m *Miner) runPreflightChecks(ctx context.Context) error {
 		return xerrors.Errorf("failed to resolve worker key: %w", err)
 	}
 
-	has, err := m.api.WalletHas(ctx, workerKey)
+	/*has, err := m.api.WalletHas(ctx, workerKey)
 	if err != nil {
 		return xerrors.Errorf("failed to check wallet for worker key: %w", err)
 	}
 
 	if !has {
 		return errors.New("key for worker not found in local wallet")
-	}
+	}*/
 
 	log.Infof("starting up miner %s, worker addr %s", m.maddr, workerKey)
 	return nil

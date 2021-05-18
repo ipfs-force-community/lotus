@@ -3,6 +3,8 @@ package impl
 import (
 	"context"
 	"encoding/json"
+	"github.com/filecoin-project/lotus/build"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"net/http"
 	"os"
 	"strconv"
@@ -52,6 +54,7 @@ type StorageMinerAPI struct {
 	Miner             *storage.Miner
 	BlockMiner        *miner.Miner
 	Full              api.FullNode
+	Messager          messager.IMessager
 	StorageMgr        *sectorstorage.Manager `optional:"true"`
 	IStorageMgr       sectorstorage.SectorManager
 	*stores.Index
@@ -688,6 +691,26 @@ func (sm *StorageMinerAPI) CheckProvable(ctx context.Context, pp abi.RegisteredP
 
 func (sm *StorageMinerAPI) ActorAddressConfig(ctx context.Context) (api.AddressConfig, error) {
 	return sm.AddrSel.AddressConfig, nil
+}
+
+func (sm *StorageMinerAPI) MessagerWaitMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error) {
+	return sm.Messager.WaitMessage(ctx, uuid.String(), build.MessageConfidence)
+}
+
+func (sm *StorageMinerAPI) MessagerPushMessage(ctx context.Context, msg *types.Message, meta *messager.MsgMeta) (cid.Cid, error) {
+	mid, err := messager.NewMId()
+	if err != nil {
+		return cid.Undef, err
+	}
+	_, err = sm.Messager.PushMessageWithId(ctx, mid.String(), msg, meta)
+	if err != nil {
+		return cid.Undef, err
+	}
+	return mid, nil
+}
+
+func (sm *StorageMinerAPI) MessagerGetMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error) {
+	return sm.Messager.GetMessageByUid(ctx, uuid.String())
 }
 
 var _ api.StorageMiner = &StorageMinerAPI{}

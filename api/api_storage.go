@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"context"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"time"
 
 	"github.com/google/uuid"
@@ -144,6 +145,11 @@ type StorageMiner interface {
 	CreateBackup(ctx context.Context, fpath string) error
 
 	CheckProvable(ctx context.Context, pp abi.RegisteredPoStProof, sectors []storage.SectorRef, expensive bool) (map[abi.SectorNumber]string, error)
+
+	//messager
+	MessagerWaitMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error)
+	MessagerPushMessage(ctx context.Context, msg *types.Message, meta *messager.MsgMeta) (cid.Cid, error)
+	MessagerGetMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error)
 }
 
 type SealRes struct {
