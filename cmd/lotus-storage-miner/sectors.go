@@ -444,6 +444,11 @@ var sectorsExtendCmd = &cli.Command{
 		&cli.StringFlag{},
 	},
 	Action: func(cctx *cli.Context) error {
+		nodeAPI, closer, err := lcli.GetStorageMinerAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
 
 		api, nCloser, err := lcli.GetFullNodeAPI(cctx)
 		if err != nil {
@@ -453,7 +458,7 @@ var sectorsExtendCmd = &cli.Command{
 
 		ctx := lcli.ReqContext(cctx)
 
-		maddr, err := getActorAddress(ctx, cctx)
+		maddr, err := getActorAddress(ctx, nodeAPI, cctx)
 		if err != nil {
 			return err
 		}
@@ -619,7 +624,7 @@ var sectorsExtendCmd = &cli.Command{
 				return xerrors.Errorf("serializing params: %w", err)
 			}
 
-			smsg, err := api.MpoolPushMessage(ctx, &types.Message{
+			uid, err := nodeAPI.MessagerPushMessage(ctx, &types.Message{
 				From:   mi.Worker,
 				To:     maddr,
 				Method: miner.Methods.ExtendSectorExpiration,
@@ -631,7 +636,7 @@ var sectorsExtendCmd = &cli.Command{
 				return xerrors.Errorf("mpool push message: %w", err)
 			}
 
-			fmt.Println(smsg.Cid())
+			fmt.Println(uid)
 		}
 
 		return nil
@@ -870,6 +875,11 @@ var sectorsCapacityCollateralCmd = &cli.Command{
 		},
 	},
 	Action: func(cctx *cli.Context) error {
+		nodeAPI, closer, err := lcli.GetStorageMinerAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
 
 		nApi, nCloser, err := lcli.GetFullNodeAPI(cctx)
 		if err != nil {
@@ -879,7 +889,7 @@ var sectorsCapacityCollateralCmd = &cli.Command{
 
 		ctx := lcli.ReqContext(cctx)
 
-		maddr, err := getActorAddress(ctx, cctx)
+		maddr, err := getActorAddress(ctx, nodeAPI, cctx)
 		if err != nil {
 			return err
 		}

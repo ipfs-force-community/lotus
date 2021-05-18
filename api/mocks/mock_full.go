@@ -6,8 +6,6 @@ package mocks
 
 import (
 	context "context"
-	reflect "reflect"
-
 	address "github.com/filecoin-project/go-address"
 	bitfield "github.com/filecoin-project/go-bitfield"
 	datatransfer "github.com/filecoin-project/go-data-transfer"
@@ -35,6 +33,7 @@ import (
 	network0 "github.com/libp2p/go-libp2p-core/network"
 	peer "github.com/libp2p/go-libp2p-core/peer"
 	protocol "github.com/libp2p/go-libp2p-core/protocol"
+	reflect "reflect"
 )
 
 // MockFullNode is a mock of FullNode interface.
@@ -192,6 +191,21 @@ func (m *MockFullNode) ChainGetMessage(arg0 context.Context, arg1 cid.Cid) (*typ
 func (mr *MockFullNodeMockRecorder) ChainGetMessage(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChainGetMessage", reflect.TypeOf((*MockFullNode)(nil).ChainGetMessage), arg0, arg1)
+}
+
+// ChainGetMessagesInTipset mocks base method.
+func (m *MockFullNode) ChainGetMessagesInTipset(arg0 context.Context, arg1 types.TipSetKey) ([]api.Message, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChainGetMessagesInTipset", arg0, arg1)
+	ret0, _ := ret[0].([]api.Message)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ChainGetMessagesInTipset indicates an expected call of ChainGetMessagesInTipset.
+func (mr *MockFullNodeMockRecorder) ChainGetMessagesInTipset(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChainGetMessagesInTipset", reflect.TypeOf((*MockFullNode)(nil).ChainGetMessagesInTipset), arg0, arg1)
 }
 
 // ChainGetNode mocks base method.
@@ -860,7 +874,22 @@ func (mr *MockFullNodeMockRecorder) Discover(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Discover", reflect.TypeOf((*MockFullNode)(nil).Discover), arg0)
 }
 
-// GasEstimateFeeCap mocks base method.
+// GasBatchEstimateMessageGas mocks base method
+func (m *MockFullNode) GasBatchEstimateMessageGas(arg0 context.Context, arg1 []*api.EstimateMessage, arg2 uint64, arg3 types.TipSetKey) ([]*api.EstimateResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GasBatchEstimateMessageGas", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].([]*api.EstimateResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GasBatchEstimateMessageGas indicates an expected call of GasBatchEstimateMessageGas
+func (mr *MockFullNodeMockRecorder) GasBatchEstimateMessageGas(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GasBatchEstimateMessageGas", reflect.TypeOf((*MockFullNode)(nil).GasBatchEstimateMessageGas), arg0, arg1, arg2, arg3)
+}
+
+// GasEstimateFeeCap mocks base method
 func (m *MockFullNode) GasEstimateFeeCap(arg0 context.Context, arg1 *types.Message, arg2 int64, arg3 types.TipSetKey) (big.Int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GasEstimateFeeCap", arg0, arg1, arg2, arg3)
@@ -1217,7 +1246,35 @@ func (mr *MockFullNodeMockRecorder) MpoolPending(arg0, arg1 interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MpoolPending", reflect.TypeOf((*MockFullNode)(nil).MpoolPending), arg0, arg1)
 }
 
-// MpoolPush mocks base method.
+// MpoolPublishByAddr mocks base method
+func (m *MockFullNode) MpoolPublishByAddr(arg0 context.Context, arg1 address.Address) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MpoolPublishByAddr", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MpoolPublishByAddr indicates an expected call of MpoolPublishByAddr
+func (mr *MockFullNodeMockRecorder) MpoolPublishByAddr(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MpoolPublishByAddr", reflect.TypeOf((*MockFullNode)(nil).MpoolPublishByAddr), arg0, arg1)
+}
+
+// MpoolPublishMessage mocks base method
+func (m *MockFullNode) MpoolPublishMessage(arg0 context.Context, arg1 *types.SignedMessage) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MpoolPublishMessage", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MpoolPublishMessage indicates an expected call of MpoolPublishMessage
+func (mr *MockFullNodeMockRecorder) MpoolPublishMessage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MpoolPublishMessage", reflect.TypeOf((*MockFullNode)(nil).MpoolPublishMessage), arg0, arg1)
+}
+
+// MpoolPush mocks base method
 func (m *MockFullNode) MpoolPush(arg0 context.Context, arg1 *types.SignedMessage) (cid.Cid, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "MpoolPush", arg0, arg1)
@@ -1277,7 +1334,22 @@ func (mr *MockFullNodeMockRecorder) MpoolSelect(arg0, arg1, arg2 interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MpoolSelect", reflect.TypeOf((*MockFullNode)(nil).MpoolSelect), arg0, arg1, arg2)
 }
 
-// MpoolSetConfig mocks base method.
+// MpoolSelects mocks base method
+func (m *MockFullNode) MpoolSelects(arg0 context.Context, arg1 types.TipSetKey, arg2 []float64) ([][]*types.SignedMessage, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MpoolSelects", arg0, arg1, arg2)
+	ret0, _ := ret[0].([][]*types.SignedMessage)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MpoolSelects indicates an expected call of MpoolSelects
+func (mr *MockFullNodeMockRecorder) MpoolSelects(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MpoolSelects", reflect.TypeOf((*MockFullNode)(nil).MpoolSelects), arg0, arg1, arg2)
+}
+
+// MpoolSetConfig mocks base method
 func (m *MockFullNode) MpoolSetConfig(arg0 context.Context, arg1 *types.MpoolConfig) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "MpoolSetConfig", arg0, arg1)
