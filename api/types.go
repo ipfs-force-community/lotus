@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/filecoin-project/go-fil-markets/retrievalmarket"
 	"github.com/filecoin-project/lotus/chain/types"
+
+	"github.com/filecoin-project/go-fil-markets/retrievalmarket"
 
 	datatransfer "github.com/filecoin-project/go-data-transfer"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -51,7 +52,8 @@ type PubsubScore struct {
 }
 
 type MessageSendSpec struct {
-	MaxFee abi.TokenAmount
+	MaxFee            abi.TokenAmount
+	GasOverEstimation float64
 }
 
 type DataTransferChannel struct {
@@ -194,4 +196,14 @@ type RetrievalInfo struct {
 
 	TransferChannelID *datatransfer.ChannelID
 	DataTransfer      *DataTransferChannel
+}
+
+type EstimateMessage struct {
+	Msg  *types.Message
+	Spec *MessageSendSpec
+}
+
+type EstimateResult struct {
+	Msg *types.Message
+	Err string
 }

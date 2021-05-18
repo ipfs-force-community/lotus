@@ -85,6 +85,10 @@ var DaemonCmd = &cli.Command{
 			Value: "1234",
 		},
 		&cli.StringFlag{
+			Name:  "auth-url",
+			Value: "",
+		},
+		&cli.StringFlag{
 			Name:   makeGenFlag,
 			Value:  "",
 			Hidden: true,
@@ -156,6 +160,7 @@ var DaemonCmd = &cli.Command{
 			Name:  "restore-config",
 			Usage: "config file to use when restoring from backup",
 		},
+		&cli.StringFlag{Name: "rate_limit_redis", Hidden: true},
 	},
 	Action: func(cctx *cli.Context) error {
 		isLite := cctx.Bool("lite")
@@ -339,6 +344,10 @@ var DaemonCmd = &cli.Command{
 				node.Unset(node.RunPeerMgrKey),
 				node.Unset(new(*peermgr.PeerMgr)),
 			),
+			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("auth-url") },
+				node.Override(node.SetAuthEndpoint, func(lr repo.LockedRepo) error {
+					return lr.SetAuthEndpoint(cctx.String("auth-url"))
+				})),
 		)
 		if err != nil {
 			return xerrors.Errorf("initializing node: %w", err)
@@ -366,7 +375,7 @@ var DaemonCmd = &cli.Command{
 		}
 
 		// Instantiate the full node handler.
-		h, err := node.FullNodeHandler(api, true, serverOptions...)
+		h, err := node.FullNodeHandler(api, true, r.AuthEndpoint(), int64(cctx.Int("api-max-req-size")), cctx.String("rate_limit_redis"), serverOptions...)
 		if err != nil {
 			return fmt.Errorf("failed to instantiate rpc handler: %s", err)
 		}

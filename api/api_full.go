@@ -60,6 +60,7 @@ const LookbackNoLimit = abi.ChainEpoch(-1)
 type FullNode interface {
 	Common
 	Net
+	VenusAPI
 
 	// MethodGroup: Chain
 	// The Chain method group contains methods for interacting with the
@@ -185,7 +186,6 @@ type FullNode interface {
 	// GasEstimateGasLimit estimates gas used by the message and returns it.
 	// It fails if message fails to execute.
 	GasEstimateGasLimit(context.Context, *types.Message, types.TipSetKey) (int64, error) //perm:read
-
 	// GasEstimateGasPremium estimates what gas price should be used for a
 	// message to have high likelihood of inclusion in `nblocksincl` epochs.
 

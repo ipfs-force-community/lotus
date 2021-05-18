@@ -9,6 +9,7 @@ import (
 	"image/png"
 	"os"
 	"sort"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"strconv"
 	"sync"
 
@@ -132,8 +133,11 @@ var terminateSectorCmd = &cli.Command{
 		if err != nil {
 			return xerrors.Errorf("serializing params: %w", err)
 		}
-
-		smsg, err := nodeApi.MpoolPushMessage(ctx, &types.Message{
+		if !cctx.IsSet("messager-url") || !cctx.IsSet("messager-token") {
+			return xerrors.Errorf("plz specify url and token to connect messager")
+		}
+		msgClient, err := messager.NewMessager(&messager.MessagerConfig{Url: cctx.String("messager-url"), Token: cctx.String("messager-token")})
+		mid, err := msgClient.PushMessage(ctx, &types.Message{
 			From:   mi.Owner,
 			To:     maddr,
 			Method: miner.Methods.TerminateSectors,
@@ -145,9 +149,9 @@ var terminateSectorCmd = &cli.Command{
 			return xerrors.Errorf("mpool push message: %w", err)
 		}
 
-		fmt.Println("sent termination message:", smsg.Cid())
+		fmt.Println("sent termination message:", mid)
 
-		wait, err := nodeApi.StateWaitMsg(ctx, smsg.Cid(), uint64(cctx.Int("confidence")))
+		wait, err := msgClient.WaitMessage(ctx, mid, uint64(cctx.Int("confidence")))
 		if err != nil {
 			return err
 		}

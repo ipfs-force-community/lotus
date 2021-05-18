@@ -47,6 +47,7 @@ import (
 type FullNode interface {
 	Common
 	Net
+	VenusAPI
 
 	// MethodGroup: Chain
 	// The Chain method group contains methods for interacting with the

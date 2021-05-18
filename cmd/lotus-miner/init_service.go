@@ -10,9 +10,10 @@ import (
 	"github.com/filecoin-project/lotus/api/client"
 	"github.com/filecoin-project/lotus/chain/actors/builtin/miner"
 	lcli "github.com/filecoin-project/lotus/cli"
-	cliutil "github.com/filecoin-project/lotus/cli/util"
 	"github.com/filecoin-project/lotus/extern/sector-storage/stores"
 	"github.com/filecoin-project/lotus/node/config"
+	"github.com/filecoin-project/lotus/node/modules/messager"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/xerrors"
@@ -47,6 +48,8 @@ var serviceCmd = &cli.Command{
 			Name:  "api-sector-index",
 			Usage: "sector Index API info (lotus-miner auth api-info --perm=admin)",
 		},
+		messager.MessagerFlagUrl,
+		messager.AuthTokenFlag,
 	},
 	ArgsUsage: "[backupFile]",
 	Action: func(cctx *cli.Context) error {
@@ -70,7 +73,19 @@ var serviceCmd = &cli.Command{
 		if !cctx.IsSet("api-sector-index") {
 			return xerrors.Errorf("--api-sector-index is required without the sector storage module enabled")
 		}
+		var messagerCfg messager.MessagerConfig
+		if cctx.IsSet("messager-url") {
+			messagerCfg.Url = cctx.String("messager-url")
+		}
 
+		if cctx.IsSet("messager-token") {
+			messagerCfg.Token = cctx.String("messager-token")
+		}
+
+		msgClient, err := messager.NewMessager(&messagerCfg)
+		if err != nil {
+			return err
+		}
 		repoPath := cctx.String(FlagMarketsRepo)
 		if repoPath == "" {
 			return xerrors.Errorf("please provide Lotus markets repo path via flag %s", FlagMarketsRepo)
@@ -103,7 +118,7 @@ var serviceCmd = &cli.Command{
 			if es.Contains(MarketsService) {
 				log.Info("Configuring miner actor")
 
-				if err := configureStorageMiner(ctx, api, maddr, peerid, big.Zero()); err != nil {
+				if err := configureStorageMiner(ctx, api, msgClient, maddr, peerid, big.Zero()); err != nil {
 					return err
 				}
 			}
@@ -130,7 +145,7 @@ func (es EnabledServices) Contains(name string) bool {
 
 func checkApiInfo(ctx context.Context, ai string) (string, error) {
 	ai = strings.TrimPrefix(strings.TrimSpace(ai), "MINER_API_INFO=")
-	info := cliutil.ParseApiInfo(ai)
+	info := apiinfo.ParseApiInfo(ai)
 	addr, err := info.DialArgs("v0")
 	if err != nil {
 		return "", xerrors.Errorf("could not get DialArgs: %w", err)

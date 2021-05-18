@@ -86,6 +86,14 @@ func main() {
 				Name:  "log-level",
 				Value: "info",
 			},
+			&cli.StringFlag{
+				Name:  "messager-url",
+				Value: "",
+			},
+			&cli.StringFlag{
+				Name:  "messager-token",
+				Value: "",
+			},
 		},
 		Before: func(cctx *cli.Context) error {
 			return logging.SetLogLevel("lotus-shed", cctx.String("log-level"))

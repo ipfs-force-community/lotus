@@ -132,8 +132,6 @@ var runCmd = &cli.Command{
 			return xerrors.Errorf("invalid config for repo, got: %T", c)
 		}
 
-		bootstrapLibP2P := cfg.Subsystems.EnableMarkets
-
 		err = lr.Close()
 		if err != nil {
 			return err
@@ -163,19 +161,15 @@ var runCmd = &cli.Command{
 			return xerrors.Errorf("getting API endpoint: %w", err)
 		}
 
-		if bootstrapLibP2P {
-			log.Infof("Bootstrapping libp2p network with full node")
-
-			// Bootstrap with full node
-			remoteAddrs, err := nodeApi.NetAddrsListen(ctx)
-			if err != nil {
-				return xerrors.Errorf("getting full node libp2p address: %w", err)
-			}
-
-			if err := minerapi.NetConnect(ctx, remoteAddrs); err != nil {
-				return xerrors.Errorf("connecting to full node (libp2p): %w", err)
-			}
+		// Bootstrap with full node
+		/*remoteAddrs, err := nodeApi.NetAddrsListen(ctx)
+		if err != nil {
+			return xerrors.Errorf("getting full node libp2p address: %w", err)
 		}
+
+		if err := minerapi.NetConnect(ctx, remoteAddrs); err != nil {
+			return xerrors.Errorf("connecting to full node (libp2p): %w", err)
+		}*/
 
 		log.Infof("Remote version %s", v)
 
