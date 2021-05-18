@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"time"
 
 	"github.com/ipfs/go-cid"

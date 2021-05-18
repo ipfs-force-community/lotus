@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 	"net/http"
 	"net/url"
 	"os"
@@ -22,6 +23,7 @@ import (
 	"github.com/filecoin-project/lotus/api/v0api"
 	"github.com/filecoin-project/lotus/api/v1api"
 	"github.com/filecoin-project/lotus/node/repo"
+	logging "github.com/ipfs/go-log/v2"
 )
 
 const (
@@ -104,7 +106,7 @@ func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
 		strma := ctx.String(f)
 		strma = strings.TrimSpace(strma)
 
-		return APIInfo{Addr: strma}, nil
+		return apiinfo.APIInfo{Addr: strma}, nil
 	}
 
 	//
@@ -161,12 +163,11 @@ func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
 		if err != nil {
 			log.Warnf("Couldn't load CLI token, capabilities may be limited: %v", err)
 		}
-
-		return APIInfo{
+		return apiinfo.APIInfo{
 			Addr:  ma.String(),
 			Token: token,
 		}, nil
-	}
+}
 
 	for _, env := range fallbacksEnvs {
 		env, ok := os.LookupEnv(env)

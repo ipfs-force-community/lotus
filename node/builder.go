@@ -3,6 +3,10 @@ package node
 import (
 	"context"
 	"errors"
+	"github.com/filecoin-project/lotus/cli"
+	"github.com/filecoin-project/lotus/miner"
+	"github.com/filecoin-project/lotus/node/impl/proof_client"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"os"
 	"time"
 
@@ -116,6 +120,9 @@ const (
 
 	SetApiEndpointKey
 
+	//venus
+	SetAuthEndpoint
+	StartProofEventKey
 	_nInvokes // keep this last
 )
 
@@ -261,7 +268,6 @@ func ConfigCommon(cfg *config.Common, enableLibp2pNode bool) Option {
 				cfg.Libp2p.ProtectedPeers)),
 			Override(new(*pubsub.PubSub), lp2p.GossipSub),
 			Override(new(*config.Pubsub), &cfg.Pubsub),
-
 			ApplyIf(func(s *Settings) bool { return len(cfg.Libp2p.BootstrapPeers) > 0 },
 				Override(new(dtypes.BootstrapPeers), modules.ConfigBootstrap(cfg.Libp2p.BootstrapPeers)),
 			),

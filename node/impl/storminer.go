@@ -3,6 +3,8 @@ package impl
 import (
 	"context"
 	"encoding/json"
+	"github.com/filecoin-project/lotus/build"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"fmt"
 	"net/http"
 	"os"
@@ -58,6 +60,8 @@ type StorageMinerAPI struct {
 	api.Common
 	api.Net
 
+	Messager          messager.IMessager
+	
 	EnabledSubsystems api.MinerSubsystems
 
 	Full        api.FullNode
@@ -985,4 +989,25 @@ func (sm *StorageMinerAPI) ComputeProof(ctx context.Context, ssi []builtin.Secto
 
 func (sm *StorageMinerAPI) RuntimeSubsystems(context.Context) (res api.MinerSubsystems, err error) {
 	return sm.EnabledSubsystems, nil
+}
+
+
+func (sm *StorageMinerAPI) MessagerWaitMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error) {
+	return sm.Messager.WaitMessage(ctx, uuid.String(), build.MessageConfidence)
+}
+
+func (sm *StorageMinerAPI) MessagerPushMessage(ctx context.Context, msg *types.Message, meta *messager.MsgMeta) (cid.Cid, error) {
+	mid, err := messager.NewMId()
+	if err != nil {
+		return cid.Undef, err
+	}
+	_, err = sm.Messager.PushMessageWithId(ctx, mid.String(), msg, meta)
+	if err != nil {
+		return cid.Undef, err
+	}
+	return mid, nil
+}
+
+func (sm *StorageMinerAPI) MessagerGetMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error) {
+	return sm.Messager.GetMessageByUid(ctx, uuid.String())
 }

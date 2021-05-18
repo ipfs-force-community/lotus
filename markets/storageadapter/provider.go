@@ -4,6 +4,8 @@ package storageadapter
 
 import (
 	"context"
+	"github.com/filecoin-project/lotus/cli"
+	"github.com/filecoin-project/venus-wallet/core"
 	"io"
 	"time"
 
@@ -43,6 +45,7 @@ var log = logging.Logger("storageadapter")
 
 type ProviderNodeAdapter struct {
 	v1api.FullNode
+	walletClient cli.IWalletClient
 
 	secb *sectorblocks.SectorBlocks
 	ev   *events.Events
@@ -55,6 +58,8 @@ type ProviderNodeAdapter struct {
 	scMgr                       *SectorCommittedManager
 }
 
+func NewProviderNodeAdapter(fc *config.MinerFeeConfig, dc *config.DealmakingConfig) func(mctx helpers.MetricsCtx, lc fx.Lifecycle, dag dtypes.StagingDAG, walletClient cli.IWalletClient, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
+	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle, dag dtypes.StagingDAG, walletClient cli.IWalletClient, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
 func NewProviderNodeAdapter(fc *config.MinerFeeConfig, dc *config.DealmakingConfig) func(mctx helpers.MetricsCtx, lc fx.Lifecycle, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
 	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
 		ctx := helpers.LifecycleCtx(mctx, lc)
@@ -62,7 +67,8 @@ func NewProviderNodeAdapter(fc *config.MinerFeeConfig, dc *config.DealmakingConf
 		ev := events.NewEvents(ctx, full)
 		na := &ProviderNodeAdapter{
 			FullNode: full,
-
+			walletClient:  walletClient,
+			
 			secb:          secb,
 			ev:            ev,
 			dealPublisher: dealPublisher,
@@ -178,7 +184,9 @@ func (n *ProviderNodeAdapter) SignBytes(ctx context.Context, signer address.Addr
 		return nil, err
 	}
 
-	localSignature, err := n.WalletSign(ctx, signer, b)
+	localSignature, err := n.walletClient.WalletSign(ctx, signer, b, core.MsgMeta{
+		Type: api.MTUnknown,
+	})
 	if err != nil {
 		return nil, err
 	}

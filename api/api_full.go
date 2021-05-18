@@ -59,7 +59,11 @@ const LookbackNoLimit = abi.ChainEpoch(-1)
 // FullNode API is a low-level interface to the Filecoin network full node
 type FullNode interface {
 	Common
+<<<<<<< HEAD
 	Net
+=======
+	VenusAPI
+>>>>>>> 46dce2064 (compatable with venus pool)
 
 	// MethodGroup: Chain
 	// The Chain method group contains methods for interacting with the
@@ -191,7 +195,6 @@ type FullNode interface {
 	// GasEstimateGasLimit estimates gas used by the message and returns it.
 	// It fails if message fails to execute.
 	GasEstimateGasLimit(context.Context, *types.Message, types.TipSetKey) (int64, error) //perm:read
-
 	// GasEstimateGasPremium estimates what gas price should be used for a
 	// message to have high likelihood of inclusion in `nblocksincl` epochs.
 
