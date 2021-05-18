@@ -20,6 +20,7 @@ func MetricedFullAPI(a api.FullNode) api.FullNode {
 	var out api.FullNodeStruct
 	proxy(a, &out.Internal)
 	proxy(a, &out.CommonStruct.Internal)
+	proxy(a, &out.VenusAPIStruct.Internal)
 	return &out
 }
 

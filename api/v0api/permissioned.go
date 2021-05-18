@@ -9,5 +9,6 @@ func PermissionedFullAPI(a FullNode) FullNode {
 	var out FullNodeStruct
 	auth.PermissionedProxy(api.AllPermissions, api.DefaultPerms, a, &out.Internal)
 	auth.PermissionedProxy(api.AllPermissions, api.DefaultPerms, a, &out.CommonStruct.Internal)
+	auth.PermissionedProxy(api.AllPermissions, api.DefaultPerms, a, &out.VenusAPIStruct.Internal)
 	return &out
 }

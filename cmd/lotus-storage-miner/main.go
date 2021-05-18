@@ -106,7 +106,7 @@ func main() {
 	lcli.RunApp(app)
 }
 
-func getActorAddress(ctx context.Context, cctx *cli.Context) (maddr address.Address, err error) {
+func getActorAddress(ctx context.Context, nodeAPI api.StorageMiner, cctx *cli.Context) (maddr address.Address, err error) {
 	if cctx.IsSet("actor") {
 		maddr, err = address.NewFromString(cctx.String("actor"))
 		if err != nil {
@@ -114,12 +114,6 @@ func getActorAddress(ctx context.Context, cctx *cli.Context) (maddr address.Addr
 		}
 		return
 	}
-
-	nodeAPI, closer, err := lcli.GetStorageMinerAPI(cctx)
-	if err != nil {
-		return address.Undef, err
-	}
-	defer closer()
 
 	maddr, err = nodeAPI.ActorAddress(ctx)
 	if err != nil {

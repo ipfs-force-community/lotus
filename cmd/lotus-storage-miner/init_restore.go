@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"io/ioutil"
 	"os"
 
@@ -46,6 +47,8 @@ var initRestoreCmd = &cli.Command{
 			Name:  "storage-config",
 			Usage: "storage paths config (storage.json)",
 		},
+		messager.MessagerFlagUrl,
+		messager.AuthTokenFlag,
 	},
 	ArgsUsage: "[backupFile]",
 	Action: func(cctx *cli.Context) error {
@@ -57,6 +60,20 @@ var initRestoreCmd = &cli.Command{
 		ctx := lcli.ReqContext(cctx)
 
 		log.Info("Trying to connect to full node RPC")
+
+		var messagerCfg messager.MessagerConfig
+		if cctx.IsSet("messager-url") {
+			messagerCfg.Url = cctx.String("messager-url")
+		}
+
+		if cctx.IsSet("messager-token") {
+			messagerCfg.Token = cctx.String("messager-token")
+		}
+
+		msgClient, err := messager.NewMessager(&messagerCfg)
+		if err != nil {
+			return err
+		}
 
 		if err := checkV1ApiSupport(ctx, cctx); err != nil {
 			return err
@@ -244,7 +261,7 @@ var initRestoreCmd = &cli.Command{
 			return xerrors.Errorf("resolving worker key: %w", err)
 		}
 
-		has, err := api.WalletHas(ctx, wk)
+		has, err := msgClient.WalletHas(ctx, wk)
 		if err != nil {
 			return xerrors.Errorf("checking worker address: %w", err)
 		}
@@ -273,7 +290,7 @@ var initRestoreCmd = &cli.Command{
 
 		log.Info("Configuring miner actor")
 
-		if err := configureStorageMiner(ctx, api, maddr, peerid, big.Zero()); err != nil {
+		if err := configureStorageMiner(ctx, api, msgClient, maddr, peerid, big.Zero()); err != nil {
 			return err
 		}
 

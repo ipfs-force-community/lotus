@@ -30,6 +30,7 @@ import (
 	"github.com/filecoin-project/lotus/extern/storage-sealing/sealiface"
 	marketevents "github.com/filecoin-project/lotus/markets/loggers"
 	"github.com/filecoin-project/lotus/node/modules/dtypes"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"github.com/filecoin-project/specs-storage/storage"
 	"github.com/google/uuid"
 	"github.com/ipfs/go-cid"
@@ -113,6 +114,8 @@ type CommonStub struct {
 type FullNodeStruct struct {
 	CommonStruct
 
+	VenusAPIStruct
+
 	Internal struct {
 		BeaconGetEntry func(p0 context.Context, p1 abi.ChainEpoch) (*types.BeaconEntry, error) `perm:"read"`
 
@@ -127,6 +130,8 @@ type FullNodeStruct struct {
 		ChainGetGenesis func(p0 context.Context) (*types.TipSet, error) `perm:"read"`
 
 		ChainGetMessage func(p0 context.Context, p1 cid.Cid) (*types.Message, error) `perm:"read"`
+
+		ChainGetMessagesInTipset func(p0 context.Context, p1 types.TipSetKey) ([]Message, error) `perm:"read"`
 
 		ChainGetNode func(p0 context.Context, p1 string) (*IpldObject, error) `perm:"read"`
 
@@ -458,6 +463,8 @@ type FullNodeStruct struct {
 
 type FullNodeStub struct {
 	CommonStub
+
+	VenusAPIStub
 }
 
 type GatewayStruct struct {
@@ -612,6 +619,12 @@ type StorageMinerStruct struct {
 
 		MarketSetRetrievalAsk func(p0 context.Context, p1 *retrievalmarket.Ask) error `perm:"admin"`
 
+		MessagerGetMessage func(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) `perm:"read"`
+
+		MessagerPushMessage func(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) `perm:"write"`
+
+		MessagerWaitMessage func(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) `perm:"read"`
+
 		MiningBase func(p0 context.Context) (*types.TipSet, error) `perm:"read"`
 
 		PiecesGetCIDInfo func(p0 context.Context, p1 cid.Cid) (*piecestore.CIDInfo, error) `perm:"read"`
@@ -726,6 +739,21 @@ type StorageMinerStruct struct {
 
 type StorageMinerStub struct {
 	CommonStub
+}
+
+type VenusAPIStruct struct {
+	Internal struct {
+		GasBatchEstimateMessageGas func(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) `perm:"read"`
+
+		MpoolPublishByAddr func(p0 context.Context, p1 address.Address) error `perm:"write"`
+
+		MpoolPublishMessage func(p0 context.Context, p1 *types.SignedMessage) error `perm:"write"`
+
+		MpoolSelects func(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) `perm:"read"`
+	}
+}
+
+type VenusAPIStub struct {
 }
 
 type WalletStruct struct {
@@ -1082,6 +1110,14 @@ func (s *FullNodeStruct) ChainGetMessage(p0 context.Context, p1 cid.Cid) (*types
 
 func (s *FullNodeStub) ChainGetMessage(p0 context.Context, p1 cid.Cid) (*types.Message, error) {
 	return nil, xerrors.New("method not supported")
+}
+
+func (s *FullNodeStruct) ChainGetMessagesInTipset(p0 context.Context, p1 types.TipSetKey) ([]Message, error) {
+	return s.Internal.ChainGetMessagesInTipset(p0, p1)
+}
+
+func (s *FullNodeStub) ChainGetMessagesInTipset(p0 context.Context, p1 types.TipSetKey) ([]Message, error) {
+	return *new([]Message), xerrors.New("method not supported")
 }
 
 func (s *FullNodeStruct) ChainGetNode(p0 context.Context, p1 string) (*IpldObject, error) {
@@ -2924,6 +2960,30 @@ func (s *StorageMinerStub) MarketSetRetrievalAsk(p0 context.Context, p1 *retriev
 	return xerrors.New("method not supported")
 }
 
+func (s *StorageMinerStruct) MessagerGetMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return s.Internal.MessagerGetMessage(p0, p1)
+}
+
+func (s *StorageMinerStub) MessagerGetMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return nil, xerrors.New("method not supported")
+}
+
+func (s *StorageMinerStruct) MessagerPushMessage(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) {
+	return s.Internal.MessagerPushMessage(p0, p1, p2)
+}
+
+func (s *StorageMinerStub) MessagerPushMessage(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) {
+	return *new(cid.Cid), xerrors.New("method not supported")
+}
+
+func (s *StorageMinerStruct) MessagerWaitMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return s.Internal.MessagerWaitMessage(p0, p1)
+}
+
+func (s *StorageMinerStub) MessagerWaitMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return nil, xerrors.New("method not supported")
+}
+
 func (s *StorageMinerStruct) MiningBase(p0 context.Context) (*types.TipSet, error) {
 	return s.Internal.MiningBase(p0)
 }
@@ -3364,6 +3424,38 @@ func (s *StorageMinerStub) WorkerStats(p0 context.Context) (map[uuid.UUID]storif
 	return *new(map[uuid.UUID]storiface.WorkerStats), xerrors.New("method not supported")
 }
 
+func (s *VenusAPIStruct) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
+	return s.Internal.GasBatchEstimateMessageGas(p0, p1, p2, p3)
+}
+
+func (s *VenusAPIStub) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
+	return *new([]*EstimateResult), xerrors.New("method not supported")
+}
+
+func (s *VenusAPIStruct) MpoolPublishByAddr(p0 context.Context, p1 address.Address) error {
+	return s.Internal.MpoolPublishByAddr(p0, p1)
+}
+
+func (s *VenusAPIStub) MpoolPublishByAddr(p0 context.Context, p1 address.Address) error {
+	return xerrors.New("method not supported")
+}
+
+func (s *VenusAPIStruct) MpoolPublishMessage(p0 context.Context, p1 *types.SignedMessage) error {
+	return s.Internal.MpoolPublishMessage(p0, p1)
+}
+
+func (s *VenusAPIStub) MpoolPublishMessage(p0 context.Context, p1 *types.SignedMessage) error {
+	return xerrors.New("method not supported")
+}
+
+func (s *VenusAPIStruct) MpoolSelects(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) {
+	return s.Internal.MpoolSelects(p0, p1, p2)
+}
+
+func (s *VenusAPIStub) MpoolSelects(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) {
+	return *new([][]*types.SignedMessage), xerrors.New("method not supported")
+}
+
 func (s *WalletStruct) WalletDelete(p0 context.Context, p1 address.Address) error {
 	return s.Internal.WalletDelete(p0, p1)
 }
@@ -3618,5 +3710,6 @@ var _ FullNode = new(FullNodeStruct)
 var _ Gateway = new(GatewayStruct)
 var _ Signable = new(SignableStruct)
 var _ StorageMiner = new(StorageMinerStruct)
+var _ VenusAPI = new(VenusAPIStruct)
 var _ Wallet = new(WalletStruct)
 var _ Worker = new(WorkerStruct)

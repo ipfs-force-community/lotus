@@ -3,6 +3,11 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"github.com/filecoin-project/venus-auth/cmd/jwtclient"
+	"github.com/ipfs-force-community/metrics/ratelimit"
+	manet "github.com/multiformats/go-multiaddr/net"
+	"go.opencensus.io/tag"
+	"golang.org/x/xerrors"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -14,9 +19,6 @@ import (
 	"github.com/ipfs/go-cid"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/multiformats/go-multiaddr"
-	manet "github.com/multiformats/go-multiaddr/net"
-	"go.opencensus.io/tag"
-	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-jsonrpc/auth"
@@ -31,24 +33,46 @@ import (
 
 var log = logging.Logger("main")
 
-func serveRPC(a v1api.FullNode, stop node.StopFunc, addr multiaddr.Multiaddr, shutdownCh <-chan struct{}, maxRequestSize int64) error {
+func serveRPC(a v1api.FullNode, authEndpoint string, stop node.StopFunc, addr multiaddr.Multiaddr, shutdownCh <-chan struct{}, maxRequestSize int64, rate_limit_redis string) error {
 	serverOptions := make([]jsonrpc.ServerOption, 0)
 	if maxRequestSize != 0 { // config set
 		serverOptions = append(serverOptions, jsonrpc.WithMaxRequestSize(maxRequestSize))
 	}
+
+	var remoteJwtCli *jwtclient.JWTClient
+	if len(authEndpoint) > 0 {
+		remoteJwtCli = jwtclient.NewJWTClient(authEndpoint)
+	}
+
 	serveRpc := func(path string, hnd interface{}) {
 		rpcServer := jsonrpc.NewServer(serverOptions...)
 		rpcServer.Register("Filecoin", hnd)
 
-		ah := &auth.Handler{
-			Verify: a.AuthVerify,
-			Next:   rpcServer.ServeHTTP,
-		}
-
-		http.Handle(path, ah)
+		//register hander to verify token in venus-auth
+		handler := (http.Handler)(jwtclient.NewAuthMux(&WrapClient{a},
+			jwtclient.WarpIJwtAuthClient(remoteJwtCli),
+			rpcServer, logging.Logger("Auth")))
+		http.Handle(path, handler)
 	}
 
-	pma := api.PermissionedFullAPI(metrics.MetricedFullAPI(a))
+	limitWrapper := a
+	if len(rate_limit_redis) > 0 && remoteJwtCli != nil {
+		limiter, err := ratelimit.NewRateLimitHandler(
+			rate_limit_redis,
+			nil, &jwtclient.ValueFromCtx{},
+			jwtclient.WarpLimitFinder(remoteJwtCli),
+			logging.Logger("rate-limit"))
+		_ = logging.SetLogLevel("rate-limit", "info")
+		if err != nil {
+			return err
+		}
+
+		var rateLimitAPI v1api.FullNode
+		limiter.WarpFunctions(a, &rateLimitAPI)
+		limitWrapper = rateLimitAPI
+	}
+
+	pma := api.PermissionedFullAPI(metrics.MetricedFullAPI(limitWrapper))
 
 	serveRpc("/rpc/v1", pma)
 	serveRpc("/rpc/v0", &v0api.WrapperV1Full{FullNode: pma})

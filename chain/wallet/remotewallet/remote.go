@@ -2,13 +2,13 @@ package remotewallet
 
 import (
 	"context"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/client"
-	cliutil "github.com/filecoin-project/lotus/cli/util"
 	"github.com/filecoin-project/lotus/node/modules/helpers"
 )
 
@@ -18,7 +18,7 @@ type RemoteWallet struct {
 
 func SetupRemoteWallet(info string) func(mctx helpers.MetricsCtx, lc fx.Lifecycle) (*RemoteWallet, error) {
 	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle) (*RemoteWallet, error) {
-		ai := cliutil.ParseApiInfo(info)
+		ai := apiinfo.ParseApiInfo(info)
 
 		url, err := ai.DialArgs("v0")
 		if err != nil {
