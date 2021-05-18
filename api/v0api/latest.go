@@ -5,8 +5,11 @@ import (
 )
 
 type Common = api.Common
+type VenusAPI = api.VenusAPI
 type CommonStruct = api.CommonStruct
+type VenusAPIStruct = api.VenusAPIStruct
 type CommonStub = api.CommonStub
+type VenusAPIStub = api.VenusAPIStub
 
 type StorageMiner = api.StorageMiner
 type StorageMinerStruct = api.StorageMinerStruct

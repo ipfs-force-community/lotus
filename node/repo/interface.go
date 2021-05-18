@@ -28,6 +28,7 @@ const (
 
 var (
 	ErrNoAPIEndpoint     = errors.New("API not running (no endpoint)")
+	ErrNoAuthEndpoint    = errors.New("auth endpoint not set")
 	ErrNoAPIToken        = errors.New("API token not set")
 	ErrRepoAlreadyLocked = errors.New("repo is already locked (lotus daemon already running)")
 	ErrClosedRepo        = errors.New("repo is no longer open")
@@ -44,6 +45,7 @@ type Repo interface {
 	// APIToken returns JWT API Token for use in operations that require auth
 	APIToken() ([]byte, error)
 
+	AuthEndpoint() string
 	// Lock locks the repo for exclusive use.
 	Lock(RepoType) (LockedRepo, error)
 }
@@ -83,6 +85,7 @@ type LockedRepo interface {
 	// SetAPIToken sets JWT API Token for CLI
 	SetAPIToken([]byte) error
 
+	SetAuthEndpoint(string) error
 	// KeyStore returns store of private keys for Filecoin transactions
 	KeyStore() (types.KeyStore, error)
 

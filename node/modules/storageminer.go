@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -197,6 +198,7 @@ type StorageMinerParams struct {
 	Lifecycle          fx.Lifecycle
 	MetricsCtx         helpers.MetricsCtx
 	API                v1api.FullNode
+	MessagerApi        messager.IMessager
 	Host               host.Host
 	MetadataDS         dtypes.MetadataDS
 	Sealer             sectorstorage.SectorManager
@@ -211,6 +213,7 @@ type StorageMinerParams struct {
 func StorageMiner(fc config.MinerFeeConfig) func(params StorageMinerParams) (*storage.Miner, error) {
 	return func(params StorageMinerParams) (*storage.Miner, error) {
 		var (
+			messagerApi = params.MessagerApi
 			ds     = params.MetadataDS
 			mctx   = params.MetricsCtx
 			lc     = params.Lifecycle
@@ -232,12 +235,12 @@ func StorageMiner(fc config.MinerFeeConfig) func(params StorageMinerParams) (*st
 
 		ctx := helpers.LifecycleCtx(mctx, lc)
 
-		fps, err := storage.NewWindowedPoStScheduler(api, fc, as, sealer, verif, sealer, j, maddr)
+		fps, err := storage.NewWindowedPoStScheduler(api, fc, as, sealer, verif, sealer, j, maddr, messagerApi)
 		if err != nil {
 			return nil, err
 		}
 
-		sm, err := storage.NewMiner(api, maddr, h, ds, sealer, sc, verif, prover, gsd, fc, j, as)
+		sm, err := storage.NewMiner(api, maddr, h, ds, sealer, sc, verif, prover, gsd, fc, j, as, messagerApi)
 		if err != nil {
 			return nil, err
 		}
@@ -447,7 +450,7 @@ func SetupBlockProducer(lc fx.Lifecycle, ds dtypes.MetadataDS, api v1api.FullNod
 
 	m := lotusminer.NewMiner(api, epp, minerAddr, sf, j)
 
-	lc.Append(fx.Hook{
+	/*	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			if err := m.Start(ctx); err != nil {
 				return err
@@ -457,7 +460,7 @@ func SetupBlockProducer(lc fx.Lifecycle, ds dtypes.MetadataDS, api v1api.FullNod
 		OnStop: func(ctx context.Context) error {
 			return m.Stop(ctx)
 		},
-	})
+	})*/
 
 	return m, nil
 }
