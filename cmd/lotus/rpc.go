@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/filecoin-project/lotus/api"
-	"github.com/filecoin-project/lotus/api/apistruct"
 	"github.com/filecoin-project/venus-auth/core"
 	manet "github.com/multiformats/go-multiaddr/net"
 	"go.opencensus.io/tag"
@@ -120,8 +118,6 @@ func serveRPC(a v1api.FullNode, authEndpoint string, stop node.StopFunc, addr mu
 			}
 			http.Handle(path, ah)
 		}
-
-		http.Handle(path, ah)
 	}
 
 	pma := api.PermissionedFullAPI(metrics.MetricedFullAPI(a))

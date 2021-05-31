@@ -234,12 +234,12 @@ func StorageMiner(fc config.MinerFeeConfig) func(params StorageMinerParams) (*st
 
 		ctx := helpers.LifecycleCtx(mctx, lc)
 
-		fps, err := storage.NewWindowedPoStScheduler(api, messagerApi, fc, as, sealer, verif, sealer, j, maddr)
+		fps, err := storage.NewWindowedPoStScheduler(api, fc, as, sealer, verif, sealer, j, maddr, messagerApi)
 		if err != nil {
 			return nil, err
 		}
 
-		sm, err := storage.NewMiner(api, messagerApi, maddr, h, ds, sealer, sc, verif, gsd, fc, j, as)
+		sm, err := storage.NewMiner(api, maddr, h, ds, sealer, sc, verif, gsd, fc, j, as, messagerApi)
 		if err != nil {
 			return nil, err
 		}

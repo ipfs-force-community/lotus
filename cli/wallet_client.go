@@ -44,7 +44,7 @@ func NewWalletClient(cfg *config.WalletConfig) (WalletClient, error) {
 		Token: []byte(cfg.Token),
 	}
 
-	addr, err := apiInfo.DialArgs()
+	addr, err := apiInfo.DialArgs("0")
 	if err != nil {
 		return WalletClient{}, err
 	}

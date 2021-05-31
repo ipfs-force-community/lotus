@@ -13,7 +13,6 @@ import (
 	"github.com/filecoin-project/lotus/chain/actors/builtin"
 	"github.com/filecoin-project/lotus/chain/gen"
 
-	"github.com/filecoin-project/lotus/build"
 	"github.com/google/uuid"
 	"github.com/ipfs/go-cid"
 	"github.com/libp2p/go-libp2p-core/host"
@@ -725,6 +724,5 @@ func (sm *StorageMinerAPI) MessagerPushMessage(ctx context.Context, msg *types.M
 func (sm *StorageMinerAPI) MessagerGetMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error) {
 	return sm.Messager.GetMessageByUid(ctx, uuid.String())
 }
-
 
 var _ api.StorageMiner = &StorageMinerAPI{}

@@ -62,7 +62,7 @@ type Miner struct {
 
 	walletApi   cli.WalletClient
 	messagerApi messager.IMessager
-	maddr address.Address
+	maddr       address.Address
 
 	getSealConfig dtypes.GetSealingConfigFunc
 	sealing       *sealing.Sealing
@@ -181,14 +181,14 @@ func (m *Miner) Run(ctx context.Context) error {
 
 	var (
 		// consumer of chain head changes.
-		evts        = events.NewEvents(ctx, m.api, m.messagerApi)
+		evts        = events.NewEvents(ctx, m.api)
 		evtsAdapter = NewEventsAdapter(evts)
 
 		// Create a shim to glue the API required by the sealing component
 		// with the API that Lotus is capable of providing.
 		// The shim translates between "tipset tokens" and tipset keys, and
 		// provides extra methods.
-		adaptedAPI = NewSealingAPIAdapter(m.api)
+		adaptedAPI = NewSealingAPIAdapter(m.api, m.messagerApi)
 
 		// Instantiate a precommit policy.
 		defaultDuration = policy.GetMaxSectorExpirationExtension() - (md.WPoStProvingPeriod * 2)

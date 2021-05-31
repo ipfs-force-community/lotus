@@ -23,7 +23,7 @@ func NewProofEventClient(ctx context.Context, cfg *config.RegisterProofConfig) (
 		Addr:  cfg.Url,
 		Token: []byte(cfg.Token),
 	}
-	addr, err := apiInfo.DialArgs()
+	addr, err := apiInfo.DialArgs("0")
 	if err != nil {
 		return nil, nil, err
 	}

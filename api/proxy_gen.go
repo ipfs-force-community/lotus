@@ -29,6 +29,7 @@ import (
 	"github.com/filecoin-project/lotus/extern/sector-storage/storiface"
 	marketevents "github.com/filecoin-project/lotus/markets/loggers"
 	"github.com/filecoin-project/lotus/node/modules/dtypes"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"github.com/filecoin-project/specs-storage/storage"
 	"github.com/google/uuid"
 	"github.com/ipfs/go-cid"
@@ -122,6 +123,8 @@ type FullNodeStruct struct {
 		ChainGetBlock func(p0 context.Context, p1 cid.Cid) (*types.BlockHeader, error) `perm:"read"`
 
 		ChainGetBlockMessages func(p0 context.Context, p1 cid.Cid) (*BlockMessages, error) `perm:"read"`
+
+		ChainGetBlockSimpleMessages func(p0 context.Context, p1 cid.Cid) (*SimpleBlockMessages, error) ``
 
 		ChainGetGenesis func(p0 context.Context) (*types.TipSet, error) `perm:"read"`
 
@@ -251,6 +254,10 @@ type FullNodeStruct struct {
 
 		MpoolPending func(p0 context.Context, p1 types.TipSetKey) ([]*types.SignedMessage, error) `perm:"read"`
 
+		MpoolPublishByAddr func(p0 context.Context, p1 address.Address) error `perm:"write"`
+
+		MpoolPublishMessage func(p0 context.Context, p1 *types.SignedMessage) error `perm:"write"`
+
 		MpoolPush func(p0 context.Context, p1 *types.SignedMessage) (cid.Cid, error) `perm:"write"`
 
 		MpoolPushMessage func(p0 context.Context, p1 *types.Message, p2 *MessageSendSpec) (*types.SignedMessage, error) `perm:"sign"`
@@ -258,6 +265,8 @@ type FullNodeStruct struct {
 		MpoolPushUntrusted func(p0 context.Context, p1 *types.SignedMessage) (cid.Cid, error) `perm:"write"`
 
 		MpoolSelect func(p0 context.Context, p1 types.TipSetKey, p2 float64) ([]*types.SignedMessage, error) `perm:"read"`
+
+		MpoolSelects func(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) `perm:"read"`
 
 		MpoolSetConfig func(p0 context.Context, p1 *types.MpoolConfig) error `perm:"admin"`
 
@@ -620,6 +629,12 @@ type StorageMinerStruct struct {
 		MarketSetAsk func(p0 context.Context, p1 types.BigInt, p2 types.BigInt, p3 abi.ChainEpoch, p4 abi.PaddedPieceSize, p5 abi.PaddedPieceSize) error `perm:"admin"`
 
 		MarketSetRetrievalAsk func(p0 context.Context, p1 *retrievalmarket.Ask) error `perm:"admin"`
+
+		MessagerGetMessage func(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) ``
+
+		MessagerPushMessage func(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) ``
+
+		MessagerWaitMessage func(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) ``
 
 		MiningBase func(p0 context.Context) (*types.TipSet, error) `perm:"read"`
 
@@ -1066,6 +1081,14 @@ func (s *FullNodeStruct) ChainGetBlockMessages(p0 context.Context, p1 cid.Cid) (
 }
 
 func (s *FullNodeStub) ChainGetBlockMessages(p0 context.Context, p1 cid.Cid) (*BlockMessages, error) {
+	return nil, xerrors.New("method not supported")
+}
+
+func (s *FullNodeStruct) ChainGetBlockSimpleMessages(p0 context.Context, p1 cid.Cid) (*SimpleBlockMessages, error) {
+	return s.Internal.ChainGetBlockSimpleMessages(p0, p1)
+}
+
+func (s *FullNodeStub) ChainGetBlockSimpleMessages(p0 context.Context, p1 cid.Cid) (*SimpleBlockMessages, error) {
 	return nil, xerrors.New("method not supported")
 }
 
@@ -1581,6 +1604,22 @@ func (s *FullNodeStub) MpoolPending(p0 context.Context, p1 types.TipSetKey) ([]*
 	return *new([]*types.SignedMessage), xerrors.New("method not supported")
 }
 
+func (s *FullNodeStruct) MpoolPublishByAddr(p0 context.Context, p1 address.Address) error {
+	return s.Internal.MpoolPublishByAddr(p0, p1)
+}
+
+func (s *FullNodeStub) MpoolPublishByAddr(p0 context.Context, p1 address.Address) error {
+	return xerrors.New("method not supported")
+}
+
+func (s *FullNodeStruct) MpoolPublishMessage(p0 context.Context, p1 *types.SignedMessage) error {
+	return s.Internal.MpoolPublishMessage(p0, p1)
+}
+
+func (s *FullNodeStub) MpoolPublishMessage(p0 context.Context, p1 *types.SignedMessage) error {
+	return xerrors.New("method not supported")
+}
+
 func (s *FullNodeStruct) MpoolPush(p0 context.Context, p1 *types.SignedMessage) (cid.Cid, error) {
 	return s.Internal.MpoolPush(p0, p1)
 }
@@ -1611,6 +1650,14 @@ func (s *FullNodeStruct) MpoolSelect(p0 context.Context, p1 types.TipSetKey, p2 
 
 func (s *FullNodeStub) MpoolSelect(p0 context.Context, p1 types.TipSetKey, p2 float64) ([]*types.SignedMessage, error) {
 	return *new([]*types.SignedMessage), xerrors.New("method not supported")
+}
+
+func (s *FullNodeStruct) MpoolSelects(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) {
+	return s.Internal.MpoolSelects(p0, p1, p2)
+}
+
+func (s *FullNodeStub) MpoolSelects(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) {
+	return *new([][]*types.SignedMessage), xerrors.New("method not supported")
 }
 
 func (s *FullNodeStruct) MpoolSetConfig(p0 context.Context, p1 *types.MpoolConfig) error {
@@ -2963,6 +3010,30 @@ func (s *StorageMinerStruct) MarketSetRetrievalAsk(p0 context.Context, p1 *retri
 
 func (s *StorageMinerStub) MarketSetRetrievalAsk(p0 context.Context, p1 *retrievalmarket.Ask) error {
 	return xerrors.New("method not supported")
+}
+
+func (s *StorageMinerStruct) MessagerGetMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return s.Internal.MessagerGetMessage(p0, p1)
+}
+
+func (s *StorageMinerStub) MessagerGetMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return nil, xerrors.New("method not supported")
+}
+
+func (s *StorageMinerStruct) MessagerPushMessage(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) {
+	return s.Internal.MessagerPushMessage(p0, p1, p2)
+}
+
+func (s *StorageMinerStub) MessagerPushMessage(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) {
+	return *new(cid.Cid), xerrors.New("method not supported")
+}
+
+func (s *StorageMinerStruct) MessagerWaitMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return s.Internal.MessagerWaitMessage(p0, p1)
+}
+
+func (s *StorageMinerStub) MessagerWaitMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return nil, xerrors.New("method not supported")
 }
 
 func (s *StorageMinerStruct) MiningBase(p0 context.Context) (*types.TipSet, error) {

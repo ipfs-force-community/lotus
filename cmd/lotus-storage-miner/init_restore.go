@@ -79,7 +79,7 @@ var initRestoreCmd = &cli.Command{
 			return err
 		}
 
-		api, closer, err := lcli.GetFullNodeAPI(cctx) // TODO: consider storing full node address in config
+		api, closer, err := lcli.GetFullNodeAPIV1(cctx) // TODO: consider storing full node address in config
 		if err != nil {
 			return err
 		}
