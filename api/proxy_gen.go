@@ -124,7 +124,7 @@ type FullNodeStruct struct {
 
 		ChainGetBlockMessages func(p0 context.Context, p1 cid.Cid) (*BlockMessages, error) `perm:"read"`
 
-		ChainGetBlockSimpleMessages func(p0 context.Context, p1 cid.Cid) (*SimpleBlockMessages, error) ``
+		ChainGetBlockSimpleMessages func(p0 context.Context, p1 cid.Cid) (*SimpleBlockMessages, error) `perm:"read"`
 
 		ChainGetGenesis func(p0 context.Context) (*types.TipSet, error) `perm:"read"`
 

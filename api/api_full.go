@@ -95,7 +95,7 @@ type FullNode interface {
 	// Use ChainGetParentMessages, which will perform correct message deduplication
 	ChainGetBlockMessages(ctx context.Context, blockCid cid.Cid) (*BlockMessages, error) //perm:read
 
-	ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*SimpleBlockMessages, error)
+	ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*SimpleBlockMessages, error) //perm:read
 
 	// ChainGetParentReceipts returns receipts for messages in parent tipset of
 	// the specified block. The receipts in the list returned is one-to-one with the
