@@ -32,6 +32,7 @@ const (
 type TargetAPI interface {
 	Version(context.Context) (api.APIVersion, error)
 	ChainGetBlockMessages(context.Context, cid.Cid) (*api.BlockMessages, error)
+	ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*api.SimpleBlockMessages, error)
 	ChainGetMessage(ctx context.Context, mc cid.Cid) (*types.Message, error)
 	ChainGetNode(ctx context.Context, p string) (*api.IpldObject, error)
 	ChainGetTipSet(ctx context.Context, tsk types.TipSetKey) (*types.TipSet, error)
@@ -144,6 +145,9 @@ func (gw *Node) ChainGetBlockMessages(ctx context.Context, c cid.Cid) (*api.Bloc
 	return gw.target.ChainGetBlockMessages(ctx, c)
 }
 
+func (gw *Node) ChainGetBlockSimpleMessages(ctx context.Context, bid cid.Cid) (*api.SimpleBlockMessages, error) {
+	return gw.target.ChainGetBlockSimpleMessages(ctx, bid)
+}
 func (gw *Node) ChainHasObj(ctx context.Context, c cid.Cid) (bool, error) {
 	return gw.target.ChainHasObj(ctx, c)
 }
