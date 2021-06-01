@@ -81,7 +81,7 @@ var DaemonCmd = &cli.Command{
 			Value: "1234",
 		},
 		&cli.StringFlag{
-			Name:  "venus-auth",
+			Name:  "authURL",
 			Value: "",
 		},
 		&cli.StringFlag{
@@ -339,9 +339,9 @@ var DaemonCmd = &cli.Command{
 				node.Unset(node.RunPeerMgrKey),
 				node.Unset(new(*peermgr.PeerMgr)),
 			),
-			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("venus-auth") },
+			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("authURL") },
 				node.Override(node.SetAuthEndpoint, func(lr repo.LockedRepo) error {
-					return lr.SetAuthEndpoint(cctx.String("venus-auth"))
+					return lr.SetAuthEndpoint(cctx.String("authURL"))
 				})),
 		)
 		if err != nil {
