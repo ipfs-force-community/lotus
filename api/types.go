@@ -192,3 +192,13 @@ type SimpleMessage struct {
 	To          address.Address
 	Nonce       uint64
 }
+
+type EstimateMessage struct {
+	Msg  *types.Message
+	Spec *MessageSendSpec
+}
+
+type EstimateResult struct {
+	Msg *types.Message
+	Err string
+}
