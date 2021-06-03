@@ -52,7 +52,8 @@ type PubsubScore struct {
 }
 
 type MessageSendSpec struct {
-	MaxFee abi.TokenAmount
+	MaxFee            abi.TokenAmount
+	GasOverEstimation float64
 }
 
 type DataTransferChannel struct {
