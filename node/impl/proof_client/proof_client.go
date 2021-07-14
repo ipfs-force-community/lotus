@@ -3,7 +3,7 @@ package proof_client
 import (
 	"context"
 	"github.com/filecoin-project/go-jsonrpc"
-	cliutil "github.com/filecoin-project/lotus/cli/util"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 	"github.com/ipfs-force-community/venus-gateway/proofevent"
 	"github.com/ipfs-force-community/venus-gateway/types"
 	"go.uber.org/fx"
@@ -16,7 +16,7 @@ type ProofEventClient struct {
 
 func NewProofEventClient(lc fx.Lifecycle, url, token string) (*ProofEventClient, error) {
 	pvc := &ProofEventClient{}
-	apiInfo := cliutil.APIInfo{
+	apiInfo := apiinfo.APIInfo{
 		Addr:  url,
 		Token: []byte(token),
 	}

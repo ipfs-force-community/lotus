@@ -5,9 +5,9 @@ import (
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-state-types/crypto"
-	cliutil "github.com/filecoin-project/lotus/cli/util"
 	"github.com/filecoin-project/lotus/node/config"
 	"github.com/filecoin-project/venus-wallet/core"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 )
 
 type IWalletClient interface {
@@ -39,7 +39,7 @@ func (walletClient *WalletClient) WalletSign(ctx context.Context, signer address
 }
 
 func NewWalletClient(cfg *config.WalletConfig) (WalletClient, error) {
-	apiInfo := cliutil.APIInfo{
+	apiInfo := apiinfo.APIInfo{
 		Addr:  cfg.Url,
 		Token: []byte(cfg.Token),
 	}

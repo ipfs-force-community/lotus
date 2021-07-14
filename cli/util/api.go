@@ -3,6 +3,7 @@ package cliutil
 import (
 	"context"
 	"fmt"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 	"net/http"
 	"net/url"
 	"os"
@@ -21,11 +22,14 @@ import (
 	"github.com/filecoin-project/lotus/api/v0api"
 	"github.com/filecoin-project/lotus/api/v1api"
 	"github.com/filecoin-project/lotus/node/repo"
+	logging "github.com/ipfs/go-log/v2"
 )
 
 const (
 	metadataTraceContext = "traceContext"
 )
+
+var log = logging.Logger("cliutil")
 
 // The flag passed on the command line with the listen address of the API
 // server (only used by the tests)
@@ -82,7 +86,7 @@ func envForRepoDeprecation(t repo.RepoType) string {
 	}
 }
 
-func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
+func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (apiinfo.APIInfo, error) {
 	// Check if there was a flag passed with the listen address of the API
 	// server (only used by the tests)
 	apiFlag := flagForAPI(t)
@@ -90,7 +94,7 @@ func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
 		strma := ctx.String(apiFlag)
 		strma = strings.TrimSpace(strma)
 
-		return APIInfo{Addr: strma}, nil
+		return apiinfo.APIInfo{Addr: strma}, nil
 	}
 
 	envKey := EnvForRepo(t)
@@ -104,24 +108,24 @@ func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
 		}
 	}
 	if ok {
-		return ParseApiInfo(env), nil
+		return apiinfo.ParseApiInfo(env), nil
 	}
 
 	repoFlag := flagForRepo(t)
 
 	p, err := homedir.Expand(ctx.String(repoFlag))
 	if err != nil {
-		return APIInfo{}, xerrors.Errorf("could not expand home dir (%s): %w", repoFlag, err)
+		return apiinfo.APIInfo{}, xerrors.Errorf("could not expand home dir (%s): %w", repoFlag, err)
 	}
 
 	r, err := repo.NewFS(p)
 	if err != nil {
-		return APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
+		return apiinfo.APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
 	}
 
 	ma, err := r.APIEndpoint()
 	if err != nil {
-		return APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
+		return apiinfo.APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
 	}
 
 	token, err := r.APIToken()
@@ -129,7 +133,7 @@ func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
 		log.Warnf("Couldn't load CLI token, capabilities may be limited: %v", err)
 	}
 
-	return APIInfo{
+	return apiinfo.APIInfo{
 		Addr:  ma.String(),
 		Token: token,
 	}, nil

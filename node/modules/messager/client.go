@@ -5,6 +5,7 @@ import (
 	"github.com/filecoin-project/go-address"
 	jsonrpc "github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/lotus/chain/types"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 	logging "github.com/ipfs/go-log/v2"
 	"golang.org/x/xerrors"
 	"time"
@@ -39,7 +40,7 @@ func (message *Messager) HasMessageByUid(ctx context.Context, id string) (bool, 
 }
 
 func NewMessager(cfg *MessagerConfig) (*Messager, error) {
-	apiInfo := APIInfo{
+	apiInfo := apiinfo.APIInfo{
 		Addr:  cfg.Url,
 		Token: []byte(cfg.Token),
 	}
