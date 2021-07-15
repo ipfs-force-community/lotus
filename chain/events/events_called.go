@@ -468,19 +468,19 @@ type messageEvents struct {
 	lk       sync.RWMutex
 	matchers map[triggerID]MsgMatchFunc
 
-	blsMsgLk    sync.Mutex
-	blsMsgCache *lru.ARCCache
+	blockMsgLk    sync.Mutex
+	blockMsgCache *lru.ARCCache
 }
 
 func newMessageEvents(ctx context.Context, hcAPI headChangeAPI, cs EventAPI) messageEvents {
 	blsMsgCache, _ := lru.NewARC(500)
 	return messageEvents{
-		ctx:         ctx,
-		cs:          cs,
-		hcAPI:       hcAPI,
-		matchers:    make(map[triggerID]MsgMatchFunc),
-		blsMsgLk:    sync.Mutex{},
-		blsMsgCache: blsMsgCache,
+		ctx:           ctx,
+		cs:            cs,
+		hcAPI:         hcAPI,
+		matchers:      make(map[triggerID]MsgMatchFunc),
+		blockMsgLk:    sync.Mutex{},
+		blockMsgCache: blsMsgCache,
 	}
 }
 
@@ -524,20 +524,20 @@ func (me *messageEvents) messagesForTs(ts *types.TipSet, consume func(*types.Mes
 	seen := map[cid.Cid]struct{}{}
 
 	for _, tsb := range ts.Blocks() {
-		me.blsMsgLk.Lock()
-		msgsI, ok := me.blsMsgCache.Get(tsb.Cid())
+		me.blockMsgLk.Lock()
+		msgsI, ok := me.blockMsgCache.Get(tsb.Cid())
 		var err error
 		if !ok {
 			msgsI, err = me.cs.ChainGetBlockMessages(context.TODO(), tsb.Cid())
 			if err != nil {
 				log.Errorf("messagesForTs MessagesForBlock failed (ts.H=%d, Bcid:%s, B.Mcid:%s): %s", ts.Height(), tsb.Cid(), tsb.Messages, err)
 				// this is quite bad, but probably better than missing all the other updates
-				me.blsMsgLk.Unlock()
+				me.blockMsgLk.Unlock()
 				continue
 			}
-			me.blsMsgCache.Add(tsb.Cid(), msgsI)
+			me.blockMsgCache.Add(tsb.Cid(), msgsI)
 		}
-		me.blsMsgLk.Unlock()
+		me.blockMsgLk.Unlock()
 		msgs := msgsI.(*api.BlockMessages)
 		for _, m := range msgs.BlsMessages {
 			_, ok := seen[m.Cid()]
