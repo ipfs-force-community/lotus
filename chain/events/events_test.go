@@ -1338,9 +1338,10 @@ func TestStateChangedTimeout(t *testing.T) {
 		t: t,
 		h: 1,
 
-		msgs:    map[cid.Cid]fakeMsg{},
-		blkMsgs: map[cid.Cid]cid.Cid{},
-		tsc:     newTSCache(2*build.ForkLengthThreshold, nil),
+		msgs:       map[cid.Cid]fakeMsg{},
+		blkMsgs:    map[cid.Cid]cid.Cid{},
+		callNumber: map[string]int{},
+		tsc:        newTSCache(2*build.ForkLengthThreshold, nil),
 	}
 	require.NoError(t, fcs.tsc.add(fcs.makeTs(t, nil, 1, dummyCid)))
 
