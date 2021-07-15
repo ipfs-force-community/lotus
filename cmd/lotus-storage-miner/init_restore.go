@@ -261,7 +261,7 @@ var initRestoreCmd = &cli.Command{
 			return xerrors.Errorf("resolving worker key: %w", err)
 		}
 
-		has, err := api.WalletHas(ctx, wk)
+		has, err := msgClient.WalletHas(ctx, wk)
 		if err != nil {
 			return xerrors.Errorf("checking worker address: %w", err)
 		}
