@@ -2,10 +2,11 @@ package events
 
 import (
 	"context"
-	"github.com/filecoin-project/lotus/api"
-	lru "github.com/hashicorp/golang-lru"
 	"math"
 	"sync"
+
+	"github.com/filecoin-project/lotus/api"
+	lru "github.com/hashicorp/golang-lru"
 
 	"github.com/filecoin-project/lotus/chain/stmgr"
 
