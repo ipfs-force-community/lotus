@@ -81,7 +81,7 @@ var DaemonCmd = &cli.Command{
 			Value: "1234",
 		},
 		&cli.StringFlag{
-			Name:  "authURL",
+			Name:  "auth-url",
 			Value: "",
 		},
 		&cli.StringFlag{
@@ -339,9 +339,9 @@ var DaemonCmd = &cli.Command{
 				node.Unset(node.RunPeerMgrKey),
 				node.Unset(new(*peermgr.PeerMgr)),
 			),
-			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("authURL") },
+			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("auth-url") },
 				node.Override(node.SetAuthEndpoint, func(lr repo.LockedRepo) error {
-					return lr.SetAuthEndpoint(cctx.String("authURL"))
+					return lr.SetAuthEndpoint(cctx.String("auth-url"))
 				})),
 		)
 		if err != nil {
