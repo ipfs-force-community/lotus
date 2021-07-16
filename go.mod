@@ -3,8 +3,8 @@ module github.com/filecoin-project/lotus
 go 1.15
 
 require (
-	contrib.go.opencensus.io/exporter/jaeger v0.1.0
-	contrib.go.opencensus.io/exporter/prometheus v0.1.0
+	contrib.go.opencensus.io/exporter/jaeger v0.2.1
+	contrib.go.opencensus.io/exporter/prometheus v0.3.0
 	github.com/BurntSushi/toml v0.3.1
 	github.com/GeertJohan/go.rice v1.0.0
 	github.com/Gurpartap/async v0.0.0-20180927173644-4f7f499dd9ee
@@ -49,7 +49,7 @@ require (
 	github.com/filecoin-project/specs-actors/v5 v5.0.1
 	github.com/filecoin-project/specs-storage v0.1.1-0.20201105051918-5188d9774506
 	github.com/filecoin-project/test-vectors/schema v0.0.5
-	github.com/filecoin-project/venus-auth v1.1.0
+	github.com/filecoin-project/venus-auth v1.2.2-0.20210716071053-565a8999f9e5
 	github.com/filecoin-project/venus-wallet v1.1.0
 	github.com/gbrlsnchs/jwt/v3 v3.0.0
 	github.com/go-kit/kit v0.10.0
@@ -64,6 +64,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/influxdata/influxdb1-client v0.0.0-20191209144304-8bf82d3c094d
+	github.com/ipfs-force-community/metrics v0.0.0-20210716075100-f6c912bf4b47
 	github.com/ipfs-force-community/venus-common-utils v0.0.0-20210714031758-ea0e25ff0ec4
 	github.com/ipfs-force-community/venus-gateway v0.0.0-20210528060921-460ec6185a7d
 	github.com/ipfs/bbloom v0.0.4
@@ -132,7 +133,7 @@ require (
 	github.com/open-rpc/meta-schema v0.0.0-20201029221707-1b72ef2ea333
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/polydawn/refmt v0.0.0-20190809202753-05966cbd336a
-	github.com/prometheus/client_golang v1.6.0
+	github.com/prometheus/client_golang v1.11.0
 	github.com/raulk/clock v1.1.0
 	github.com/raulk/go-watchdog v1.0.1
 	github.com/stretchr/testify v1.7.0
@@ -145,13 +146,13 @@ require (
 	github.com/whyrusleeping/pubsub v0.0.0-20190708150250-92bcb0691325
 	github.com/xorcare/golden v0.6.1-0.20191112154924-b87f686d7542
 	go.etcd.io/bbolt v1.3.4
-	go.opencensus.io v0.22.5
+	go.opencensus.io v0.23.0
 	go.uber.org/fx v1.9.0
 	go.uber.org/multierr v1.6.0
 	go.uber.org/zap v1.16.0
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	golang.org/x/sys v0.0.0-20210324051608-47abb6519492
+	golang.org/x/sys v0.0.0-20210603081109-ebe580a85c40
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
@@ -167,3 +168,5 @@ replace github.com/filecoin-project/filecoin-ffi => ./extern/filecoin-ffi
 replace github.com/filecoin-project/test-vectors => ./extern/test-vectors
 
 replace github.com/filecoin-project/go-jsonrpc => github.com/ipfs-force-community/go-jsonrpc v0.1.4-0.20210705020212-6dba7d87d791
+
+replace github.com/ipfs/go-ipfs-cmds => github.com/ipfs-force-community/go-ipfs-cmds v0.6.1-0.20210521090123-4587df7fa0ab

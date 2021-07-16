@@ -214,18 +214,18 @@ func StorageMiner(fc config.MinerFeeConfig) func(params StorageMinerParams) (*st
 	return func(params StorageMinerParams) (*storage.Miner, error) {
 		var (
 			messagerApi = params.MessagerApi
-			ds     = params.MetadataDS
-			mctx   = params.MetricsCtx
-			lc     = params.Lifecycle
-			api    = params.API
-			sealer = params.Sealer
-			h      = params.Host
-			sc     = params.SectorIDCounter
-			verif  = params.Verifier
-			prover = params.Prover
-			gsd    = params.GetSealingConfigFn
-			j      = params.Journal
-			as     = params.AddrSel
+			ds          = params.MetadataDS
+			mctx        = params.MetricsCtx
+			lc          = params.Lifecycle
+			api         = params.API
+			sealer      = params.Sealer
+			h           = params.Host
+			sc          = params.SectorIDCounter
+			verif       = params.Verifier
+			prover      = params.Prover
+			gsd         = params.GetSealingConfigFn
+			j           = params.Journal
+			as          = params.AddrSel
 		)
 
 		maddr, err := minerAddrFromDS(ds)

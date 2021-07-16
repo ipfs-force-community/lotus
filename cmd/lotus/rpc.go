@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"github.com/filecoin-project/venus-auth/core"
+	"github.com/filecoin-project/venus-auth/cmd/jwtclient"
+	"github.com/ipfs-force-community/metrics/ratelimit"
 	manet "github.com/multiformats/go-multiaddr/net"
 	"go.opencensus.io/tag"
 	"golang.org/x/xerrors"
@@ -14,7 +14,6 @@ import (
 	"os"
 	"os/signal"
 	"runtime"
-	"strings"
 	"syscall"
 
 	"github.com/ipfs/go-cid"
@@ -30,97 +29,50 @@ import (
 	"github.com/filecoin-project/lotus/metrics"
 	"github.com/filecoin-project/lotus/node"
 	"github.com/filecoin-project/lotus/node/impl"
-	auth2 "github.com/filecoin-project/venus-auth/auth"
 )
 
 var log = logging.Logger("main")
 
-type Handler2 struct {
-	Verify func(spanId, serviceName, preHost, host, token string) (*auth2.VerifyResponse, error)
-	Next   http.HandlerFunc
-}
-
-func MacAddr() string {
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		panic("net interfaces" + err.Error())
-	}
-	mac := ""
-	for _, netInterface := range interfaces {
-		mac = netInterface.HardwareAddr.String()
-		if len(mac) == 0 {
-			continue
-		}
-		break
-	}
-	return mac
-}
-
-func (h *Handler2) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	token := r.Header.Get("Authorization")
-	// if other nodes on the same PC, the permission check will passes directly
-	if strings.Split(r.RemoteAddr, ":")[0] == "127.0.0.1" {
-		ctx = auth.WithPerm(ctx, []auth.Permission{"read", "write", "sign", "admin"})
-	} else {
-		if token == "" {
-			token = r.FormValue("token")
-			if token != "" {
-				token = "Bearer " + token
-			}
-		}
-		if token != "" {
-			if !strings.HasPrefix(token, "Bearer ") {
-				log.Warn("missing Bearer prefix in venusauth header")
-				w.WriteHeader(401)
-				return
-			}
-			fmt.Println(token)
-			token = strings.TrimPrefix(token, "Bearer ")
-			res, err := h.Verify(MacAddr(), "lotus", r.RemoteAddr, r.Host, token)
-			if err != nil {
-				log.Warnf("JWT Verification failed (originating from %s): %s", r.RemoteAddr, err)
-				w.WriteHeader(401)
-				return
-			}
-			perms := core.AdaptOldStrategy(res.Perm)
-			perms2 := make([]auth.Permission, 0)
-			for _, v := range perms {
-				perms2 = append(perms2, auth.Permission(v))
-			}
-			ctx = auth.WithPerm(ctx, perms2)
-		}
-	}
-	h.Next(w, r.WithContext(ctx))
-}
-
-func serveRPC(a v1api.FullNode, authEndpoint string, stop node.StopFunc, addr multiaddr.Multiaddr, shutdownCh <-chan struct{}, maxRequestSize int64) error {
+func serveRPC(a v1api.FullNode, authEndpoint string, stop node.StopFunc, addr multiaddr.Multiaddr, shutdownCh <-chan struct{}, maxRequestSize int64, rate_limit_redis string) error {
 	serverOptions := make([]jsonrpc.ServerOption, 0)
 	if maxRequestSize != 0 { // config set
 		serverOptions = append(serverOptions, jsonrpc.WithMaxRequestSize(maxRequestSize))
 	}
+
+	var remoteJwtCli *jwtclient.JWTClient
+	if len(authEndpoint) > 0 {
+		remoteJwtCli = jwtclient.NewJWTClient(authEndpoint)
+	}
+
 	serveRpc := func(path string, hnd interface{}) {
 		rpcServer := jsonrpc.NewServer(serverOptions...)
 		rpcServer.Register("Filecoin", hnd)
 
-		if authEndpoint != "" {
-			cli := NewJWTClient(authEndpoint)
-			ah := &Handler2{
-				Verify: cli.Verify,
-				Next:   rpcServer.ServeHTTP,
-			}
-			http.Handle(path, ah)
-			fmt.Println("✅ venus auth")
-		} else {
-			ah := &auth.Handler{
-				Verify: a.AuthVerify,
-				Next:   rpcServer.ServeHTTP,
-			}
-			http.Handle(path, ah)
-		}
+		//register hander to verify token in venus-auth
+		handler := (http.Handler)(jwtclient.NewAuthMux(&WrapClient{a},
+			jwtclient.WarpIJwtAuthClient(remoteJwtCli),
+			rpcServer, logging.Logger("Auth")))
+		http.Handle(path, handler)
 	}
 
-	pma := api.PermissionedFullAPI(metrics.MetricedFullAPI(a))
+	limitWrapper := a
+	if len(rate_limit_redis) > 0 && remoteJwtCli != nil {
+		limiter, err := ratelimit.NewRateLimitHandler(
+			rate_limit_redis,
+			nil, &jwtclient.ValueFromCtx{},
+			jwtclient.WarpLimitFinder(remoteJwtCli),
+			logging.Logger("rate-limit"))
+		_ = logging.SetLogLevel("rate-limit", "info")
+		if err != nil {
+			return err
+		}
+
+		var rateLimitAPI v1api.FullNode
+		limiter.WarpFunctions(a, &rateLimitAPI)
+		limitWrapper = rateLimitAPI
+	}
+
+	pma := api.PermissionedFullAPI(metrics.MetricedFullAPI(limitWrapper))
 
 	serveRpc("/rpc/v1", pma)
 	serveRpc("/rpc/v0", &v0api.WrapperV1Full{FullNode: pma})

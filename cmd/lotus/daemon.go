@@ -156,6 +156,7 @@ var DaemonCmd = &cli.Command{
 			Name:  "restore-config",
 			Usage: "config file to use when restoring from backup",
 		},
+		&cli.StringFlag{Name: "rate_limit_redis", Hidden: true},
 	},
 	Action: func(cctx *cli.Context) error {
 		isLite := cctx.Bool("lite")
@@ -360,7 +361,7 @@ var DaemonCmd = &cli.Command{
 		}
 
 		// TODO: properly parse api endpoint (or make it a URL)
-		return serveRPC(api, r.AuthEndpoint(), stop, endpoint, shutdownChan, int64(cctx.Int("api-max-req-size")))
+		return serveRPC(api, r.AuthEndpoint(), stop, endpoint, shutdownChan, int64(cctx.Int("api-max-req-size")), cctx.String("rate_limit_redis"))
 	},
 	Subcommands: []*cli.Command{
 		daemonStopCmd,

@@ -391,7 +391,7 @@ func (s *WindowPoStScheduler) checkNextFaults(ctx context.Context, dlIdx uint64,
 		return faults, "", err
 	}
 
-	uid, err := s.messagerApi.PushMessage(ctx, msg,  &messager.MsgMeta{MaxFee: abi.TokenAmount(s.feeCfg.MaxWindowPoStGasFee)})
+	uid, err := s.messagerApi.PushMessage(ctx, msg, &messager.MsgMeta{MaxFee: abi.TokenAmount(s.feeCfg.MaxWindowPoStGasFee)})
 	if err != nil {
 		return faults, "", xerrors.Errorf("pushing message to mpool: %w", err)
 	}
@@ -777,7 +777,7 @@ func (s *WindowPoStScheduler) submitPost(ctx context.Context, proof *miner.Submi
 
 	// TODO: consider maybe caring about the output
 	uid, err := s.messagerApi.PushMessage(ctx, msg, &messager.MsgMeta{
-		MaxFee:            abi.TokenAmount(s.feeCfg.MaxWindowPoStGasFee),
+		MaxFee: abi.TokenAmount(s.feeCfg.MaxWindowPoStGasFee),
 	})
 
 	if err != nil {
