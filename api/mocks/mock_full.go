@@ -6,8 +6,6 @@ package mocks
 
 import (
 	context "context"
-	reflect "reflect"
-
 	address "github.com/filecoin-project/go-address"
 	bitfield "github.com/filecoin-project/go-bitfield"
 	datatransfer "github.com/filecoin-project/go-data-transfer"
