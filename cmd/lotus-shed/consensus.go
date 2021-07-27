@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 	"io"
 	"os"
 	"strconv"
@@ -15,7 +16,6 @@ import (
 	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/chain/types"
 	lcli "github.com/filecoin-project/lotus/cli"
-	cliutil "github.com/filecoin-project/lotus/cli/util"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/urfave/cli/v2"
@@ -112,7 +112,7 @@ var consensusCheckCmd = &cli.Command{
 			if err != nil {
 				return err
 			}
-			ainfo := cliutil.APIInfo{Addr: apima.String()}
+			ainfo := apiinfo.APIInfo{Addr: apima.String()}
 			addr, err := ainfo.DialArgs("v1")
 			if err != nil {
 				return err
