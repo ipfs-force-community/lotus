@@ -153,14 +153,14 @@ var runCmd = &cli.Command{
 		}
 
 		// Bootstrap with full node
-		remoteAddrs, err := nodeApi.NetAddrsListen(ctx)
+		/*remoteAddrs, err := nodeApi.NetAddrsListen(ctx)
 		if err != nil {
 			return xerrors.Errorf("getting full node libp2p address: %w", err)
 		}
 
 		if err := minerapi.NetConnect(ctx, remoteAddrs); err != nil {
 			return xerrors.Errorf("connecting to full node (libp2p): %w", err)
-		}
+		}*/
 
 		log.Infof("Remote version %s", v)
 
