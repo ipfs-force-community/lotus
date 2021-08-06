@@ -7,13 +7,14 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"github.com/filecoin-project/lotus/node/config"
-	"github.com/filecoin-project/lotus/node/modules/messager"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/filecoin-project/lotus/node/config"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 
 	"github.com/docker/go-units"
 	"github.com/google/uuid"
@@ -797,8 +798,8 @@ func checkV1ApiSupport(ctx context.Context, cctx *cli.Context) error {
 		return err
 	}
 
-	if !v.APIVersion.EqMajorMinor(lapi.FullAPIVersion0) {
-		return xerrors.Errorf("Remote API version didn't match (expected %s, remote %s)", lapi.FullAPIVersion0, v.APIVersion)
+	if !v.APIVersion.EqMajorMinor(lapi.FullAPIVersion1) {
+		return xerrors.Errorf("Remote API version didn't match (expected %s, remote %s)", lapi.FullAPIVersion1, v.APIVersion)
 	}
 
 	return nil
