@@ -8,12 +8,14 @@ import (
 )
 
 type VenusAPI interface {
-	//venus specify
-	GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*EstimateResult, error) //perm:read
+	// MethodGroup: Venus
 
 	MpoolSelects(context.Context, types.TipSetKey, []float64) ([][]*types.SignedMessage, error) //perm:read
 
 	MpoolPublishMessage(ctx context.Context, smsg *types.SignedMessage) error //perm:write
 
 	MpoolPublishByAddr(context.Context, address.Address) error //perm:write
+
+	GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*EstimateResult, error) //perm:read
+
 }

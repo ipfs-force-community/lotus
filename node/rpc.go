@@ -9,7 +9,9 @@ import (
 	"runtime"
 	"strconv"
 
+	"github.com/filecoin-project/venus-auth/cmd/jwtclient"
 	"github.com/gorilla/mux"
+	"github.com/ipfs-force-community/metrics/ratelimit"
 	"github.com/ipfs/go-cid"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/multiformats/go-multiaddr"
@@ -62,8 +64,13 @@ func ServeRPC(h http.Handler, id string, addr multiaddr.Multiaddr) (StopFunc, er
 }
 
 // FullNodeHandler returns a full node handler, to be mounted as-is on the server.
-func FullNodeHandler(a v1api.FullNode, permissioned bool, opts ...jsonrpc.ServerOption) (http.Handler, error) {
+func FullNodeHandler(a v1api.FullNode, permissioned bool, authEndpoint string, maxRequestSize int64, rate_limit_redis string, opts ...jsonrpc.ServerOption) (http.Handler, error) {
 	m := mux.NewRouter()
+
+	var remoteJwtCli *jwtclient.JWTClient
+	if len(authEndpoint) > 0 {
+		remoteJwtCli = jwtclient.NewJWTClient(authEndpoint)
+	}
 
 	serveRpc := func(path string, hnd interface{}) {
 		rpcServer := jsonrpc.NewServer(opts...)
@@ -71,13 +78,36 @@ func FullNodeHandler(a v1api.FullNode, permissioned bool, opts ...jsonrpc.Server
 
 		var handler http.Handler = rpcServer
 		if permissioned {
-			handler = &auth.Handler{Verify: a.AuthVerify, Next: rpcServer.ServeHTTP}
+			if remoteJwtCli != nil {
+				handler = (http.Handler)(jwtclient.NewAuthMux(&WrapClient{a},
+					jwtclient.WarpIJwtAuthClient(remoteJwtCli),
+					rpcServer, logging.Logger("Auth")))
+			} else {
+				handler = &auth.Handler{Verify: a.AuthVerify, Next: rpcServer.ServeHTTP}
+			}
 		}
 
 		m.Handle(path, handler)
 	}
 
-	fnapi := metrics.MetricedFullAPI(a)
+	limitWrapper := a
+	if len(rate_limit_redis) > 0 && remoteJwtCli != nil {
+		limiter, err := ratelimit.NewRateLimitHandler(
+			rate_limit_redis,
+			nil, &jwtclient.ValueFromCtx{},
+			jwtclient.WarpLimitFinder(remoteJwtCli),
+			logging.Logger("rate-limit"))
+		_ = logging.SetLogLevel("rate-limit", "info")
+		if err != nil {
+			return nil, err
+		}
+
+		var rateLimitAPI v1api.FullNode
+		limiter.WarpFunctions(a, &rateLimitAPI)
+		limitWrapper = rateLimitAPI
+	}
+
+	fnapi := metrics.MetricedFullAPI(limitWrapper)
 	if permissioned {
 		fnapi = api.PermissionedFullAPI(fnapi)
 	}

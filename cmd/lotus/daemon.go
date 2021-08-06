@@ -372,12 +372,10 @@ var DaemonCmd = &cli.Command{
 		}
 
 		// Instantiate the full node handler.
-		h, err := node.FullNodeHandler(api, true, serverOptions...)
+		h, err := node.FullNodeHandler(api, true, r.AuthEndpoint(), int64(cctx.Int("api-max-req-size")), cctx.String("rate_limit_redis"), serverOptions...)
 		if err != nil {
 			return fmt.Errorf("failed to instantiate rpc handler: %s", err)
 		}
-
-		return serveRPC(api, r.AuthEndpoint(), stop, endpoint, shutdownChan, int64(cctx.Int("api-max-req-size")), cctx.String("rate_limit_redis"))
 
 		// Serve the RPC.
 		rpcStopper, err := node.ServeRPC(h, "lotus-daemon", endpoint)
@@ -393,7 +391,7 @@ var DaemonCmd = &cli.Command{
 		<-finishCh // fires when shutdown is complete.
 
 		// TODO: properly parse api endpoint (or make it a URL)
-		return serveRPC(api, stop, endpoint, shutdownChan, int64(cctx.Int("api-max-req-size")))
+		return nil
 	},
 	Subcommands: []*cli.Command{
 		daemonStopCmd,

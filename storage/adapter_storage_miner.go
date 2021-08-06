@@ -31,7 +31,7 @@ import (
 var _ sealing.SealingAPI = new(SealingAPIAdapter)
 
 type SealingAPIAdapter struct {
-	delegate fullNodeFilteredAPI
+	delegate    fullNodeFilteredAPI
 	messagerApi messager.IMessager
 }
 

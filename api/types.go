@@ -3,11 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/filecoin-project/lotus/chain/types"
 	"time"
 
-	"github.com/filecoin-project/go-fil-markets/retrievalmarket"
 	"github.com/filecoin-project/lotus/chain/types"
+
+	"github.com/filecoin-project/go-fil-markets/retrievalmarket"
 
 	datatransfer "github.com/filecoin-project/go-data-transfer"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -207,4 +207,3 @@ type EstimateResult struct {
 	Msg *types.Message
 	Err string
 }
-

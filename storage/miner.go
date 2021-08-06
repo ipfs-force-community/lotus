@@ -186,7 +186,7 @@ func (m *Miner) Run(ctx context.Context) error {
 		// with the API that Lotus is capable of providing.
 		// The shim translates between "tipset tokens" and tipset keys, and
 		// provides extra methods.
-		adaptedAPI = NewSealingAPIAdapter(m.api, m.messagerApi,)
+		adaptedAPI = NewSealingAPIAdapter(m.api, m.messagerApi)
 
 		// Instantiate a precommit policy.
 		defaultDuration = policy.GetMaxSectorExpirationExtension() - (md.WPoStProvingPeriod * 2)

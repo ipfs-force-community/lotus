@@ -181,11 +181,11 @@ func (s *WindowPoStScheduler) runSubmitPoST(
 		post.ChainCommitRand = commRand
 
 		// Submit PoST
-		sm, submitErr := s.submitPoStMessage(ctx, post)
+		uid, submitErr := s.submitPoStMessage(ctx, post)
 		if submitErr != nil {
 			log.Errorf("submit window post failed: %+v", submitErr)
 		} else {
-			s.recordProofsEvent(post.Partitions, id)
+			s.recordProofsEvent(post.Partitions, uid)
 		}
 	}
 
@@ -251,7 +251,7 @@ func (s *WindowPoStScheduler) checkSectors(ctx context.Context, check bitfield.B
 // TODO: the waiting should happen in the background. Right now this
 //  is blocking/delaying the actual generation and submission of WindowPoSts in
 //  this deadline!
-func (s *WindowPoStScheduler) declareRecoveries(ctx context.Context, dlIdx uint64, partitions []api.Partition, tsk types.TipSetKey) ([]miner.RecoveryDeclaration, *types.SignedMessage, error) {
+func (s *WindowPoStScheduler) declareRecoveries(ctx context.Context, dlIdx uint64, partitions []api.Partition, tsk types.TipSetKey) ([]miner.RecoveryDeclaration, string, error) {
 	ctx, span := trace.StartSpan(ctx, "storage.declareRecoveries")
 	defer span.End()
 
@@ -356,7 +356,7 @@ func (s *WindowPoStScheduler) declareRecoveries(ctx context.Context, dlIdx uint6
 // TODO: the waiting should happen in the background. Right now this
 //  is blocking/delaying the actual generation and submission of WindowPoSts in
 //  this deadline!
-func (s *WindowPoStScheduler) declareFaults(ctx context.Context, dlIdx uint64, partitions []api.Partition, tsk types.TipSetKey) ([]miner.FaultDeclaration, *types.SignedMessage, error) {
+func (s *WindowPoStScheduler) declareFaults(ctx context.Context, dlIdx uint64, partitions []api.Partition, tsk types.TipSetKey) ([]miner.FaultDeclaration, string, error) {
 	ctx, span := trace.StartSpan(ctx, "storage.declareFaults")
 	defer span.End()
 
@@ -817,7 +817,8 @@ func (s *WindowPoStScheduler) submitPoStMessage(ctx context.Context, proof *mine
 
 	uid, err := s.messagerApi.PushMessage(ctx, msg, &messager.MsgMeta{
 		MaxFee: abi.TokenAmount(s.feeCfg.MaxWindowPoStGasFee),
-	})if err != nil {
+	})
+	if err != nil {
 		return "", xerrors.Errorf("pushing message to messager: %w", err)
 	}
 

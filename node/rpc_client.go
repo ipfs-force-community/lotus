@@ -1,13 +1,13 @@
-package main
+package node
 
 import (
 	"context"
+
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/lotus/api/v1api"
-	"github.com/filecoin-project/venus-auth/cmd/jwtclient"
 )
 
-var _ jwtclient.IJwtAuthClient = (*WrapClient)(nil)
+//var _ jwtclient.JWTClient = (*WrapClient)(nil)
 
 type WrapClient struct {
 	a v1api.FullNode
