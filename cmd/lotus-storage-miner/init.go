@@ -785,8 +785,8 @@ func createStorageMiner(ctx context.Context, api v1api.FullNode, msgClient messa
 }
 
 func checkV1ApiSupport(ctx context.Context, cctx *cli.Context) error {
-	// check v0 api version to make sure it supports v1 api
-	api0, closer, err := lcli.GetFullNodeAPI(cctx)
+	// check v1 api version to make sure it supports v1 api
+	api0, closer, err := lcli.GetFullNodeAPIV1(cctx)
 	if err != nil {
 		return err
 	}
