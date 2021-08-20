@@ -619,6 +619,7 @@ func makeHostKey(lr repo.LockedRepo) (crypto.PrivKey, error) {
 }
 
 func configureStorageMiner(ctx context.Context, api v1api.FullNode, msgClient messager.IMessager, addr address.Address, peerid peer.ID, gasPrice types.BigInt) error {
+	return nil
 	mi, err := api.StateMinerInfo(ctx, addr, types.EmptyTSK)
 	if err != nil {
 		return xerrors.Errorf("getWorkerAddr returned bad address: %w", err)
