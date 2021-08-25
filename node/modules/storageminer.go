@@ -453,7 +453,7 @@ func SetupBlockProducer(lc fx.Lifecycle, ds dtypes.MetadataDS, api v1api.FullNod
 
 	m := lotusminer.NewMiner(api, epp, minerAddr, sf, j)
 
-	/*	lc.Append(fx.Hook{
+	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			if err := m.Start(ctx); err != nil {
 				return err
@@ -463,7 +463,7 @@ func SetupBlockProducer(lc fx.Lifecycle, ds dtypes.MetadataDS, api v1api.FullNod
 		OnStop: func(ctx context.Context) error {
 			return m.Stop(ctx)
 		},
-	})*/
+	})
 
 	return m, nil
 }
