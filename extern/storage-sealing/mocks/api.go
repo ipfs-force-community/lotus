@@ -19,6 +19,7 @@ import (
 	miner "github.com/filecoin-project/lotus/chain/actors/builtin/miner"
 	types "github.com/filecoin-project/lotus/chain/types"
 	sealing "github.com/filecoin-project/lotus/extern/storage-sealing"
+	messager "github.com/filecoin-project/lotus/node/modules/messager"
 	miner0 "github.com/filecoin-project/specs-actors/actors/builtin/miner"
 	gomock "github.com/golang/mock/gomock"
 	cid "github.com/ipfs/go-cid"
@@ -106,6 +107,81 @@ func (m *MockSealingAPI) ChainReadObj(arg0 context.Context, arg1 cid.Cid) ([]byt
 func (mr *MockSealingAPIMockRecorder) ChainReadObj(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChainReadObj", reflect.TypeOf((*MockSealingAPI)(nil).ChainReadObj), arg0, arg1)
+}
+
+// MessagerGetMessageByUid mocks base method.
+func (m *MockSealingAPI) MessagerGetMessageByUid(arg0 context.Context, arg1 cid.Cid) (*sealing.MsgLookup, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MessagerGetMessageByUid", arg0, arg1)
+	ret0, _ := ret[0].(*sealing.MsgLookup)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MessagerGetMessageByUid indicates an expected call of MessagerGetMessageByUid.
+func (mr *MockSealingAPIMockRecorder) MessagerGetMessageByUid(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MessagerGetMessageByUid", reflect.TypeOf((*MockSealingAPI)(nil).MessagerGetMessageByUid), arg0, arg1)
+}
+
+// MessagerPushMessage mocks base method.
+func (m *MockSealingAPI) MessagerPushMessage(arg0 context.Context, arg1 *types.Message, arg2 *messager.MsgMeta) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MessagerPushMessage", arg0, arg1, arg2)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MessagerPushMessage indicates an expected call of MessagerPushMessage.
+func (mr *MockSealingAPIMockRecorder) MessagerPushMessage(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MessagerPushMessage", reflect.TypeOf((*MockSealingAPI)(nil).MessagerPushMessage), arg0, arg1, arg2)
+}
+
+// MessagerPushMessageWithId mocks base method.
+func (m *MockSealingAPI) MessagerPushMessageWithId(arg0 context.Context, arg1 string, arg2 *types.Message, arg3 *messager.MsgMeta) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MessagerPushMessageWithId", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MessagerPushMessageWithId indicates an expected call of MessagerPushMessageWithId.
+func (mr *MockSealingAPIMockRecorder) MessagerPushMessageWithId(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MessagerPushMessageWithId", reflect.TypeOf((*MockSealingAPI)(nil).MessagerPushMessageWithId), arg0, arg1, arg2, arg3)
+}
+
+// MessagerSendMsg mocks base method.
+func (m *MockSealingAPI) MessagerSendMsg(arg0 context.Context, arg1, arg2 address.Address, arg3 abi.MethodNum, arg4, arg5 big.Int, arg6 []byte) (cid.Cid, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MessagerSendMsg", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+	ret0, _ := ret[0].(cid.Cid)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MessagerSendMsg indicates an expected call of MessagerSendMsg.
+func (mr *MockSealingAPIMockRecorder) MessagerSendMsg(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MessagerSendMsg", reflect.TypeOf((*MockSealingAPI)(nil).MessagerSendMsg), arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+}
+
+// MessagerWaitMessage mocks base method.
+func (m *MockSealingAPI) MessagerWaitMessage(arg0 context.Context, arg1 cid.Cid) (sealing.MsgLookup, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MessagerWaitMessage", arg0, arg1)
+	ret0, _ := ret[0].(sealing.MsgLookup)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MessagerWaitMessage indicates an expected call of MessagerWaitMessage.
+func (mr *MockSealingAPIMockRecorder) MessagerWaitMessage(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MessagerWaitMessage", reflect.TypeOf((*MockSealingAPI)(nil).MessagerWaitMessage), arg0, arg1)
 }
 
 // SendMsg mocks base method.
