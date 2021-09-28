@@ -3,8 +3,9 @@ package impl
 import (
 	"context"
 	"encoding/json"
-	"github.com/filecoin-project/lotus/node/modules/messager"
 	"fmt"
+	"github.com/filecoin-project/lotus/build"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"net/http"
 	"os"
 	"sort"
@@ -24,8 +25,6 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
-
-	"github.com/filecoin-project/lotus/build"
 
 	"github.com/filecoin-project/go-address"
 	datatransfer "github.com/filecoin-project/go-data-transfer"
@@ -59,8 +58,8 @@ type StorageMinerAPI struct {
 	api.Common
 	api.Net
 
-	Messager          messager.IMessager
-	
+	Messager messager.IMessager
+
 	EnabledSubsystems api.MinerSubsystems
 
 	Full        api.FullNode
@@ -994,7 +993,6 @@ func (sm *StorageMinerAPI) ComputeProof(ctx context.Context, ssi []builtin.Secto
 func (sm *StorageMinerAPI) RuntimeSubsystems(context.Context) (res api.MinerSubsystems, err error) {
 	return sm.EnabledSubsystems, nil
 }
-
 
 func (sm *StorageMinerAPI) MessagerWaitMessage(ctx context.Context, uuid cid.Cid) (*messager.MsgDetail, error) {
 	return sm.Messager.WaitMessage(ctx, uuid.String(), build.MessageConfidence)
