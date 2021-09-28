@@ -58,17 +58,15 @@ type ProviderNodeAdapter struct {
 	scMgr                       *SectorCommittedManager
 }
 
-func NewProviderNodeAdapter(fc *config.MinerFeeConfig, dc *config.DealmakingConfig) func(mctx helpers.MetricsCtx, lc fx.Lifecycle, dag dtypes.StagingDAG, walletClient cli.IWalletClient, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
-	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle, dag dtypes.StagingDAG, walletClient cli.IWalletClient, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
-func NewProviderNodeAdapter(fc *config.MinerFeeConfig, dc *config.DealmakingConfig) func(mctx helpers.MetricsCtx, lc fx.Lifecycle, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
-	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
+func NewProviderNodeAdapter(fc *config.MinerFeeConfig, dc *config.DealmakingConfig) func(mctx helpers.MetricsCtx, lc fx.Lifecycle, walletClient cli.IWalletClient, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
+	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle, walletClient cli.IWalletClient, secb *sectorblocks.SectorBlocks, full v1api.FullNode, dealPublisher *DealPublisher) storagemarket.StorageProviderNode {
 		ctx := helpers.LifecycleCtx(mctx, lc)
 
 		ev := events.NewEvents(ctx, full)
 		na := &ProviderNodeAdapter{
-			FullNode: full,
-			walletClient:  walletClient,
-			
+			FullNode:     full,
+			walletClient: walletClient,
+
 			secb:          secb,
 			ev:            ev,
 			dealPublisher: dealPublisher,

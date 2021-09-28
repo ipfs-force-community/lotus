@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"image"
 	"image/color"
 	"image/png"
 	"os"
 	"sort"
-	"github.com/filecoin-project/lotus/node/modules/messager"
 	"strconv"
 	"sync"
 

@@ -2,10 +2,12 @@ package node
 
 import (
 	"errors"
-	"time"
-
+	"github.com/filecoin-project/lotus/cli"
+	"github.com/filecoin-project/lotus/node/impl/proof_client"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
+	"time"
 
 	"github.com/filecoin-project/go-fil-markets/retrievalmarket"
 	rmnet "github.com/filecoin-project/go-fil-markets/retrievalmarket/network"
@@ -202,6 +204,15 @@ func ConfigStorageMiner(c interface{}) Option {
 			Override(new(storagemarket.StorageProviderNode), storageadapter.NewProviderNodeAdapter(&cfg.Fees, &cfg.Dealmaking)),
 		),
 
+		//venus
+		Override(new(messager.IMessager), messager.NewMessager),                        //start messager
+		Override(new(cli.IWalletClient), cli.NewWalletClient),                          //connect a local wallet
+		Override(new(proof_client.ProofEventClient), proof_client.NewProofEventClient), //register api to venus pool proof
+		Override(StartProofEventKey, proof_client.StartProofEvent),
+
+		Override(new(*messager.MessagerConfig), &cfg.Venus.Messager),
+		Override(new(*config.WalletConfig), &cfg.Venus.Wallet),
+		Override(new(*config.RegisterProofConfig), &cfg.Venus.RegisterProofAPI),
 		Override(new(sectorstorage.SealerConfig), cfg.Storage),
 		Override(new(*storage.AddressSelector), modules.AddressSelector(&cfg.Addresses)),
 	)

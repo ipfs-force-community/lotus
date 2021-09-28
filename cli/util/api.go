@@ -26,6 +26,8 @@ import (
 	logging "github.com/ipfs/go-log/v2"
 )
 
+var log = logging.Logger("cli")
+
 const (
 	metadataTraceContext = "traceContext"
 )
@@ -95,7 +97,7 @@ func EnvsForAPIInfos(t repo.RepoType) (primary string, fallbacks []string, depre
 //  2. *_API_INFO environment variables
 //  3. deprecated *_API_INFO environment variables
 //  4. *-repo command line flags.
-func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
+func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (apiinfo.APIInfo, error) {
 	// Check if there was a flag passed with the listen address of the API
 	// server (only used by the tests)
 	apiFlags := flagsForAPI(t)
@@ -116,14 +118,14 @@ func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
 	primaryEnv, fallbacksEnvs, deprecatedEnvs := EnvsForAPIInfos(t)
 	env, ok := os.LookupEnv(primaryEnv)
 	if ok {
-		return ParseApiInfo(env), nil
+		return apiinfo.ParseApiInfo(env), nil
 	}
 
 	for _, env := range deprecatedEnvs {
 		env, ok := os.LookupEnv(env)
 		if ok {
 			log.Warnf("Using deprecated env(%s) value, please use env(%s) instead.", env, primaryEnv)
-			return ParseApiInfo(env), nil
+			return apiinfo.ParseApiInfo(env), nil
 		}
 	}
 
@@ -137,26 +139,26 @@ func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
 
 		p, err := homedir.Expand(path)
 		if err != nil {
-			return APIInfo{}, xerrors.Errorf("could not expand home dir (%s): %w", f, err)
+			return apiinfo.APIInfo{}, xerrors.Errorf("could not expand home dir (%s): %w", f, err)
 		}
 
 		r, err := repo.NewFS(p)
 		if err != nil {
-			return APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
+			return apiinfo.APIInfo{}, xerrors.Errorf("could not open repo at path: %s; %w", p, err)
 		}
 
 		exists, err := r.Exists()
 		if err != nil {
-			return APIInfo{}, xerrors.Errorf("repo.Exists returned an error: %w", err)
+			return apiinfo.APIInfo{}, xerrors.Errorf("repo.Exists returned an error: %w", err)
 		}
 
 		if !exists {
-			return APIInfo{}, errors.New("repo directory does not exist. Make sure your configuration is correct")
+			return apiinfo.APIInfo{}, errors.New("repo directory does not exist. Make sure your configuration is correct")
 		}
 
 		ma, err := r.APIEndpoint()
 		if err != nil {
-			return APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
+			return apiinfo.APIInfo{}, xerrors.Errorf("could not get api endpoint: %w", err)
 		}
 
 		token, err := r.APIToken()
@@ -167,16 +169,16 @@ func GetAPIInfo(ctx *cli.Context, t repo.RepoType) (APIInfo, error) {
 			Addr:  ma.String(),
 			Token: token,
 		}, nil
-}
+	}
 
 	for _, env := range fallbacksEnvs {
 		env, ok := os.LookupEnv(env)
 		if ok {
-			return ParseApiInfo(env), nil
+			return apiinfo.ParseApiInfo(env), nil
 		}
 	}
 
-	return APIInfo{}, fmt.Errorf("could not determine API endpoint for node type: %v", t)
+	return apiinfo.APIInfo{}, fmt.Errorf("could not determine API endpoint for node type: %v", t)
 }
 
 func GetRawAPI(ctx *cli.Context, t repo.RepoType, version string) (string, http.Header, error) {

@@ -3,10 +3,6 @@ package node
 import (
 	"context"
 	"errors"
-	"github.com/filecoin-project/lotus/cli"
-	"github.com/filecoin-project/lotus/miner"
-	"github.com/filecoin-project/lotus/node/impl/proof_client"
-	"github.com/filecoin-project/lotus/node/modules/messager"
 	"os"
 	"time"
 

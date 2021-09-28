@@ -30,7 +30,7 @@ require (
 	github.com/filecoin-project/filecoin-ffi v0.30.4-0.20200910194244-f640612a1a1f
 	github.com/filecoin-project/go-address v0.0.5
 	github.com/filecoin-project/go-bitfield v0.2.4
-	github.com/filecoin-project/go-cbor-util v0.0.0-20191219014500-08c40a1e63a2
+	github.com/filecoin-project/go-cbor-util v0.0.0-20201016124514-d0bbec7bfcc4
 	github.com/filecoin-project/go-commp-utils v0.1.1-0.20210427191551-70bf140d31c7
 	github.com/filecoin-project/go-crypto v0.0.0-20191218222705-effae4ea9f03
 	github.com/filecoin-project/go-data-transfer v1.7.8
@@ -137,13 +137,13 @@ require (
 	github.com/open-rpc/meta-schema v0.0.0-20201029221707-1b72ef2ea333
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/polydawn/refmt v0.0.0-20190809202753-05966cbd336a
-	github.com/prometheus/client_golang v1.10.0
+	github.com/prometheus/client_golang v1.11.0
 	github.com/raulk/clock v1.1.0
 	github.com/raulk/go-watchdog v1.0.1
 	github.com/streadway/quantile v0.0.0-20150917103942-b0c588724d25
 	github.com/stretchr/testify v1.7.0
 	github.com/syndtr/goleveldb v1.0.0
-	github.com/urfave/cli/v2 v2.2.0
+	github.com/urfave/cli/v2 v2.3.0
 	github.com/whyrusleeping/bencher v0.0.0-20190829221104-bb6607aa8bba
 	github.com/whyrusleeping/cbor-gen v0.0.0-20210713220151-be142a5ae1a8
 	github.com/whyrusleeping/ledger-filecoin-go v0.9.1-0.20201010031517-c3dcc1bddce4
@@ -151,7 +151,6 @@ require (
 	github.com/whyrusleeping/pubsub v0.0.0-20190708150250-92bcb0691325
 	github.com/xorcare/golden v0.6.1-0.20191112154924-b87f686d7542
 	go.opencensus.io v0.23.0
-	go.uber.org/dig v1.10.0 // indirect
 	go.uber.org/fx v1.9.0
 	go.uber.org/multierr v1.7.0
 	go.uber.org/zap v1.16.0

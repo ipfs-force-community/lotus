@@ -436,6 +436,11 @@ var sectorsCheckExpireCmd = &cli.Command{
 		},
 	},
 	Action: func(cctx *cli.Context) error {
+		nodeAPI, closer, err := lcli.GetStorageMinerAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
 
 		fullApi, nCloser, err := lcli.GetFullNodeAPI(cctx)
 		if err != nil {
@@ -445,7 +450,7 @@ var sectorsCheckExpireCmd = &cli.Command{
 
 		ctx := lcli.ReqContext(cctx)
 
-		maddr, err := getActorAddress(ctx, cctx)
+		maddr, err := getActorAddress(ctx, nodeAPI, cctx)
 		if err != nil {
 			return err
 		}
@@ -658,6 +663,12 @@ var sectorsRenewCmd = &cli.Command{
 
 		spec := &api.MessageSendSpec{MaxFee: abi.TokenAmount(mf)}
 
+		nodeAPI, closer, err := lcli.GetStorageMinerAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer closer()
+
 		fullApi, nCloser, err := lcli.GetFullNodeAPI(cctx)
 		if err != nil {
 			return err
@@ -666,7 +677,7 @@ var sectorsRenewCmd = &cli.Command{
 
 		ctx := lcli.ReqContext(cctx)
 
-		maddr, err := getActorAddress(ctx, cctx)
+		maddr, err := getActorAddress(ctx, nodeAPI, cctx)
 		if err != nil {
 			return err
 		}

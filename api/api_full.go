@@ -59,11 +59,8 @@ const LookbackNoLimit = abi.ChainEpoch(-1)
 // FullNode API is a low-level interface to the Filecoin network full node
 type FullNode interface {
 	Common
-<<<<<<< HEAD
 	Net
-=======
 	VenusAPI
->>>>>>> 46dce2064 (compatable with venus pool)
 
 	// MethodGroup: Chain
 	// The Chain method group contains methods for interacting with the

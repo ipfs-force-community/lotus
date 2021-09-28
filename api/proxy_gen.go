@@ -29,6 +29,7 @@ import (
 	"github.com/filecoin-project/lotus/extern/storage-sealing/sealiface"
 	marketevents "github.com/filecoin-project/lotus/markets/loggers"
 	"github.com/filecoin-project/lotus/node/modules/dtypes"
+	"github.com/filecoin-project/lotus/node/modules/messager"
 	"github.com/filecoin-project/lotus/node/repo/imports"
 	"github.com/filecoin-project/specs-storage/storage"
 	"github.com/google/uuid"
@@ -97,6 +98,8 @@ type FullNodeStruct struct {
 	CommonStruct
 
 	NetStruct
+
+	VenusAPIStruct
 
 	Internal struct {
 		BeaconGetEntry func(p0 context.Context, p1 abi.ChainEpoch) (*types.BeaconEntry, error) `perm:"read"`
@@ -209,7 +212,7 @@ type FullNodeStruct struct {
 
 		GasEstimateFeeCap func(p0 context.Context, p1 *types.Message, p2 int64, p3 types.TipSetKey) (types.BigInt, error) `perm:"read"`
 
-		GasEstimateGasLimit func(p0 context.Context, p1 *types.Message, p2 types.TipSetKey) (int64, error) `perm:"read"`
+		GasEstimateGasLimit func(p0 context.Context, p1 *types.Message, p2 types.TipSetKey) (int64, error) ``
 
 		GasEstimateGasPremium func(p0 context.Context, p1 uint64, p2 address.Address, p3 int64, p4 types.TipSetKey) (types.BigInt, error) `perm:"read"`
 
@@ -469,6 +472,8 @@ type FullNodeStub struct {
 	CommonStub
 
 	NetStub
+
+	VenusAPIStub
 }
 
 type GatewayStruct struct {
@@ -682,6 +687,12 @@ type StorageMinerStruct struct {
 
 		MarketSetRetrievalAsk func(p0 context.Context, p1 *retrievalmarket.Ask) error `perm:"admin"`
 
+		MessagerGetMessage func(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) `perm:"read"`
+
+		MessagerPushMessage func(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) `perm:"write"`
+
+		MessagerWaitMessage func(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) `perm:"read"`
+
 		MiningBase func(p0 context.Context) (*types.TipSet, error) `perm:"read"`
 
 		PiecesGetCIDInfo func(p0 context.Context, p1 cid.Cid) (*piecestore.CIDInfo, error) `perm:"read"`
@@ -804,6 +815,21 @@ type StorageMinerStub struct {
 	CommonStub
 
 	NetStub
+}
+
+type VenusAPIStruct struct {
+	Internal struct {
+		GasBatchEstimateMessageGas func(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) `perm:"read"`
+
+		MpoolPublishByAddr func(p0 context.Context, p1 address.Address) error `perm:"write"`
+
+		MpoolPublishMessage func(p0 context.Context, p1 *types.SignedMessage) error `perm:"write"`
+
+		MpoolSelects func(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) `perm:"read"`
+	}
+}
+
+type VenusAPIStub struct {
 }
 
 type WalletStruct struct {
@@ -4015,6 +4041,39 @@ func (s *StorageMinerStub) MarketSetRetrievalAsk(p0 context.Context, p1 *retriev
 	return ErrNotSupported
 }
 
+func (s *StorageMinerStruct) MessagerGetMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	if s.Internal.MessagerGetMessage == nil {
+		return nil, ErrNotSupported
+	}
+	return s.Internal.MessagerGetMessage(p0, p1)
+}
+
+func (s *StorageMinerStub) MessagerGetMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return nil, ErrNotSupported
+}
+
+func (s *StorageMinerStruct) MessagerPushMessage(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) {
+	if s.Internal.MessagerPushMessage == nil {
+		return *new(cid.Cid), ErrNotSupported
+	}
+	return s.Internal.MessagerPushMessage(p0, p1, p2)
+}
+
+func (s *StorageMinerStub) MessagerPushMessage(p0 context.Context, p1 *types.Message, p2 *messager.MsgMeta) (cid.Cid, error) {
+	return *new(cid.Cid), ErrNotSupported
+}
+
+func (s *StorageMinerStruct) MessagerWaitMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	if s.Internal.MessagerWaitMessage == nil {
+		return nil, ErrNotSupported
+	}
+	return s.Internal.MessagerWaitMessage(p0, p1)
+}
+
+func (s *StorageMinerStub) MessagerWaitMessage(p0 context.Context, p1 cid.Cid) (*messager.MsgDetail, error) {
+	return nil, ErrNotSupported
+}
+
 func (s *StorageMinerStruct) MiningBase(p0 context.Context) (*types.TipSet, error) {
 	if s.Internal.MiningBase == nil {
 		return nil, ErrNotSupported
@@ -4653,6 +4712,50 @@ func (s *StorageMinerStub) WorkerStats(p0 context.Context) (map[uuid.UUID]storif
 	return *new(map[uuid.UUID]storiface.WorkerStats), ErrNotSupported
 }
 
+func (s *VenusAPIStruct) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
+	if s.Internal.GasBatchEstimateMessageGas == nil {
+		return *new([]*EstimateResult), ErrNotSupported
+	}
+	return s.Internal.GasBatchEstimateMessageGas(p0, p1, p2, p3)
+}
+
+func (s *VenusAPIStub) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
+	return *new([]*EstimateResult), ErrNotSupported
+}
+
+func (s *VenusAPIStruct) MpoolPublishByAddr(p0 context.Context, p1 address.Address) error {
+	if s.Internal.MpoolPublishByAddr == nil {
+		return ErrNotSupported
+	}
+	return s.Internal.MpoolPublishByAddr(p0, p1)
+}
+
+func (s *VenusAPIStub) MpoolPublishByAddr(p0 context.Context, p1 address.Address) error {
+	return ErrNotSupported
+}
+
+func (s *VenusAPIStruct) MpoolPublishMessage(p0 context.Context, p1 *types.SignedMessage) error {
+	if s.Internal.MpoolPublishMessage == nil {
+		return ErrNotSupported
+	}
+	return s.Internal.MpoolPublishMessage(p0, p1)
+}
+
+func (s *VenusAPIStub) MpoolPublishMessage(p0 context.Context, p1 *types.SignedMessage) error {
+	return ErrNotSupported
+}
+
+func (s *VenusAPIStruct) MpoolSelects(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) {
+	if s.Internal.MpoolSelects == nil {
+		return *new([][]*types.SignedMessage), ErrNotSupported
+	}
+	return s.Internal.MpoolSelects(p0, p1, p2)
+}
+
+func (s *VenusAPIStub) MpoolSelects(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) {
+	return *new([][]*types.SignedMessage), ErrNotSupported
+}
+
 func (s *WalletStruct) WalletDelete(p0 context.Context, p1 address.Address) error {
 	if s.Internal.WalletDelete == nil {
 		return ErrNotSupported
@@ -4991,5 +5094,6 @@ var _ Gateway = new(GatewayStruct)
 var _ Net = new(NetStruct)
 var _ Signable = new(SignableStruct)
 var _ StorageMiner = new(StorageMinerStruct)
+var _ VenusAPI = new(VenusAPIStruct)
 var _ Wallet = new(WalletStruct)
 var _ Worker = new(WorkerStruct)

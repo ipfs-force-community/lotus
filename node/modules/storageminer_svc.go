@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"github.com/filecoin-project/lotus/storage/sectorblocks"
+	"github.com/ipfs-force-community/venus-common-utils/apiinfo"
 
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
 
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/client"
-	cliutil "github.com/filecoin-project/lotus/cli/util"
 	"github.com/filecoin-project/lotus/node/modules/helpers"
 )
 
@@ -22,7 +22,7 @@ var _ sectorblocks.SectorBuilder = *new(MinerSealingService)
 func connectMinerService(apiInfo string) func(mctx helpers.MetricsCtx, lc fx.Lifecycle) (api.StorageMiner, error) {
 	return func(mctx helpers.MetricsCtx, lc fx.Lifecycle) (api.StorageMiner, error) {
 		ctx := helpers.LifecycleCtx(mctx, lc)
-		info := cliutil.ParseApiInfo(apiInfo)
+		info := apiinfo.ParseApiInfo(apiInfo)
 		addr, err := info.DialArgs("v0")
 		if err != nil {
 			return nil, xerrors.Errorf("could not get DialArgs: %w", err)

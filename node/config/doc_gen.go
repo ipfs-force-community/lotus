@@ -528,6 +528,20 @@ Type: Array of multiaddress peerinfo strings, must include peerid (/p2p/12D3K...
 			Comment: ``,
 		},
 	},
+	"RegisterProofConfig": []DocField{
+		{
+			Name: "Urls",
+			Type: "[]string",
+
+			Comment: ``,
+		},
+		{
+			Name: "Token",
+			Type: "string",
+
+			Comment: ``,
+		},
+	},
 	"RetrievalPricing": []DocField{
 		{
 			Name: "Strategy",
@@ -798,6 +812,32 @@ Default is 20 (about once a week).`,
 
 			Comment: ``,
 		},
+		{
+			Name: "Venus",
+			Type: "VenusConfig",
+
+			Comment: ``,
+		},
+	},
+	"VenusConfig": []DocField{
+		{
+			Name: "Messager",
+			Type: "messager.MessagerConfig",
+
+			Comment: ``,
+		},
+		{
+			Name: "RegisterProofAPI",
+			Type: "RegisterProofConfig",
+
+			Comment: ``,
+		},
+		{
+			Name: "Wallet",
+			Type: "WalletConfig",
+
+			Comment: ``,
+		},
 	},
 	"Wallet": []DocField{
 		{
@@ -815,6 +855,20 @@ Default is 20 (about once a week).`,
 		{
 			Name: "DisableLocal",
 			Type: "bool",
+
+			Comment: ``,
+		},
+	},
+	"WalletConfig": []DocField{
+		{
+			Name: "Url",
+			Type: "string",
+
+			Comment: ``,
+		},
+		{
+			Name: "Token",
+			Type: "string",
 
 			Comment: ``,
 		},

@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
+	rlepluslazy "github.com/filecoin-project/go-bitfield/rle"
+	"github.com/filecoin-project/lotus/build"
+	cbor "github.com/ipfs/go-ipld-cbor"
 	"os"
 	"strings"
-
-	rlepluslazy "github.com/filecoin-project/go-bitfield/rle"
-	cbor "github.com/ipfs/go-ipld-cbor"
 
 	"github.com/fatih/color"
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -414,7 +414,7 @@ var actorControlList = &cli.Command{
 
 		ctx := lcli.ReqContext(cctx)
 
-		maddr, err := getActorAddress(ctx, cctx)
+		maddr, err := getActorAddress(ctx, nodeApi, cctx)
 		if err != nil {
 			return err
 		}

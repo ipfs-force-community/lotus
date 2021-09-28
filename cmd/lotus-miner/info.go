@@ -130,7 +130,7 @@ func infoCmdAct(cctx *cli.Context) error {
 }
 
 func handleMiningInfo(ctx context.Context, cctx *cli.Context, fullapi v0api.FullNode, nodeApi api.StorageMiner) error {
-	maddr, err := getActorAddress(ctx, cctx)
+	maddr, err := getActorAddress(ctx, nodeApi, cctx)
 	if err != nil {
 		return err
 	}
