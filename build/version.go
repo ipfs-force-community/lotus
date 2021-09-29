@@ -14,6 +14,7 @@ const (
 	BuildInteropnet   = 0x5
 	BuildNerpanet     = 0x6
 	BuildButterflynet = 0x7
+	BuildTypeForcenet = 0x8
 )
 
 func buildType() string {
