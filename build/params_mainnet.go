@@ -5,6 +5,7 @@
 // +build !nerpanet
 // +build !butterflynet
 // +build !interopnet
+// +build !forcenet
 
 package build
 
