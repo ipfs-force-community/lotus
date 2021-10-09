@@ -2,6 +2,9 @@ package impl
 
 import (
 	"context"
+	"github.com/filecoin-project/go-state-types/abi"
+	"github.com/filecoin-project/go-state-types/crypto"
+	"github.com/filecoin-project/lotus/chain/types"
 	"time"
 
 	"github.com/libp2p/go-libp2p-core/peer"
@@ -39,6 +42,14 @@ type FullNodeAPI struct {
 
 	DS          dtypes.MetadataDS
 	NetworkName dtypes.NetworkName
+}
+
+func (n *FullNodeAPI) ChainGetRandomnessFromTickets(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error) {
+	return n.StateGetRandomnessFromTickets(ctx, personalization, randEpoch, entropy, tsk)
+}
+
+func (n *FullNodeAPI) ChainGetRandomnessFromBeacon(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error) {
+	return n.StateGetRandomnessFromBeacon(ctx, personalization, randEpoch, entropy, tsk)
 }
 
 func (n *FullNodeAPI) CreateBackup(ctx context.Context, fpath string) error {

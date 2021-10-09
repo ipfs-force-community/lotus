@@ -143,6 +143,10 @@ type FullNodeStruct struct {
 
 		ChainHead func(p0 context.Context) (*types.TipSet, error) `perm:"read"`
 
+		ChainGetRandomnessFromTickets func(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) `perm:"read"`
+
+		ChainGetRandomnessFromBeacon func(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) `perm:"read"`
+
 		ChainNotify func(p0 context.Context) (<-chan []*HeadChange, error) `perm:"read"`
 
 		ChainReadObj func(p0 context.Context, p1 cid.Cid) ([]byte, error) `perm:"read"`
@@ -1249,6 +1253,28 @@ func (s *FullNodeStruct) ChainHead(p0 context.Context) (*types.TipSet, error) {
 }
 
 func (s *FullNodeStub) ChainHead(p0 context.Context) (*types.TipSet, error) {
+	return nil, ErrNotSupported
+}
+
+func (s *FullNodeStruct) ChainGetRandomnessFromTickets(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
+	if s.Internal.ChainGetRandomnessFromTickets == nil {
+		return nil, ErrNotSupported
+	}
+	return s.Internal.ChainGetRandomnessFromTickets(p0, p1, p2, p3, p4)
+}
+
+func (s *FullNodeStub) ChainGetRandomnessFromTickets(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
+	return nil, ErrNotSupported
+}
+
+func (s *FullNodeStruct) ChainGetRandomnessFromBeacon(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
+	if s.Internal.ChainGetRandomnessFromBeacon == nil {
+		return nil, ErrNotSupported
+	}
+	return s.Internal.ChainGetRandomnessFromBeacon(p0, p1, p2, p3, p4)
+}
+
+func (s *FullNodeStub) ChainGetRandomnessFromBeacon(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
 	return nil, ErrNotSupported
 }
 
