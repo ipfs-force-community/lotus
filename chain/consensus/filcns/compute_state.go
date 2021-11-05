@@ -2,10 +2,16 @@ package filcns
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/filecoin-project/go-address"
+	"github.com/filecoin-project/lotus/chain/state"
+	"io/ioutil"
 	"sync/atomic"
 
 	"github.com/filecoin-project/lotus/chain/rand"
 
+	cbor "github.com/ipfs/go-ipld-cbor"
 	"github.com/ipfs/go-cid"
 	cbg "github.com/whyrusleeping/cbor-gen"
 	"go.opencensus.io/stats"
@@ -91,6 +97,13 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 
 		return sm.VMConstructor()(ctx, vmopt)
 	}
+	aaaa, _ := state.LoadStateTree(cbor.NewCborStore(sm.ChainStore().StateBlockstore()), pstate)
+	aaaaaa, _ := address.NewFromString("f01427570")
+	a, err := aaaa.GetActor(aaaaaa)
+	if err != nil {
+		fmt.Println("err: ", err)
+	}
+	fmt.Println(*a)
 
 	vmi, err := makeVmWithBaseState(pstate)
 	if err != nil {
@@ -98,6 +111,9 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 	}
 
 	runCron := func(epoch abi.ChainEpoch) error {
+		root, _ := vmi.Flush(context.TODO())
+		fmt.Println("before cron root: %s", root,)
+
 		cronMsg := &types.Message{
 			To:         cron.Address,
 			From:       builtin.SystemActorAddr,
@@ -121,6 +137,8 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 		if ret.ExitCode != 0 {
 			return xerrors.Errorf("CheckProofSubmissions exit was non-zero: %d", ret.ExitCode)
 		}
+		root, _ = vmi.Flush(context.TODO())
+		fmt.Println("after cron root: %s", root)
 
 		return nil
 	}
@@ -156,6 +174,16 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 		pstate = newState
 	}
 
+	/*	processedMsgs := map[cid.Cid]bool{}
+		for _, b := range bms {
+			for _, cm := range append(b.BlsMessages, b.SecpkMessages...) {
+				if _, found := processedMsgs[cm.Cid()]; found {
+					continue
+				}
+				fmt.Println(cm.Cid())
+				processedMsgs[cm.Cid()] = true
+			}
+		}*/
 	partDone()
 	partDone = metrics.Timer(ctx, metrics.VMApplyMessages)
 
@@ -251,6 +279,10 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 
 	stats.Record(ctx, metrics.VMSends.M(int64(atomic.LoadUint64(&vm.StatSends))),
 		metrics.VMApplied.M(int64(atomic.LoadUint64(&vm.StatApplied))))
+
+	dddd, _ := json.MarshalIndent(receipts,"","\t")
+	ioutil.WriteFile("receipt.json", dddd, 0777)
+	fmt.Println("height:%d root: %s receiptcid: %s", epoch, st, rectroot)
 
 	return st, rectroot, nil
 }

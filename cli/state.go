@@ -9,8 +9,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"io/ioutil"
-	"os"
 	"reflect"
 	"sort"
 	"strconv"
@@ -26,7 +24,6 @@ import (
 	"github.com/filecoin-project/lotus/chain/actors/builtin"
 
 	"github.com/ipfs/go-cid"
-	cbor "github.com/ipfs/go-ipld-cbor"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/multiformats/go-multihash"
 	"github.com/urfave/cli/v2"
@@ -39,9 +36,7 @@ import (
 
 	"github.com/filecoin-project/lotus/api"
 	lapi "github.com/filecoin-project/lotus/api"
-	"github.com/filecoin-project/lotus/blockstore"
 	"github.com/filecoin-project/lotus/build"
-	"github.com/filecoin-project/lotus/chain/state"
 	"github.com/filecoin-project/lotus/chain/stmgr"
 	"github.com/filecoin-project/lotus/chain/types"
 )
@@ -1023,77 +1018,31 @@ var StateComputeStateCmd = &cli.Command{
 		}
 
 		h := abi.ChainEpoch(cctx.Uint64("vm-height"))
+		if ts == nil {
+			head, err := api.ChainHead(ctx)
+			if err != nil {
+				return err
+			}
+			ts = head
+		}
 		if h == 0 {
 			h = ts.Height()
 		}
 
-		var msgs []*types.Message
-		if cctx.Bool("apply-mpool-messages") {
-			pmsgs, err := api.MpoolSelect(ctx, ts.Key(), 1)
+
+
+
+
+		stout, err := api.StateCompute(ctx, h, nil, ts.Key())
 			if err != nil {
 				return err
-			}
 
-			for _, sm := range pmsgs {
-				msgs = append(msgs, &sm.Message)
-			}
-		}
 
-		var stout *lapi.ComputeStateOutput
-		if csofile := cctx.String("compute-state-output"); csofile != "" {
-			data, err := ioutil.ReadFile(csofile)
-			if err != nil {
-				return err
-			}
 
-			var o lapi.ComputeStateOutput
-			if err := json.Unmarshal(data, &o); err != nil {
-				return err
-			}
 
-			stout = &o
-		} else {
-			o, err := api.StateCompute(ctx, h, msgs, ts.Key())
-			if err != nil {
-				return err
-			}
 
-			stout = o
-		}
 
-		if cctx.Bool("json") {
-			out, err := json.Marshal(stout)
-			if err != nil {
-				return err
-			}
-			fmt.Println(string(out))
-			return nil
-		}
 
-		if cctx.Bool("html") {
-			st, err := state.LoadStateTree(cbor.NewCborStore(blockstore.NewAPIBlockstore(api)), stout.Root)
-			if err != nil {
-				return xerrors.Errorf("loading state tree: %w", err)
-			}
-
-			codeCache := map[address.Address]cid.Cid{}
-			getCode := func(addr address.Address) (cid.Cid, error) {
-				if c, found := codeCache[addr]; found {
-					return c, nil
-				}
-
-				c, err := st.GetActor(addr)
-				if err != nil {
-					return cid.Cid{}, err
-				}
-
-				codeCache[addr] = c.Code
-				return c.Code, nil
-			}
-
-			_, _ = fmt.Fprintln(os.Stderr, "computed state cid: ", stout.Root)
-
-			return ComputeStateHTMLTempl(os.Stdout, ts, stout, !cctx.Bool("no-timing"), getCode)
 		}
 
 		fmt.Println("computed state cid: ", stout.Root)
