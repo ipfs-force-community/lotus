@@ -189,7 +189,7 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 
 	var receipts []cbg.CBORMarshaler
 	processedMsgs := make(map[cid.Cid]struct{})
-	for _, b := range bms {
+	for index, b := range bms {
 		penalty := types.NewInt(0)
 		gasReward := big.Zero()
 
@@ -213,6 +213,20 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 				}
 			}
 			processedMsgs[m.Cid()] = struct{}{}
+
+			root, _ := vmi.Flush(ctx)
+			fmt.Println(fmt.Sprintf("message: %s  root: %s gasUsed: %v", cm.Cid(), root, r.GasUsed))
+			dddd, _ := json.MarshalIndent(r.GasCosts,"","\t")
+			fmt.Println(string(dddd))
+			xxxx := []*types.GasTrace{}
+			for _, xxx := range r.ExecutionTrace.GasCharges {
+				xxx.Location = nil
+				if xxx.TotalGas >0 {
+					xxxx = append(xxxx, xxx)
+				}
+			}
+			dddd, _ = json.MarshalIndent(xxxx,"","\t")
+			fmt.Println(string(dddd))
 		}
 
 		params, err := actors.SerializeParams(&reward.AwardBlockRewardParams{
@@ -224,6 +238,10 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 		if err != nil {
 			return cid.Undef, cid.Undef, xerrors.Errorf("failed to serialize award params: %w", err)
 		}
+
+		root, _ := vmi.Flush(ctx)
+		fmt.Println("before r4eward: %d  root: %s", index, root,)
+		fmt.Println("xxxx")
 
 		rwMsg := &types.Message{
 			From:       builtin.SystemActorAddr,
@@ -249,6 +267,9 @@ func (t *TipSetExecutor) ApplyBlocks(ctx context.Context, sm *stmgr.StateManager
 		if ret.ExitCode != 0 {
 			return cid.Undef, cid.Undef, xerrors.Errorf("reward application message failed (exit %d): %s", ret.ExitCode, ret.ActorErr)
 		}
+		root, _ = vmi.Flush(ctx)
+		fmt.Println("reward: %d  root: %s", index, root)
+		fmt.Println("xxxx")
 	}
 
 	partDone()
