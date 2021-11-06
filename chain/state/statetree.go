@@ -380,6 +380,7 @@ func (st *StateTree) GetActor(addr address.Address) (*types.Actor, error) {
 		return nil, types.ErrActorNotFound
 	}
 
+	fmt.Println("get actor addr:", addr.String(), " Balance:", act.Balance.String(), " Head:", act.Head, " Nonce:", act.Nonce)
 	st.snaps.setActor(addr, &act)
 
 	return &act, nil
