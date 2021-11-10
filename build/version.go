@@ -13,6 +13,7 @@ const (
 	BuildCalibnet     = 0x4
 	BuildInteropnet   = 0x5
 	BuildButterflynet = 0x7
+	BuildTypeForcenet = 0x8
 )
 
 func BuildTypeString() string {
