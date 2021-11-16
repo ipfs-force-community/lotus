@@ -409,6 +409,8 @@ type FullNodeStruct struct {
 
 		StateReplay func(p0 context.Context, p1 types.TipSetKey, p2 cid.Cid) (*InvocResult, error) `perm:"read"`
 
+		ReplayTipset func(p0 context.Context, p1 types.TipSetKey) (*ComputeStateOutput, error) `perm:"read"`
+
 		StateSearchMsg func(p0 context.Context, p1 types.TipSetKey, p2 cid.Cid, p3 abi.ChainEpoch, p4 bool) (*MsgLookup, error) `perm:"read"`
 
 		StateSectorExpiration func(p0 context.Context, p1 address.Address, p2 abi.SectorNumber, p3 types.TipSetKey) (*miner.SectorExpiration, error) `perm:"read"`
@@ -2714,8 +2716,18 @@ func (s *FullNodeStruct) StateReplay(p0 context.Context, p1 types.TipSetKey, p2 
 	}
 	return s.Internal.StateReplay(p0, p1, p2)
 }
-
 func (s *FullNodeStub) StateReplay(p0 context.Context, p1 types.TipSetKey, p2 cid.Cid) (*InvocResult, error) {
+	return nil, ErrNotSupported
+}
+
+func (s *FullNodeStruct) ReplayTipset(p0 context.Context, p1 types.TipSetKey) (*ComputeStateOutput, error) {
+	if s.Internal.ReplayTipset == nil {
+		return nil, ErrNotSupported
+	}
+	return s.Internal.ReplayTipset(p0, p1)
+}
+
+func (s *FullNodeStub) ReplayTipset(context.Context, types.TipSetKey) (*ComputeStateOutput, error) {
 	return nil, ErrNotSupported
 }
 

@@ -286,3 +286,18 @@ func (sm *StateManager) Replay(ctx context.Context, ts *types.TipSet, mcid cid.C
 
 	return finder.outm, finder.outr, nil
 }
+
+func (sm *StateManager) ReplayTipset(ctx context.Context, ts *types.TipSet) (cid.Cid, []*api.InvocResult, error) {
+	var recorder tipsetExecutionRecorder
+
+	rootCid, _, err := sm.tsExec.ExecuteTipSet(ctx, sm, ts, &recorder)
+	if err != nil && !xerrors.Is(err, errHaltExecution) {
+		return cid.Undef, nil, xerrors.Errorf("unexpected error during execution: %w", err)
+	}
+
+	if len(recorder.applyRets) == 0 {
+		return cid.Undef, nil, xerrors.Errorf("no message in tipset(%d, %s)?????", ts.Height(), ts.Key().String())
+	}
+
+	return rootCid, recorder.applyRets, err
+}
