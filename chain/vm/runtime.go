@@ -52,7 +52,12 @@ func (m *Message) ValueReceived() abi.TokenAmount {
 }
 
 // EnableGasTracing, if true, outputs gas tracing in execution traces.
+var EnableGasTracingFlag = "false"
 var EnableGasTracing = false
+
+func init() {
+	EnableGasTracing = EnableGasTracingFlag == "true"
+}
 
 type Runtime struct {
 	rt5.Message
@@ -446,7 +451,11 @@ func (rt *Runtime) internalSend(from, to address.Address, method abi.MethodNum, 
 
 	if subrt != nil {
 		rt.numActorsCreated = subrt.numActorsCreated
-		rt.executionTrace.Subcalls = append(rt.executionTrace.Subcalls, subrt.executionTrace)
+
+		// linearize gascharges
+		rt.executionTrace.GasCharges = append(rt.executionTrace.GasCharges, subrt.executionTrace.GasCharges...)
+
+		// rt.executionTrace.Subcalls = append(rt.executionTrace.Subcalls, subrt.executionTrace)
 	}
 	return ret, errSend
 }

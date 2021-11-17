@@ -20,6 +20,11 @@ CLEAN:=
 BINS:=
 
 ldflags=-X=github.com/filecoin-project/lotus/build.CurrentCommit=+git.$(subst -,.,$(shell git describe --always --match=NeVeRmAtCh --dirty 2>/dev/null || git rev-parse --short HEAD 2>/dev/null))
+
+ifdef ENABLE_GAS_TRACE
+	ldflags+=-X=github.com/filecoin-project/lotus/chain/vm.EnableGasTracingFlag=true
+endif
+
 ifneq ($(strip $(LDFLAGS)),)
 	ldflags+=-extldflags=$(LDFLAGS)
 endif

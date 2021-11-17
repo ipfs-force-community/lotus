@@ -327,6 +327,8 @@ type FullNodeStruct struct {
 
 		StateReplay func(p0 context.Context, p1 types.TipSetKey, p2 cid.Cid) (*api.InvocResult, error) `perm:"read"`
 
+		ReplayTipset func(p0 context.Context, p1 types.TipSetKey) (*api.ComputeStateOutput, error)
+
 		StateSearchMsg func(p0 context.Context, p1 cid.Cid) (*api.MsgLookup, error) `perm:"read"`
 
 		StateSearchMsgLimited func(p0 context.Context, p1 cid.Cid, p2 abi.ChainEpoch) (*api.MsgLookup, error) `perm:"read"`
@@ -2066,6 +2068,17 @@ func (s *FullNodeStruct) StateReplay(p0 context.Context, p1 types.TipSetKey, p2 
 }
 
 func (s *FullNodeStub) StateReplay(p0 context.Context, p1 types.TipSetKey, p2 cid.Cid) (*api.InvocResult, error) {
+	return nil, ErrNotSupported
+}
+
+func (s *FullNodeStruct) ReplayTipset(p0 context.Context, p1 types.TipSetKey) (*api.ComputeStateOutput, error) {
+	if s.Internal.ReplayTipset == nil {
+		return nil, ErrNotSupported
+	}
+	return s.Internal.ReplayTipset(p0, p1)
+}
+
+func (s *FullNodeStub) ReplayTipset(p0 context.Context, p1 types.TipSetKey) (*api.ComputeStateOutput, error) {
 	return nil, ErrNotSupported
 }
 
