@@ -454,7 +454,6 @@ func (rt *Runtime) internalSend(from, to address.Address, method abi.MethodNum, 
 
 		// linearize gascharges
 		rt.executionTrace.GasCharges = append(rt.executionTrace.GasCharges, subrt.executionTrace.GasCharges...)
-
 		// rt.executionTrace.Subcalls = append(rt.executionTrace.Subcalls, subrt.executionTrace)
 	}
 	return ret, errSend

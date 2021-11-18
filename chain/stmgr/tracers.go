@@ -54,30 +54,3 @@ func (m *messageFinder) MessageApplied(ctx context.Context, ts *types.TipSet, mc
 	}
 	return nil
 }
-
-type tipsetExecutionRecorder struct {
-	applyRets []*api.InvocResult
-}
-
-func (m *tipsetExecutionRecorder) MessageApplied(ctx context.Context, ts *types.TipSet, mcid cid.Cid, msg *types.Message, ret *vm.ApplyRet, implicit bool) error {
-	if ret.ExecutionTrace.Msg == nil {
-		ret.ExecutionTrace.Msg = msg
-	}
-
-	e := ret.ActorErr
-	invocRet := &api.InvocResult{
-		MsgCid:         ret.ExecutionTrace.Msg.Cid(),
-		Msg:            ret.ExecutionTrace.Msg,
-		MsgRct:         ret.ExecutionTrace.MsgRct,
-		ExecutionTrace: ret.ExecutionTrace,
-	}
-	if e != nil {
-		invocRet.Error = e.Error()
-	}
-	if !implicit {
-		invocRet.GasCost = MakeMsgGasCost(msg, ret)
-	}
-	m.applyRets = append(m.applyRets, invocRet)
-
-	return nil
-}
