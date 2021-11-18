@@ -443,7 +443,7 @@ func (a *StateAPI) ReplayTipset(ctx context.Context, tsk types.TipSetKey) (*api.
 		return nil, xerrors.Errorf("loading specified tipset %s: %w", tsk, err)
 	}
 
-	root, rets, err := a.StateManager.ReplayTipset(ctx, ts)
+	root, rets, err := a.StateManager.ExecutionTrace(ctx, ts)
 	if err != nil {
 		return nil, err
 	}
