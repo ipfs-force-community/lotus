@@ -44,6 +44,15 @@ var (
 	log            = logging.Logger("vm")
 	actorLog       = logging.Logger("actors")
 	gasOnActorExec = newGasCharge("OnActorExec", 0, 0)
+
+	gasOnSetActor = func(addr address.Address, act *types.Actor) GasCharge {
+		gasCharge := newGasCharge("OnSetActor", 0, 0)
+		gasCharge.Extra = struct {
+			types.Actor
+			Addr address.Address
+		}{Actor: *act, Addr: addr}
+		return gasCharge
+	}
 )
 
 // stat counters

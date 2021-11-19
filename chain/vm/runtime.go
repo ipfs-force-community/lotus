@@ -524,6 +524,8 @@ func (rt *Runtime) stateCommit(oldh, newh cid.Cid) aerrors.ActorError {
 
 	act.Head = newh
 
+	rt.chargeGas(gasOnSetActor(rt.Receiver(), act))
+
 	if err := rt.state.SetActor(rt.Receiver(), act); err != nil {
 		return aerrors.Fatalf("failed to set actor in commit state: %s", err)
 	}
