@@ -386,6 +386,12 @@ func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMess
 	for _, estimateMessage := range estimateMessages {
 		estimateMsg := estimateMessage.Msg
 		estimateMsg.Nonce = fromNonce
+
+		if estimateMessage.Spec != nil {
+			log.Infof("GasBatchEstimateMessageGas from %s, nonce %d, gas limit %d, gas fee cap %s, max fee %s",
+				estimateMsg.From, estimateMsg.Nonce, estimateMsg.GasLimit, estimateMsg.GasFeeCap, estimateMessage.Spec.MaxFee)
+		}
+
 		if estimateMsg.GasLimit == 0 {
 			gasUsed, err := evalMessage(ctx, m.Stmgr, m.Chain, estimateMsg, priorMsgs, ts)
 			if err != nil {
