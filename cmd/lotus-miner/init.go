@@ -300,7 +300,10 @@ func migratePreSealMeta(ctx context.Context, api v1api.FullNode, metadata string
 	}
 
 	maxSectorID := abi.SectorNumber(0)
+	count := len(meta.Sectors)
+	processed := 0
 	for _, sector := range meta.Sectors {
+		log.Infof("current sector id %d  has processed %d all %d", sector.SectorID, processed, count)
 		sectorKey := datastore.NewKey(sealing.SectorStorePrefix).ChildString(fmt.Sprint(sector.SectorID))
 
 		dealID, err := findMarketDealID(ctx, api, sector.Deal)
@@ -352,7 +355,7 @@ func migratePreSealMeta(ctx context.Context, api v1api.FullNode, metadata string
 		if sector.SectorID > maxSectorID {
 			maxSectorID = sector.SectorID
 		}
-
+		processed++
 		/* // TODO: Import deals into market
 		pnd, err := cborutil.AsIpld(sector.Deal)
 		if err != nil {
