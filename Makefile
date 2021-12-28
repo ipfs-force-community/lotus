@@ -76,6 +76,9 @@ debug: build-devnets
 calibnet: GOFLAGS+=-tags=calibnet
 calibnet: build-devnets
 
+forcenet: GOFLAGS+=-tags=forcenet
+forcenet: lotus lotus-miner lotus-worker lotus-seed
+
 butterflynet: GOFLAGS+=-tags=butterflynet
 butterflynet: build-devnets
 
