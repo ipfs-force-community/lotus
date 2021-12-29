@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"fmt"
-	"os"
 	"sync"
 	"time"
 
@@ -324,22 +323,22 @@ minerLoop:
 				log.Warnw("mined block in the past",
 					"block-time", btime, "time", build.Clock.Now(), "difference", build.Clock.Since(btime))
 			}
+			/*
+				if err := m.sf.MinedBlock(b.Header, base.TipSet.Height()+base.NullRounds); err != nil {
+					log.Errorf("<!!> SLASH FILTER ERROR: %s", err)
+					if os.Getenv("LOTUS_MINER_NO_SLASHFILTER") != "_yes_i_know_i_can_and_probably_will_lose_all_my_fil_and_power_" {
+						continue
+					}
+				}
 
-			if err := m.sf.MinedBlock(b.Header, base.TipSet.Height()+base.NullRounds); err != nil {
-				log.Errorf("<!!> SLASH FILTER ERROR: %s", err)
-				if os.Getenv("LOTUS_MINER_NO_SLASHFILTER") != "_yes_i_know_i_can_and_probably_will_lose_all_my_fil_and_power_" {
+				blkKey := fmt.Sprintf("%d", b.Header.Height)
+				if _, ok := m.minedBlockHeights.Get(blkKey); ok {
+					log.Warnw("Created a block at the same height as another block we've created", "height", b.Header.Height, "miner", b.Header.Miner, "parents", b.Header.Parents)
 					continue
 				}
-			}
 
-			blkKey := fmt.Sprintf("%d", b.Header.Height)
-			if _, ok := m.minedBlockHeights.Get(blkKey); ok {
-				log.Warnw("Created a block at the same height as another block we've created", "height", b.Header.Height, "miner", b.Header.Miner, "parents", b.Header.Parents)
-				continue
-			}
-
-			m.minedBlockHeights.Add(blkKey, true)
-
+				m.minedBlockHeights.Add(blkKey, true)
+			*/
 			if err := m.api.SyncSubmitBlock(ctx, b); err != nil {
 				log.Errorf("failed to submit newly mined block: %+v", err)
 			}
