@@ -48,6 +48,7 @@ type TargetAPI interface {
 	ChainReadObj(context.Context, cid.Cid) ([]byte, error)
 	ChainGetGenesis(context.Context) (*types.TipSet, error)
 	GasEstimateMessageGas(ctx context.Context, msg *types.Message, spec *api.MessageSendSpec, tsk types.TipSetKey) (*types.Message, error)
+	GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*api.EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*api.EstimateResult, error)
 	MpoolPushUntrusted(ctx context.Context, sm *types.SignedMessage) (cid.Cid, error)
 	MsigGetAvailableBalance(ctx context.Context, addr address.Address, tsk types.TipSetKey) (types.BigInt, error)
 	MsigGetVested(ctx context.Context, addr address.Address, start types.TipSetKey, end types.TipSetKey) (types.BigInt, error)
@@ -468,4 +469,8 @@ func (gw *Node) WalletVerify(ctx context.Context, k address.Address, msg []byte,
 
 func (gw *Node) WalletBalance(ctx context.Context, k address.Address) (types.BigInt, error) {
 	return gw.target.WalletBalance(ctx, k)
+}
+
+func (gw *Node) GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*api.EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*api.EstimateResult, error) {
+	return gw.target.GasBatchEstimateMessageGas(ctx, estimateMessages, fromNonce, tsk)
 }

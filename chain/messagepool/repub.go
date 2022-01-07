@@ -121,7 +121,7 @@ loop:
 
 		// we can't fit the current chain but there is gas to spare
 		// trim it and push it down
-		chain.Trim(gasLimit, mp, baseFee)
+		chain.Trim(gasLimit, repubMsgLimit, mp, baseFee)
 		for j := i; j < len(chains)-1; j++ {
 			if chains[j].Before(chains[j+1]) {
 				break
