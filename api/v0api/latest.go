@@ -6,10 +6,13 @@ import (
 
 type Common = api.Common
 type Net = api.Net
+type VenusAPI = api.VenusAPI
 type CommonNet = api.CommonNet
 
 type CommonStruct = api.CommonStruct
+type VenusAPIStruct = api.VenusAPIStruct
 type CommonStub = api.CommonStub
+type VenusAPIStub = api.VenusAPIStub
 type NetStruct = api.NetStruct
 type NetStub = api.NetStub
 type CommonNetStruct = api.CommonNetStruct
