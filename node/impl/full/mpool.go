@@ -68,6 +68,15 @@ func (a *MpoolAPI) MpoolSelect(ctx context.Context, tsk types.TipSetKey, ticketQ
 	return a.Mpool.SelectMessages(ctx, ts, ticketQuality)
 }
 
+func (a *MpoolAPI) MpoolSelects(ctx context.Context, tsk types.TipSetKey, ticketQualitys []float64) ([][]*types.SignedMessage, error) {
+	ts, err := a.Chain.GetTipSetFromKey(ctx, tsk)
+	if err != nil {
+		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
+	}
+
+	return a.Mpool.MultipleSelectMessages(ctx, ts, ticketQualitys)
+}
+
 func (a *MpoolAPI) MpoolPending(ctx context.Context, tsk types.TipSetKey) ([]*types.SignedMessage, error) {
 	ts, err := a.Chain.GetTipSetFromKey(ctx, tsk)
 	if err != nil {
@@ -130,6 +139,14 @@ func (a *MpoolAPI) MpoolPending(ctx context.Context, tsk types.TipSetKey) ([]*ty
 func (a *MpoolAPI) MpoolClear(ctx context.Context, local bool) error {
 	a.Mpool.Clear(ctx, local)
 	return nil
+}
+
+func (a *MpoolAPI) MpoolPublishMessage(ctx context.Context, smsg *types.SignedMessage) error {
+	return a.Mpool.PublishMessage(smsg)
+}
+
+func (a *MpoolAPI) MpoolPublishByAddr(ctx context.Context, addr address.Address) error {
+	return a.Mpool.PublishByAddr(ctx, addr)
 }
 
 func (m *MpoolModule) MpoolPush(ctx context.Context, smsg *types.SignedMessage) (cid.Cid, error) {
