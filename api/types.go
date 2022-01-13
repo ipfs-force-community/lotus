@@ -67,6 +67,9 @@ type MessageSendSpec struct {
 
 	// MaximizeFeeCap makes message FeeCap be based entirely on MaxFee
 	MaximizeFeeCap bool
+
+	GasOverEstimation float64
+	GasOverPremium    float64
 }
 
 type MpoolMessageWhole struct {

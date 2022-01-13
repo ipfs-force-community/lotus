@@ -24,7 +24,8 @@ func LotusProviderHandler(
 	permissioned bool) http.Handler {
 	mux := mux.NewRouter()
 	readerHandler, readerServerOpt := rpcenc.ReaderParamDecoder()
-	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(api.RPCErrors), readerServerOpt)
+	// rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(api.RPCErrors), readerServerOpt)
+	rpcServer := jsonrpc.NewServer(readerServerOpt)
 
 	wapi := proxy.MetricedAPI[api.LotusProvider, api.LotusProviderStruct](a)
 	if permissioned {
