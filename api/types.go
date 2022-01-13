@@ -57,8 +57,9 @@ type PubsubScore struct {
 }
 
 type MessageSendSpec struct {
-	MaxFee  abi.TokenAmount
-	MsgUuid uuid.UUID
+	MaxFee            abi.TokenAmount
+	MsgUuid           uuid.UUID
+	GasOverEstimation float64
 }
 
 type MpoolMessageWhole struct {
