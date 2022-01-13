@@ -43,8 +43,7 @@ bin/tmp/*
 .idea
 scratchpad
 
-build/builtin-actors/v*
-build/builtin-actors/*.car
+.vscode
 
 dist/
 
