@@ -55,8 +55,9 @@ type PubsubScore struct {
 }
 
 type MessageSendSpec struct {
-	MaxFee  abi.TokenAmount
-	MsgUuid uuid.UUID
+	MaxFee            abi.TokenAmount
+	MsgUuid           uuid.UUID
+	GasOverEstimation float64
 }
 
 type MpoolMessageWhole struct {
@@ -397,4 +398,14 @@ func (m *MsgUuidMapType) UnmarshalJSON(b []byte) error {
 		(*m)[u] = msg
 	}
 	return nil
+}
+
+type EstimateMessage struct {
+	Msg  *types.Message
+	Spec *MessageSendSpec
+}
+
+type EstimateResult struct {
+	Msg *types.Message
+	Err string
 }
