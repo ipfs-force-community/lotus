@@ -52,7 +52,8 @@ type PubsubScore struct {
 }
 
 type MessageSendSpec struct {
-	MaxFee abi.TokenAmount
+	MaxFee            abi.TokenAmount
+	GasOverEstimation float64
 }
 
 // GraphSyncDataTransfer provides diagnostics on a data transfer happening over graphsync
@@ -316,4 +317,13 @@ type ForkUpgradeParams struct {
 	UpgradeHyperdriveHeight    abi.ChainEpoch
 	UpgradeChocolateHeight     abi.ChainEpoch
 	UpgradeOhSnapHeight        abi.ChainEpoch
+}
+type EstimateMessage struct {
+	Msg  *types.Message
+	Spec *MessageSendSpec
+}
+
+type EstimateResult struct {
+	Msg *types.Message
+	Err string
 }
