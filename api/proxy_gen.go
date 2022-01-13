@@ -110,6 +110,8 @@ type FullNodeStruct struct {
 
 	NetStruct
 
+	VenusAPIStruct
+
 	Internal FullNodeMethods
 }
 
@@ -597,6 +599,8 @@ type FullNodeStub struct {
 	CommonStub
 
 	NetStub
+
+	VenusAPIStub
 }
 
 type GatewayStruct struct {
@@ -1070,6 +1074,23 @@ type StorageMinerMethods struct {
 
 type StorageMinerStub struct {
 	CommonStub
+}
+
+type VenusAPIStruct struct {
+	Internal VenusAPIMethods
+}
+
+type VenusAPIMethods struct {
+	GasBatchEstimateMessageGas func(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) `perm:"read"`
+
+	MpoolPublishByAddr func(p0 context.Context, p1 address.Address) error `perm:"write"`
+
+	MpoolPublishMessage func(p0 context.Context, p1 *types.SignedMessage) error `perm:"write"`
+
+	MpoolSelects func(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) `perm:"read"`
+}
+
+type VenusAPIStub struct {
 }
 
 type WalletStruct struct {
@@ -6359,6 +6380,50 @@ func (s *StorageMinerStub) WorkerStats(p0 context.Context) (map[uuid.UUID]storif
 	return *new(map[uuid.UUID]storiface.WorkerStats), ErrNotSupported
 }
 
+func (s *VenusAPIStruct) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
+	if s.Internal.GasBatchEstimateMessageGas == nil {
+		return *new([]*EstimateResult), ErrNotSupported
+	}
+	return s.Internal.GasBatchEstimateMessageGas(p0, p1, p2, p3)
+}
+
+func (s *VenusAPIStub) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
+	return *new([]*EstimateResult), ErrNotSupported
+}
+
+func (s *VenusAPIStruct) MpoolPublishByAddr(p0 context.Context, p1 address.Address) error {
+	if s.Internal.MpoolPublishByAddr == nil {
+		return ErrNotSupported
+	}
+	return s.Internal.MpoolPublishByAddr(p0, p1)
+}
+
+func (s *VenusAPIStub) MpoolPublishByAddr(p0 context.Context, p1 address.Address) error {
+	return ErrNotSupported
+}
+
+func (s *VenusAPIStruct) MpoolPublishMessage(p0 context.Context, p1 *types.SignedMessage) error {
+	if s.Internal.MpoolPublishMessage == nil {
+		return ErrNotSupported
+	}
+	return s.Internal.MpoolPublishMessage(p0, p1)
+}
+
+func (s *VenusAPIStub) MpoolPublishMessage(p0 context.Context, p1 *types.SignedMessage) error {
+	return ErrNotSupported
+}
+
+func (s *VenusAPIStruct) MpoolSelects(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) {
+	if s.Internal.MpoolSelects == nil {
+		return *new([][]*types.SignedMessage), ErrNotSupported
+	}
+	return s.Internal.MpoolSelects(p0, p1, p2)
+}
+
+func (s *VenusAPIStub) MpoolSelects(p0 context.Context, p1 types.TipSetKey, p2 []float64) ([][]*types.SignedMessage, error) {
+	return *new([][]*types.SignedMessage), ErrNotSupported
+}
+
 func (s *WalletStruct) WalletDelete(p0 context.Context, p1 address.Address) error {
 	if s.Internal.WalletDelete == nil {
 		return ErrNotSupported
@@ -6851,5 +6916,6 @@ var _ Gateway = new(GatewayStruct)
 var _ Net = new(NetStruct)
 var _ Signable = new(SignableStruct)
 var _ StorageMiner = new(StorageMinerStruct)
+var _ VenusAPI = new(VenusAPIStruct)
 var _ Wallet = new(WalletStruct)
 var _ Worker = new(WorkerStruct)
