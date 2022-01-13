@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/filecoin-project/venus-auth/cmd/jwtclient"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -71,8 +72,13 @@ func ServeRPC(h http.Handler, id string, addr multiaddr.Multiaddr) (StopFunc, er
 }
 
 // FullNodeHandler returns a full node handler, to be mounted as-is on the server.
-func FullNodeHandler(a v1api.FullNode, permissioned bool, opts ...jsonrpc.ServerOption) (http.Handler, error) {
+func FullNodeHandler(a v1api.FullNode, permissioned bool, authEndpoint string, opts ...jsonrpc.ServerOption) (http.Handler, error) {
 	m := mux.NewRouter()
+
+	var remoteJwtCli *jwtclient.JWTClient
+	if len(authEndpoint) > 0 {
+		remoteJwtCli = jwtclient.NewJWTClient(authEndpoint)
+	}
 
 	serveRpc := func(path string, hnd interface{}) {
 		rpcServer := jsonrpc.NewServer(append(opts, jsonrpc.WithReverseClient[api.EthSubscriberMethods]("Filecoin"), jsonrpc.WithServerErrors(api.RPCErrors))...)
@@ -83,7 +89,13 @@ func FullNodeHandler(a v1api.FullNode, permissioned bool, opts ...jsonrpc.Server
 
 		var handler http.Handler = rpcServer
 		if permissioned {
-			handler = &auth.Handler{Verify: a.AuthVerify, Next: rpcServer.ServeHTTP}
+			if remoteJwtCli != nil {
+				handler = (http.Handler)(jwtclient.NewAuthMux(&WrapClient{a},
+					jwtclient.WarpIJwtAuthClient(remoteJwtCli),
+					rpcServer, logging.Logger("Auth")))
+			} else {
+				handler = &auth.Handler{Verify: a.AuthVerify, Next: rpcServer.ServeHTTP}
+			}
 		}
 
 		m.Handle(path, handler)
@@ -302,4 +314,14 @@ func handleRemoteStore(a *impl.FullNodeAPI) func(w http.ResponseWriter, r *http.
 			return
 		}
 	}
+}
+
+//var _ jwtclient.JWTClient = (*WrapClient)(nil)
+
+type WrapClient struct {
+	a v1api.FullNode
+}
+
+func (w *WrapClient) Verify(ctx context.Context, token string) ([]auth.Permission, error) {
+	return w.a.AuthVerify(ctx, token)
 }
