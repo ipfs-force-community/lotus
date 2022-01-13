@@ -1693,9 +1693,9 @@ var stateMarketBalanceCmd = &cli.Command{
 	},
 }
 
-var StateNtwkVersionCmd = &cli.Command{
-	Name:  "network-version",
-	Usage: "Returns the network version",
+var StateNtwkInfoCmd = &cli.Command{
+	Name:  "network-info",
+	Usage: "Returns the network info",
 	Action: func(cctx *cli.Context) error {
 		if cctx.Args().Present() {
 			return ShowHelp(cctx, fmt.Errorf("doesn't expect any arguments"))
@@ -1719,7 +1719,30 @@ var StateNtwkVersionCmd = &cli.Command{
 			return err
 		}
 
-		fmt.Printf("Network Version: %d\n", nv)
+		params, err := api.StateGetNetworkParams(ctx)
+		if err != nil {
+			return err
+		}
+
+		partUpgradeHeight := func() []string {
+			var out []string
+			rv := reflect.ValueOf(params.ForkUpgradeParams)
+			rt := rv.Type()
+			numField := rt.NumField()
+			for i := numField - 3; i < numField; i++ {
+				out = append(out, fmt.Sprintf("%s: %v", rt.Field(i).Name, rv.Field(i).Interface()))
+			}
+			return out
+		}
+
+		fmt.Println("Network Name:", params.NetworkName)
+		fmt.Println("Network Version:", nv)
+		for _, one := range partUpgradeHeight() {
+			fmt.Println(one)
+		}
+		fmt.Println("BlockDelaySecs:", params.BlockDelaySecs)
+		fmt.Println("PreCommitChallengeDelay:", params.PreCommitChallengeDelay)
+		// fmt.Println("Chain ID:", params.Eip155ChainID)
 
 		return nil
 	},
