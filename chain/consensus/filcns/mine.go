@@ -2,6 +2,7 @@ package filcns
 
 import (
 	"context"
+	"fmt"
 
 	"golang.org/x/xerrors"
 
@@ -32,8 +33,15 @@ func (filec *FilecoinEC) CreateBlock(ctx context.Context, w api.Wallet, bt *api.
 		return nil, xerrors.Errorf("failed to process messages from block template: %w", err)
 	}
 
-	if err := signBlock(ctx, w, worker, next); err != nil {
-		return nil, xerrors.Errorf("failed to sign new block: %w", err)
+	has, err := w.WalletHas(ctx, worker)
+	if err != nil {
+		return nil, fmt.Errorf("find wallet(%s): %v", worker, err)
+	}
+	// 生产节点不具有 worker 地址的私钥
+	if has {
+		if err := signBlock(ctx, w, worker, next); err != nil {
+			return nil, xerrors.Errorf("failed to sign new block: %w", err)
+		}
 	}
 
 	fullBlock := &types.FullBlock{

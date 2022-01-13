@@ -33,7 +33,9 @@ func WorkerHandler(
 	permissioned bool) http.Handler {
 	mux := mux.NewRouter()
 	readerHandler, readerServerOpt := rpcenc.ReaderParamDecoder()
-	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(api.RPCErrors), readerServerOpt)
+	// todo: add api.RPCErrors
+	// rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(api.RPCErrors), readerServerOpt)
+	rpcServer := jsonrpc.NewServer(readerServerOpt)
 
 	wapi := proxy.MetricedWorkerAPI(a)
 	if permissioned {
