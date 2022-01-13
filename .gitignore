@@ -45,8 +45,7 @@ bin/tmp/*
 .vscode
 scratchpad
 
-build/builtin-actors/v*
-build/builtin-actors/*.car
+.vscode
 
 dist/
 
@@ -55,3 +54,7 @@ dist/
 # in dirty git state if removed from the docker context
 !extern/filecoin-ffi/rust/filecoin.pc
 !extern/test-vectors
+
+localnet.json
+
+devgen.car
