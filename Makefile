@@ -105,6 +105,12 @@ debug:
 	$(MAKE) 2k-lotus 2k-lotus-miner 2k-lotus-worker 2k-lotus-seed 2k-lotus-shed
 .PHONY: 2k
 
+force: 
+	@printf "\033[33m'make force' builds all devnet binaries. Use 'make force-<binary>' targets for individual binaries.\033[0m\n"
+	@printf "Example: make force-lotus force-lotus-miner\n\n"
+	$(MAKE) force-lotus force-lotus-miner force-lotus-worker force-lotus-seed force-lotus-shed
+.PHONY: force
+
 calibnet:
 	@printf "\033[33m'make calibnet' builds all devnet binaries. Use 'make calibnet-<binary>' targets for individual binaries.\033[0m\n"
 	@printf "Example: make calibnet-lotus calibnet-lotus-miner\n\n"
