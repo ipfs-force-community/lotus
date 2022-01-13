@@ -2,9 +2,11 @@ package node
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
+	"reflect"
 	"runtime"
 	"strconv"
 	"time"
@@ -18,6 +20,8 @@ import (
 
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-jsonrpc/auth"
+	"github.com/ipfs-force-community/sophon-auth/core"
+	"github.com/ipfs-force-community/sophon-auth/jwtclient"
 
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/v0api"
@@ -64,11 +68,22 @@ func ServeRPC(h http.Handler, id string, addr multiaddr.Multiaddr) (StopFunc, er
 }
 
 // FullNodeHandler returns a full node handler, to be mounted as-is on the server.
-func FullNodeHandler(a v1api.FullNode, permissioned bool, opts ...jsonrpc.ServerOption) (http.Handler, error) {
+func FullNodeHandler(a v1api.FullNode, permissioned bool, authEndpoint, authToken string, opts ...jsonrpc.ServerOption) (http.Handler, error) {
 	m := mux.NewRouter()
 
+	var remoteJwtCli *jwtclient.AuthClient
+	var err error
+	if len(authEndpoint) > 0 {
+		remoteJwtCli, err = jwtclient.NewAuthClient(authEndpoint, authToken)
+		if err != nil {
+			return nil, fmt.Errorf("new auth client error: %v", err)
+		}
+	}
+
 	serveRpc := func(path string, hnd interface{}) {
-		rpcServer := jsonrpc.NewServer(append(opts, jsonrpc.WithReverseClient[api.EthSubscriberMethods]("Filecoin"), jsonrpc.WithServerErrors(api.RPCErrors))...)
+		// todo: add api.RPCErrors
+		// rpcServer := jsonrpc.NewServer(append(opts, jsonrpc.WithReverseClient[api.EthSubscriberMethods]("Filecoin"), jsonrpc.WithServerErrors(api.RPCErrors))...)
+		rpcServer := jsonrpc.NewServer(opts...)
 		rpcServer.Register("Filecoin", hnd)
 		rpcServer.AliasMethod("rpc.discover", "Filecoin.Discover")
 
@@ -76,7 +91,12 @@ func FullNodeHandler(a v1api.FullNode, permissioned bool, opts ...jsonrpc.Server
 
 		var handler http.Handler = rpcServer
 		if permissioned {
-			handler = &auth.Handler{Verify: a.AuthVerify, Next: rpcServer.ServeHTTP}
+			if remoteJwtCli != nil {
+				handler = (http.Handler)(jwtclient.NewAuthMux(&WrapClient{a},
+					jwtclient.WarpIJwtAuthClient(remoteJwtCli), rpcServer))
+			} else {
+				handler = &auth.Handler{Verify: a.AuthVerify, Next: rpcServer.ServeHTTP}
+			}
 		}
 
 		m.Handle(path, handler)
@@ -84,7 +104,9 @@ func FullNodeHandler(a v1api.FullNode, permissioned bool, opts ...jsonrpc.Server
 
 	fnapi := proxy.MetricedFullAPI(a)
 	if permissioned {
-		fnapi = api.PermissionedFullAPI(fnapi)
+		// fnapi = api.PermissionedFullAPI(fnapi)
+		var out api.FullNodeStruct
+		PermissionProxy(fnapi, &out)
 	}
 
 	var v0 v0api.FullNode = &(struct{ v0api.FullNode }{&v0api.WrapperV1Full{FullNode: fnapi}})
@@ -112,7 +134,9 @@ func MinerHandler(a api.StorageMiner, permissioned bool) (http.Handler, error) {
 	}
 
 	readerHandler, readerServerOpt := rpcenc.ReaderParamDecoder()
-	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(api.RPCErrors), readerServerOpt)
+	// todo: add api.RPCErrors
+	// rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(api.RPCErrors), readerServerOpt)
+	rpcServer := jsonrpc.NewServer(readerServerOpt)
 	rpcServer.Register("Filecoin", mapi)
 	rpcServer.AliasMethod("rpc.discover", "Filecoin.Discover")
 
@@ -181,5 +205,77 @@ func handleFractionOpt(name string, setter func(int)) http.HandlerFunc {
 		}
 		rpclog.Infof("setting %s to %d", name, fr)
 		setter(fr)
+	}
+}
+
+//var _ jwtclient.JWTClient = (*WrapClient)(nil)
+
+type WrapClient struct {
+	a v1api.FullNode
+}
+
+func (w *WrapClient) Verify(ctx context.Context, token string) (auth.Permission, error) {
+	permissions, err := w.a.AuthVerify(ctx, token)
+	if err != nil {
+		return "", nil
+	}
+
+	return permissions[len(permissions)-1], nil
+}
+
+// PermissionProxy the scheduler between API and internal business
+// nolint
+func PermissionProxy(in interface{}, out interface{}) {
+	ra := reflect.ValueOf(in)
+	outs := api.GetInternalStructs(out)
+	allPermissions := core.AdaptOldStrategy(core.PermAdmin)
+	for _, out := range outs {
+		rint := reflect.ValueOf(out).Elem()
+		for i := 0; i < ra.NumMethod(); i++ {
+			methodName := ra.Type().Method(i).Name
+			field, exists := rint.Type().FieldByName(methodName)
+			if !exists {
+				continue
+			}
+
+			requiredPerm := field.Tag.Get("perm")
+			if requiredPerm == "" {
+				panic("missing 'perm' tag on " + field.Name) // ok
+			}
+
+			var found bool
+			for _, perm := range allPermissions {
+				if perm == requiredPerm {
+					found = true
+				}
+			}
+			if !found {
+				panic("unknown 'perm' tag on " + field.Name)
+			}
+
+			fn := ra.Method(i)
+			rint.FieldByName(methodName).Set(reflect.MakeFunc(field.Type, func(args []reflect.Value) (results []reflect.Value) {
+				ctx := args[0].Interface().(context.Context)
+				errNum := 0
+				if !core.HasPerm(ctx, []core.Permission{core.PermRead}, requiredPerm) {
+					errNum++
+					goto ABORT
+				}
+				return fn.Call(args)
+			ABORT:
+				err := fmt.Errorf("missing permission to invoke '%s'", methodName)
+				if errNum&1 == 1 {
+					err = fmt.Errorf("%s  (need '%s')", err, requiredPerm)
+				}
+				rerr := reflect.ValueOf(&err).Elem()
+				if fn.Type().NumOut() == 2 {
+					return []reflect.Value{
+						reflect.Zero(fn.Type().Out(0)),
+						rerr,
+					}
+				}
+				return []reflect.Value{rerr}
+			}))
+		}
 	}
 }
