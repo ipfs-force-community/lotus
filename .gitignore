@@ -47,3 +47,8 @@ bin/ipget
 bin/tmp/*
 .idea
 scratchpad
+
+
+# Added by cargo
+
+/target
