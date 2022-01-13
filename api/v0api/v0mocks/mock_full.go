@@ -20,7 +20,6 @@ import (
 
 	address "github.com/filecoin-project/go-address"
 	bitfield "github.com/filecoin-project/go-bitfield"
-	auth "github.com/filecoin-project/go-jsonrpc/auth"
 	abi "github.com/filecoin-project/go-state-types/abi"
 	big "github.com/filecoin-project/go-state-types/big"
 	miner "github.com/filecoin-project/go-state-types/builtin/v13/miner"
@@ -63,7 +62,7 @@ func (m *MockFullNode) EXPECT() *MockFullNodeMockRecorder {
 }
 
 // AuthNew mocks base method.
-func (m *MockFullNode) AuthNew(arg0 context.Context, arg1 []auth.Permission) ([]byte, error) {
+func (m *MockFullNode) AuthNew(arg0 context.Context, arg1 []string) ([]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AuthNew", arg0, arg1)
 	ret0, _ := ret[0].([]byte)
@@ -78,10 +77,10 @@ func (mr *MockFullNodeMockRecorder) AuthNew(arg0, arg1 interface{}) *gomock.Call
 }
 
 // AuthVerify mocks base method.
-func (m *MockFullNode) AuthVerify(arg0 context.Context, arg1 string) ([]auth.Permission, error) {
+func (m *MockFullNode) AuthVerify(arg0 context.Context, arg1 string) ([]string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AuthVerify", arg0, arg1)
-	ret0, _ := ret[0].([]auth.Permission)
+	ret0, _ := ret[0].([]string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
