@@ -43,8 +43,7 @@ bin/tmp/*
 .idea
 scratchpad
 
-build/builtin-actors/v*
-build/builtin-actors/*.car
+.vscode
 
 dist/
 
@@ -52,3 +51,6 @@ dist/
 # The following files are checked into git and result
 # in dirty git state if removed from the docker context
 !extern/filecoin-ffi/rust/filecoin.pc
+# Added by cargo
+
+/target
