@@ -14,7 +14,6 @@ import (
 
 	"github.com/filecoin-project/go-address"
 	"github.com/filecoin-project/go-bitfield"
-	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-state-types/abi"
 	"github.com/filecoin-project/go-state-types/builtin"
 	minertypes "github.com/filecoin-project/go-state-types/builtin/v8/miner"
@@ -262,7 +261,9 @@ func (bm *BlockMiner) MineBlocksMustPost(ctx context.Context, blocktime time.Dur
 			reportSuccessFn := func(success bool, epoch abi.ChainEpoch, err error) {
 				// if api shuts down before mining, we may get an error which we should probably just ignore
 				// (fixing it will require rewriting most of the mining loop)
-				if err != nil && ctx.Err() == nil && !strings.Contains(err.Error(), "websocket connection closed") && !api.ErrorIsIn(err, []error{new(jsonrpc.RPCConnectionError)}) {
+				// todo: add api.RPCErrors
+				// if err != nil && ctx.Err() == nil && !strings.Contains(err.Error(), "websocket connection closed") && !api.ErrorIsIn(err, []error{new(jsonrpc.RPCConnectionError)}) {
+				if err != nil && ctx.Err() == nil && !strings.Contains(err.Error(), "websocket connection closed") {
 					require.NoError(bm.t, err)
 				}
 

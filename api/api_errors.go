@@ -3,12 +3,12 @@ package api
 import (
 	"errors"
 	"reflect"
-
-	"github.com/filecoin-project/go-jsonrpc"
 )
 
 const (
-	EOutOfGas = iota + jsonrpc.FirstUserCode
+	// todo: add api.RPCErrors
+	// EOutOfGas = iota + jsonrpc.FirstUserCode
+	EOutOfGas = iota + 2
 	EActorNotFound
 )
 
@@ -24,7 +24,7 @@ func (e *ErrActorNotFound) Error() string {
 	return "actor not found"
 }
 
-var RPCErrors = jsonrpc.NewErrors()
+// var RPCErrors = jsonrpc.NewErrors()
 
 func ErrorIsIn(err error, errorTypes []error) bool {
 	for _, etype := range errorTypes {
@@ -36,7 +36,7 @@ func ErrorIsIn(err error, errorTypes []error) bool {
 	return false
 }
 
-func init() {
-	RPCErrors.Register(EOutOfGas, new(*ErrOutOfGas))
-	RPCErrors.Register(EActorNotFound, new(*ErrActorNotFound))
-}
+// func init() {
+// 	RPCErrors.Register(EOutOfGas, new(*ErrOutOfGas))
+// 	RPCErrors.Register(EActorNotFound, new(*ErrActorNotFound))
+// }
