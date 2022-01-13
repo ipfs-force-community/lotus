@@ -630,3 +630,7 @@ func (gw *Node) StateGetClaims(ctx context.Context, providerAddr address.Address
 	}
 	return gw.target.StateGetClaims(ctx, providerAddr, tsk)
 }
+
+func (gw *Node) GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*api.EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*api.EstimateResult, error) {
+	return gw.target.GasBatchEstimateMessageGas(ctx, estimateMessages, fromNonce, tsk)
+}
