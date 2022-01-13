@@ -174,13 +174,16 @@ func (us UpgradeSchedule) GetNtwkVersion(e abi.ChainEpoch) (network.Version, err
 	return build.GenesisNetworkVersion, nil
 }
 
+// noMigrationResultCache will not use cached migration results
+var noMigrationResultCache = os.Getenv("LOTUS_NO_MIGRATION_RESULT_CACHE") == "1"
+
 func (sm *StateManager) HandleStateForks(ctx context.Context, root cid.Cid, height abi.ChainEpoch, cb ExecMonitor, ts *types.TipSet) (cid.Cid, error) {
 	retCid := root
 	u := sm.stateMigrations[height]
 	if u != nil && u.upgrade != nil {
 		migCid, ok, err := u.migrationResultCache.Get(ctx, root)
 		if err == nil {
-			if ok {
+			if ok && !noMigrationResultCache {
 				log.Infow("CACHED migration", "height", height, "from", root, "to", migCid)
 				foundMigratedRoot, err := sm.ChainStore().StateBlockstore().Has(ctx, migCid)
 				if err != nil {
