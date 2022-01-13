@@ -690,3 +690,7 @@ func (gw *Node) F3GetLatestCertificate(ctx context.Context) (*certs.FinalityCert
 	}
 	return gw.target.F3GetLatestCertificate(ctx)
 }
+
+func (gw *Node) GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*api.EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*api.EstimateResult, error) {
+	return gw.target.GasBatchEstimateMessageGas(ctx, estimateMessages, fromNonce, tsk)
+}

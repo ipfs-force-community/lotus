@@ -77,7 +77,10 @@ debug: GOFLAGS+=-tags=debug
 debug: build-devnets  ## Build with debug tags
 
 2k: GOFLAGS+=-tags=2k
-2k: build-devnets  ## Build for 2k network
+2k: build-devnets
+
+force: GOFLAGS+=-tags=force
+force: build-devnets
 
 calibnet: GOFLAGS+=-tags=calibnet
 calibnet: build-devnets  ## Build for calibnet network
@@ -363,6 +366,31 @@ docsgen-cli:  ## Generate CLI documentation
 print-%:  ## Print variable value
 	@echo $*=$($*)
 
-help:  ## Display this help message
-	@echo "Available targets:"
-	@awk 'BEGIN {FS = ":.*?## "}; /^[a-zA-Z_-]+:.*?## / {printf "  \033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST) | sort
+circleci:
+	go generate -x ./.circleci
+
+TAG:=test
+docker: $(BUILD_DEPS)
+# ifdef DOCKERFILE
+# 	cp $(DOCKERFILE) ./dockerfile
+# else
+# 	curl -o dockerfile https://raw.githubusercontent.com/filecoin-project/venus-docs/master/script/docker/dockerfile
+# endif
+	docker build --build-arg HTTPS_PROXY=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=lotus -t lotus .
+	docker tag lotus filvenus/lotus:$(TAG)
+ifdef PRIVATE_REGISTRY
+	docker tag lotus $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG)
+endif
+.PHONY: docker
+
+docker-push: docker
+ifdef PRIVATE_REGISTRY
+	docker push $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG)
+	docker tag $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG) $(PRIVATE_REGISTRY)/filvenus/lotus:latest
+	docker push $(PRIVATE_REGISTRY)/filvenus/lotus:latest
+else
+	docker push filvenus/lotus:$(TAG)
+	docker tag filvenus/lotus:$(TAG) filvenus/lotus:latest
+	docker push filvenus/lotus:latest
+endif
+.PHONY: docker-push
