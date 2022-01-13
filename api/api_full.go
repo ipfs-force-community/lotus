@@ -62,6 +62,7 @@ const LookbackNoLimit = abi.ChainEpoch(-1)
 type FullNode interface {
 	Common
 	Net
+	VenusAPI
 
 	// MethodGroup: ChainIndexer
 	// The ChainIndexer method group contains methods for interacting with the chain indexer.

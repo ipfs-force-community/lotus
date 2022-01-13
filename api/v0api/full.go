@@ -45,7 +45,7 @@ import (
 type FullNode interface {
 	Common
 	Net
-
+	VenusAPI
 	// MethodGroup: Chain
 	// The Chain method group contains methods for interacting with the
 	// blockchain, but that do not require any form of state computation.
