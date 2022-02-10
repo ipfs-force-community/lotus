@@ -1306,7 +1306,11 @@ func testCompetitiveMessageSelection(t *testing.T, rng *rand.Rand, getPremium fu
 	logging.SetLogLevel("messagepool", "error")
 
 	// 1. greedy selection
-	gm, err := mp.selectMessagesGreedy(context.Background(), ts, ts)
+	pending, err := mp.getPendingMessages(context.Background(), ts, ts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gm, err := mp.selectMessagesGreedy(context.Background(), ts, ts, pending)
 	if err != nil {
 		t.Fatal(err)
 	}
