@@ -425,10 +425,10 @@ func evalMessage(ctx context.Context, smgr *stmgr.StateManager, cstore *store.Ch
 		return res.MsgRct.GasUsed, nil
 	}
 
-	if !builtin.IsPaymentChannelActor(act.Code) {
+	if !lbuiltin.IsPaymentChannelActor(act.Code) {
 		return res.MsgRct.GasUsed, nil
 	}
-	if msg.Method != paych.Methods.Collect {
+	if msg.Method != builtin.MethodsPaych.Collect {
 		return res.MsgRct.GasUsed, nil
 	}
 
