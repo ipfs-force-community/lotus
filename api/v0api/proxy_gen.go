@@ -39,6 +39,8 @@ type FullNodeStruct struct {
 
 	NetStruct
 
+	VenusAPIStruct
+
 	Internal struct {
 		BeaconGetEntry func(p0 context.Context, p1 abi.ChainEpoch) (*types.BeaconEntry, error) `perm:"read"`
 
@@ -422,6 +424,8 @@ type FullNodeStub struct {
 	CommonStub
 
 	NetStub
+
+	VenusAPIStub
 }
 
 type GatewayStruct struct {
