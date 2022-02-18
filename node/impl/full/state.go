@@ -1466,7 +1466,16 @@ func (a *StateAPI) StateGetRandomnessFromTickets(ctx context.Context, personaliz
 
 func (a *StateAPI) StateGetRandomnessFromBeacon(ctx context.Context, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte, tsk types.TipSetKey) (abi.Randomness, error) {
 	return a.StateManager.GetRandomnessFromBeacon(ctx, personalization, randEpoch, entropy, tsk)
+}
 
+func (a *StateAPI) ChainGetRandomnessFromTickets(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch 
+	abi.ChainEpoch, entropy []byte) (abi.Randomness, error) {
+	return a.StateManager.GetRandomnessFromTickets(ctx, personalization, randEpoch, entropy, tsk)
+}
+
+func (a *StateAPI) ChainGetRandomnessFromBeacon(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch 
+	abi.ChainEpoch, entropy []byte) (abi.Randomness, error) {
+	return a.StateManager.GetRandomnessFromBeacon(ctx, personalization, randEpoch, entropy, tsk)
 }
 
 func (a *StateAPI) StateGetBeaconEntry(ctx context.Context, epoch abi.ChainEpoch) (*types.BeaconEntry, error) {
