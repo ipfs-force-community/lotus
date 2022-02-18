@@ -1916,3 +1916,15 @@ func (a *StateAPI) StateGetNetworkParams(ctx context.Context) (*api.NetworkParam
 		},
 	}, nil
 }
+
+func (a *StateAPI) ChainGetRandomnessFromTickets(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error) {
+	return a.StateManager.GetRandomnessFromTickets(ctx, personalization, randEpoch, entropy, tsk)
+}
+
+func (a *StateAPI) ChainGetRandomnessFromBeacon(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error) {
+	return a.StateManager.GetRandomnessFromBeacon(ctx, personalization, randEpoch, entropy, tsk)
+}
+
+func (a *StateAPI) BeaconGetEntry(ctx context.Context, epoch abi.ChainEpoch) (*types.BeaconEntry, error) {
+	return a.StateGetBeaconEntry(ctx, epoch)
+}

@@ -38,6 +38,8 @@ type FullNodeStruct struct {
 
 	NetStruct
 
+	VenusAPIStruct
+
 	Internal FullNodeMethods
 }
 
@@ -423,6 +425,8 @@ type FullNodeStub struct {
 	CommonStub
 
 	NetStub
+
+	VenusAPIStub
 }
 
 type GatewayStruct struct {
