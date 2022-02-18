@@ -713,7 +713,7 @@ func (mp *MessagePool) getPendingMessages(ctx context.Context, curTS, ts *types.
 		return result, nil
 	}
 
-	if err := mp.runHeadChange(ctx, curTS, ts, result); err != nil {
+	if err := mp.runHeadChange(curTS, ts, result); err != nil {
 		return nil, xerrors.Errorf("failed to process difference between mpool head and given head: %w", err)
 	}
 
