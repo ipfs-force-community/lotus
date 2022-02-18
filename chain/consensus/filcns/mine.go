@@ -11,7 +11,6 @@ import (
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/chain"
 	"github.com/filecoin-project/lotus/chain/consensus"
-	"github.com/filecoin-project/lotus/chain/stmgr"
 	"github.com/filecoin-project/lotus/chain/types"
 )
 
@@ -24,16 +23,6 @@ func (filec *FilecoinEC) CreateBlock(ctx context.Context, w api.Wallet, bt *api.
 	st, recpts, err := filec.sm.TipSetState(ctx, pts)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to load tipset state: %w", err)
-	}
-
-	_, lbst, err := stmgr.GetLookbackTipSetForRound(ctx, filec.sm, pts, bt.Epoch)
-	if err != nil {
-		return nil, xerrors.Errorf("getting lookback miner actor state: %w", err)
-	}
-
-	worker, err := stmgr.GetMinerWorkerRaw(ctx, filec.sm, lbst, bt.Miner)
-	if err != nil {
-		return nil, xerrors.Errorf("failed to get miner worker: %w", err)
 	}
 
 	next := &types.BlockHeader{
@@ -117,20 +106,6 @@ func (filec *FilecoinEC) CreateBlock(ctx context.Context, w api.Wallet, bt *api.
 		return nil, xerrors.Errorf("computing base fee: %w", err)
 	}
 	next.ParentBaseFee = baseFee
-
-	nosigbytes, err := next.SigningBytes()
-	if err != nil {
-		return nil, xerrors.Errorf("failed to get signing bytes for block: %w", err)
-	}
-
-	sig, err := w.WalletSign(ctx, worker, nosigbytes, api.MsgMeta{
-		Type: api.MTBlock,
-	})
-	if err != nil {
-		return nil, xerrors.Errorf("failed to sign new block: %w", err)
-	}
-
-	next.BlockSig = sig
 
 	fullBlock := &types.FullBlock{
 		Header:        next,
