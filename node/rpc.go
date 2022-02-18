@@ -75,9 +75,9 @@ func ServeRPC(h http.Handler, id string, addr multiaddr.Multiaddr) (StopFunc, er
 func FullNodeHandler(a v1api.FullNode, permissioned bool, authEndpoint string, opts ...jsonrpc.ServerOption) (http.Handler, error) {
 	m := mux.NewRouter()
 
-	var remoteJwtCli *jwtclient.JWTClient
+	var remoteJwtCli *jwtclient.AuthClient
 	if len(authEndpoint) > 0 {
-		remoteJwtCli = jwtclient.NewJWTClient(authEndpoint)
+		remoteJwtCli, _ = jwtclient.NewAuthClient(authEndpoint)
 	}
 
 	serveRpc := func(path string, hnd interface{}) {
@@ -91,8 +91,7 @@ func FullNodeHandler(a v1api.FullNode, permissioned bool, authEndpoint string, o
 		if permissioned {
 			if remoteJwtCli != nil {
 				handler = (http.Handler)(jwtclient.NewAuthMux(&WrapClient{a},
-					jwtclient.WarpIJwtAuthClient(remoteJwtCli),
-					rpcServer, logging.Logger("Auth")))
+					jwtclient.WarpIJwtAuthClient(remoteJwtCli), rpcServer))
 			} else {
 				handler = &auth.Handler{Verify: a.AuthVerify, Next: rpcServer.ServeHTTP}
 			}
