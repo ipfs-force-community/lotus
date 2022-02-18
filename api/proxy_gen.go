@@ -843,6 +843,10 @@ type StorageMinerStub struct {
 
 type VenusAPIStruct struct {
 	Internal struct {
+		ChainGetRandomnessFromBeacon func(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) `perm:"read"`
+
+		ChainGetRandomnessFromTickets func(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) `perm:"read"`
+
 		GasBatchEstimateMessageGas func(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) `perm:"read"`
 
 		MpoolPublishByAddr func(p0 context.Context, p1 address.Address) error `perm:"write"`
@@ -4876,6 +4880,28 @@ func (s *StorageMinerStruct) WorkerStats(p0 context.Context) (map[uuid.UUID]stor
 
 func (s *StorageMinerStub) WorkerStats(p0 context.Context) (map[uuid.UUID]storiface.WorkerStats, error) {
 	return *new(map[uuid.UUID]storiface.WorkerStats), ErrNotSupported
+}
+
+func (s *VenusAPIStruct) ChainGetRandomnessFromBeacon(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
+	if s.Internal.ChainGetRandomnessFromBeacon == nil {
+		return *new(abi.Randomness), ErrNotSupported
+	}
+	return s.Internal.ChainGetRandomnessFromBeacon(p0, p1, p2, p3, p4)
+}
+
+func (s *VenusAPIStub) ChainGetRandomnessFromBeacon(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
+	return *new(abi.Randomness), ErrNotSupported
+}
+
+func (s *VenusAPIStruct) ChainGetRandomnessFromTickets(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
+	if s.Internal.ChainGetRandomnessFromTickets == nil {
+		return *new(abi.Randomness), ErrNotSupported
+	}
+	return s.Internal.ChainGetRandomnessFromTickets(p0, p1, p2, p3, p4)
+}
+
+func (s *VenusAPIStub) ChainGetRandomnessFromTickets(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
+	return *new(abi.Randomness), ErrNotSupported
 }
 
 func (s *VenusAPIStruct) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
