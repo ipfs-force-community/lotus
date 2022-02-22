@@ -16,6 +16,25 @@
 
 Lotus is an implementation of the Filecoin Distributed Storage Network. For more details about Filecoin, check out the [Filecoin Spec](https://spec.filecoin.io).
 
+## Venus Change
+
+1. Integrate venus-auth for distributed token authentication
+2. add venus api 
+   ```go
+    MpoolSelects(context.Context, types.TipSetKey, []float64) ([][]*types.SignedMessage, error) //perm:read
+
+    MpoolPublishMessage(ctx context.Context, smsg *types.SignedMessage) error //perm:write
+
+    MpoolPublishByAddr(context.Context, address.Address) error //perm:write
+
+    GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*EstimateResult, error) //perm:read
+
+    // ChainGetRandomnessFromTickets is used to sample the chain for randomness.
+    ChainGetRandomnessFromTickets(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error) //perm:read
+
+    // ChainGetRandomnessFromBeacon is used to sample the beacon for randomness.
+    ChainGetRandomnessFromBeacon(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error) //perm:read
+   ```
 ## Building & Documentation
 
 > Note: The default `master` branch is the dev branch, please use with caution. For the latest stable version, checkout the most recent [`Latest release`](https://github.com/filecoin-project/lotus/releases).
