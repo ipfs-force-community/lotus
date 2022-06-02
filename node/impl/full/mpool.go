@@ -64,7 +64,7 @@ func (a *MpoolAPI) MpoolSelect(ctx context.Context, tsk types.TipSetKey, ticketQ
 }
 
 func (a *MpoolAPI) MpoolSelects(ctx context.Context, tsk types.TipSetKey, ticketQualitys []float64) ([][]*types.SignedMessage, error) {
-	ts, err := a.Chain.GetTipSetFromKey(tsk)
+	ts, err := a.Chain.GetTipSetFromKey(ctx, tsk)
 	if err != nil {
 		return nil, xerrors.Errorf("loading tipset %s: %w", tsk, err)
 	}

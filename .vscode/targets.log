@@ -1,0 +1,1282 @@
+make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+# GNU Make 3.81
+# Copyright (C) 2006  Free Software Foundation, Inc.
+# This is free software; see the source for copying conditions.
+# There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+# This program built for i386-apple-darwin11.3.0
+ 
+/Library/Developer/CommandLineTools/usr/bin/make -C extern/filecoin-ffi/ .install-filcrypto
+ 
+# GNU Make 3.81
+# Copyright (C) 2006  Free Software Foundation, Inc.
+# This is free software; see the source for copying conditions.
+# There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+# This program built for i386-apple-darwin11.3.0
+ 
+
+# Make data base, printed on Thu Jun  2 08:40:25 2022
+
+# Variables
+
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# automatic
+?F = $(notdir $?)
+# environment
+PROVIDE_FULLSTACK_ACTION = true
+# environment
+VSCODE_LOG_NATIVE = false
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# automatic
+@F = $(notdir $@)
+# makefile
+CURDIR := /Users/haoziyan/Desktop/code/github.com/ipfs-force-community/lotus/extern/filecoin-ffi
+# makefile
+SHELL = /bin/sh
+ 
+# environment
+VSCODE_NLS_CONFIG = {"locale":"zh-cn","availableLanguages":{"*":"zh-cn"},"_languagePackId":"42e84e0914b17800d483f69e299e1b00.zh-cn","_translationsConfigFile":"/Users/haoziyan/Library/Application Support/Code/clp/42e84e0914b17800d483f69e299e1b00.zh-cn/tcf.json","_cacheRoot":"/Users/haoziyan/Library/Application Support/Code/clp/42e84e0914b17800d483f69e299e1b00.zh-cn","_resolvedLanguagePackCoreLocation":"/Users/haoziyan/Library/Application Support/Code/clp/42e84e0914b17800d483f69e299e1b00.zh-cn/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5","_corruptedFile":"/Users/haoziyan/Library/Application Support/Code/clp/42e84e0914b17800d483f69e299e1b00.zh-cn/corrupted.info","_languagePackSupport":true}
+# environment
+_ = /Library/Developer/CommandLineTools/usr/bin/make
+# makefile (from `Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+VSCODE_VERBOSE_LOGGING = true
+# environment
+__CFBundleIdentifier = com.microsoft.VSCode
+# environment
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/sl/v6l49ppj3lj6nkxmwbglmncr0000gn/T/vscode-ipc-a460eda1-5ff1-488e-9b0b-2346579160a8.sock
+# environment
+VSCODE_CWD = /
+# environment
+GOPROXY = https://goproxy.cn,direct
+# environment
+PATH = /Users/haoziyan/.cargo/bin:/usr/local/opt/openjdk/bin:/Users/haoziyan/Desktop/graphviz-2.49.2.tar.gz:/Users/haoziyan/go/bin:/usr/local/opt/mongodb-community@4.0/bin:/usr/local/sbin:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin
+# environment
+GOLANG_EXECUTABLE = go
+# environment
+THREE_SCALE_USER_TOKEN = 207c527cfc2a6b8dcf4fa43ad7a976da
+# environment
+GOPATH = /Users/haoziyan/go
+# environment
+VSCODE_LOG_STACK = false
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# default
+.FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
+# environment
+UUID = e6540fe3-ce43-4bd2-bbf4-ae64677ed3a6
+# environment
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.zOxyENa5NI/Listeners
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_PIPE_LOGGING = true
+# environment
+PWD = /Users/haoziyan/Desktop/code/github.com/ipfs-force-community/lotus
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+GOMODCACHE = /Users/haoziyan/go/pkg/mod
+# environment
+HOME = /Users/haoziyan
+# default
+MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
+# environment
+VSCODE_CODE_CACHE_PATH = /Users/haoziyan/Library/Application Support/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+# environment
+LOGNAME = haoziyan
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# environment
+TELEMETRY_ID = a7083543-88ab-4b77-89e8-1cc9b8ee5923
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+XPC_FLAGS = 0x0
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := .install-filcrypto
+# environment
+SHLVL = 3
+# default
+MAKE_VERSION := 3.81
+# environment
+USER = haoziyan
+# makefile
+.DEFAULT_GOAL := all
+# environment
+HOMEBREW_BOTTLE_DOMAIN = https://mirrors.ustc.edu.cn/homebrew-bottles
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# default
+MAKE_COMMAND := /Library/Developer/CommandLineTools/usr/bin/make
+# environment
+UTM_SOURCE = vscode
+# default
+.VARIABLES := 
+# environment
+TMPDIR = /var/folders/sl/v6l49ppj3lj6nkxmwbglmncr0000gn/T/
+# automatic
+*F = $(notdir $*)
+# environment
+VSCODE_IPC_HOOK = /Users/haoziyan/Library/Application Support/Code/1.67.2-main.sock
+# makefile
+MAKEFLAGS = Rrqp
+# environment
+MFLAGS = -Rrqp
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.45982922.45982928
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# environment
+RECOMMENDER_API_URL = https://gw.api.openshift.io//api/v2
+# automatic
++F = $(notdir $+)
+# environment
+__CF_USER_TEXT_ENCODING = 0x1F5:0x19:0x34
+# environment
+COMMAND_MODE = unix2003
+# default
+MAKEFILES := 
+# automatic
+<F = $(notdir $<)
+# environment
+LC_ALL = C
+# automatic
+^F = $(notdir $^)
+# makefile (from `Makefile', line 1)
+DEPS := filcrypto.h filcrypto.pc libfilcrypto.a
+# default
+SUFFIXES := 
+# default
+.INCLUDE_DIRS = /usr/local/include
+# environment
+MAKELEVEL := 1
+# environment
+LANG = C
+# environment
+VSCODE_PID = 17512
+# variable set hash-table stats:
+# Load=74/1024=7%, Rehash=0, Collisions=3/108=3%
+
+ 
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (device 16777224, inode 45891554): 34 files, no impossibilities.
+
+# 34 files, no impossibilities in 1 directories.
+
+# Implicit Rules
+
+# No implicit rules.
+
+# Files
+
+all: filcrypto.h filcrypto.pc libfilcrypto.a
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+
+filcrypto.pc: .install-filcrypto
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 8):
+	
+
+.PHONY: all clean go-lint cgo-leakdetect cgo-gen runner
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-23 16:44:03
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+cgo-gen: filcrypto.h filcrypto.pc libfilcrypto.a
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 36):
+	go run github.com/xlab/c-for-go --nostamp filcrypto.yml
+	
+
+# Not a target:
+rust:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-23 16:44:03
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+cgo-leakdetect: runner
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 32):
+	valgrind --leak-check=full --show-leak-kinds=definite ./runner
+	
+
+lint: shellcheck go-lint
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+runner: filcrypto.h filcrypto.pc libfilcrypto.a
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 40):
+	rm -f ./runner
+	go build -o ./runner ./cgoleakdetect/
+	
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 16):
+	go clean -cache -testcache .
+	rm -rf $(DEPS) .install-filcrypto
+	rm -f ./runner
+	cd rust && cargo clean && cd ..
+	
+
+filcrypto.h: .install-filcrypto
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 8):
+	
+
+shellcheck:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 27):
+	shellcheck install-filcrypto
+	
+
+libfilcrypto.a: .install-filcrypto
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 8):
+	
+
+go-lint: filcrypto.h filcrypto.pc libfilcrypto.a
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 23):
+	golangci-lint run -v --concurrency 2 --new-from-rev origin/master
+	
+
+.install-filcrypto: rust
+#  Command-line target.
+#  Implicit rule search has not been done.
+#  Implicit/static pattern stem: `'
+#  File does not exist.
+#  File has been updated.
+#  Needs to be updated (-q is set).
+# automatic
+# @ := .install-filcrypto
+# automatic
+# % := 
+# automatic
+# * := 
+# automatic
+# + := rust
+# automatic
+# | := 
+# automatic
+# < := rust
+# automatic
+# ^ := rust
+# automatic
+# ? := rust
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=1/11=9%
+#  commands to execute (from `Makefile', line 11):
+	go clean -cache -testcache .
+	./install-filcrypto
+	@touch $@
+	
+
+# files hash-table stats:
+# Load=17/1024=2%, Rehash=0, Collisions=1/61=2%
+# VPATH Search Paths
+
+# No `vpath' search paths.
+
+# No general (`VPATH' variable) search path.
+
+# # of strings in strcache: 1
+# # of strcache buffers: 1
+# strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
+# strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
+
+# Finished Make data base on Thu Jun  2 08:40:25 2022
+
+ 
+make: *** [build/.filecoin-install] Error 1
+
+
+# Make data base, printed on Thu Jun  2 08:40:25 2022
+
+# Variables
+
+# automatic
+<D = $(patsubst %/,%,$(dir $<))
+# automatic
+?F = $(notdir $?)
+# environment
+PROVIDE_FULLSTACK_ACTION = true
+# environment
+VSCODE_LOG_NATIVE = false
+# automatic
+?D = $(patsubst %/,%,$(dir $?))
+# automatic
+@D = $(patsubst %/,%,$(dir $@))
+# automatic
+@F = $(notdir $@)
+# makefile
+CURDIR := /Users/haoziyan/Desktop/code/github.com/ipfs-force-community/lotus
+# makefile (from `Makefile', line 1)
+SHELL = /usr/bin/env bash
+# environment
+VSCODE_NLS_CONFIG = {"locale":"zh-cn","availableLanguages":{"*":"zh-cn"},"_languagePackId":"42e84e0914b17800d483f69e299e1b00.zh-cn","_translationsConfigFile":"/Users/haoziyan/Library/Application Support/Code/clp/42e84e0914b17800d483f69e299e1b00.zh-cn/tcf.json","_cacheRoot":"/Users/haoziyan/Library/Application Support/Code/clp/42e84e0914b17800d483f69e299e1b00.zh-cn","_resolvedLanguagePackCoreLocation":"/Users/haoziyan/Library/Application Support/Code/clp/42e84e0914b17800d483f69e299e1b00.zh-cn/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5","_corruptedFile":"/Users/haoziyan/Library/Application Support/Code/clp/42e84e0914b17800d483f69e299e1b00.zh-cn/corrupted.info","_languagePackSupport":true}
+# environment
+_ = /usr/bin/make
+# makefile (from `Makefile', line 10)
+GOVERSION := 1017006
+# makefile (from `Makefile', line 1)
+MAKEFILE_LIST :=  Makefile
+# makefile (from `Makefile', line 48)
+BUILD_DEPS = build/.filecoin-install ffi-version-check
+# environment
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
+# environment
+VSCODE_VERBOSE_LOGGING = true
+ 
+# makefile (from `Makefile', line 22)
+ldflags = -X=github.com/filecoin-project/lotus/build.CurrentCommit=+git.$(subst -,.,$(shell git describe --always --match=NeVeRmAtCh --dirty 2>/dev/null || git rev-parse --short HEAD 2>/dev/null))
+# environment
+__CFBundleIdentifier = com.microsoft.VSCode
+# makefile (from `Makefile', line 8)
+GOCC = go
+# environment
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/sl/v6l49ppj3lj6nkxmwbglmncr0000gn/T/vscode-ipc-a460eda1-5ff1-488e-9b0b-2346579160a8.sock
+# environment
+VSCODE_CWD = /
+# environment
+GOPROXY = https://goproxy.cn,direct
+# environment
+PATH = /Users/haoziyan/.cargo/bin:/usr/local/opt/openjdk/bin:/Users/haoziyan/Desktop/graphviz-2.49.2.tar.gz:/Users/haoziyan/go/bin:/usr/local/opt/mongodb-community@4.0/bin:/usr/local/sbin:/usr/local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/go/bin
+# environment
+GOLANG_EXECUTABLE = go
+# environment
+THREE_SCALE_USER_TOKEN = 207c527cfc2a6b8dcf4fa43ad7a976da
+# environment
+GOPATH = /Users/haoziyan/go
+# environment
+VSCODE_LOG_STACK = false
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# default
+.FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
+# makefile (from `Makefile', line 42)
+MODULES :=  extern/filecoin-ffi/
+# environment
+UUID = e6540fe3-ce43-4bd2-bbf4-ae64677ed3a6
+# environment
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.zOxyENa5NI/Listeners
+# automatic
+%F = $(notdir $%)
+# environment
+VSCODE_PIPE_LOGGING = true
+# environment
+PWD = /Users/haoziyan/Desktop/code/github.com/ipfs-force-community/lotus
+# makefile (from `Makefile', line 227)
+BINS :=  lotus lotus-miner lotus-worker lotus-shed lotus-gateway lotus-seed lotus-pond lotus-fountain lotus-bench lotus-stats lotus-pcr lotus-health lotus-wallet lotus-keygen testground tvx lotus-sim
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+GOMODCACHE = /Users/haoziyan/go/pkg/mod
+# environment
+HOME = /Users/haoziyan
+# default
+MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
+# environment
+VSCODE_CODE_CACHE_PATH = /Users/haoziyan/Library/Application Support/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+# environment
+LOGNAME = haoziyan
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
+# environment
+TELEMETRY_ID = a7083543-88ab-4b77-89e8-1cc9b8ee5923
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+XPC_FLAGS = 0x0
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := all
+# environment
+SHLVL = 2
+# makefile (from `Makefile', line 62)
+CLEAN :=  build/.filecoin-install build/.update-modules
+# default
+MAKE_VERSION := 3.81
+# environment
+USER = haoziyan
+# makefile
+.DEFAULT_GOAL := all
+# environment
+HOMEBREW_BOTTLE_DOMAIN = https://mirrors.ustc.edu.cn/homebrew-bottles
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# default
+MAKE_COMMAND := /Library/Developer/CommandLineTools/usr/bin/make
+# environment
+UTM_SOURCE = vscode
+# default
+.VARIABLES := 
+# environment
+TMPDIR = /var/folders/sl/v6l49ppj3lj6nkxmwbglmncr0000gn/T/
+# automatic
+*F = $(notdir $*)
+# environment
+VSCODE_IPC_HOOK = /Users/haoziyan/Library/Application Support/Code/1.67.2-main.sock
+# makefile (from `Makefile', line 32)
+FFI_PATH := extern/filecoin-ffi/
+# makefile
+MAKEFLAGS = Rrqp
+# environment
+MFLAGS = -Rrqp
+# automatic
+*D = $(patsubst %/,%,$(dir $*))
+# environment
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.45982922.45982928
+# automatic
++D = $(patsubst %/,%,$(dir $+))
+# environment
+RECOMMENDER_API_URL = https://gw.api.openshift.io//api/v2
+# automatic
++F = $(notdir $+)
+# makefile (from `Makefile', line 34)
+FFI_DEPS := extern/filecoin-ffi/.install-filcrypto
+# environment
+__CF_USER_TEXT_ENCODING = 0x1F5:0x19:0x34
+# environment
+COMMAND_MODE = unix2003
+# default
+MAKEFILES := 
+# automatic
+<F = $(notdir $<)
+# makefile (from `Makefile', line 27)
+GOFLAGS :=  -ldflags="-X=github.com/filecoin-project/lotus/build.CurrentCommit=+git.d782c2a9d"
+# environment
+LC_ALL = C
+# automatic
+^F = $(notdir $^)
+# default
+SUFFIXES := 
+# default
+.INCLUDE_DIRS = /usr/local/include
+ 
+# environment
+MAKELEVEL := 0
+# environment
+LANG = C
+# environment
+VSCODE_PID = 17512
+# variable set hash-table stats:
+# Load=83/1024=8%, Rehash=0, Collisions=79/198=40%
+
+# Pattern-specific Variable Values
+
+# No pattern-specific variable values.
+
+# Directories
+
+# . (device 16777224, inode 42533204): 51 files, no impossibilities.
+
+# 51 files, no impossibilities in 1 directories.
+
+# Implicit Rules
+
+print-%:
+#  commands to execute (from `Makefile', line 367):
+	@echo $*=$($*)
+	
+
+# 1 implicit rules, 0 (0.0%) terminal.
+
+# Files
+
+build/.update-modules:
+#  Implicit rule search has not been done.
+#  Last modified 2022-05-23 16:44:05
+#  File has been updated.
+#  Successfully updated.
+#  commands to execute (from `Makefile', line 55):
+	git submodule update --init --recursive
+	touch $@
+	
+
+docsgen-md: docsgen-md-full docsgen-md-storage docsgen-md-worker
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+docsgen-md-full: docsgen-md-bin
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 331):
+	./docgen-md "api/api_full.go" "FullNode" "api" "./api" > documentation/en/api-v1-unstable-methods.md
+	./docgen-md "api/v0api/full.go" "FullNode" "v0api" "./api/v0api" > documentation/en/api-v0-methods.md
+	
+
+api-gen:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 304):
+	$(GOCC) run ./gen/api
+	goimports -w api
+	goimports -w api
+	
+
+lotus-seed: build/.filecoin-install ffi-version-check
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 144):
+	rm -f lotus-seed
+	$(GOCC) build $(GOFLAGS) -o lotus-seed ./cmd/lotus-seed
+	
+
+lotus-pond-front:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 162):
+	(cd lotuspond/front && npm i && CI=false npm run build)
+	
+
+2k: build-devnets
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+# makefile (from `Makefile', line 75)
+# GOFLAGS += -tags=2k -ldflags=-X=github.com/filecoin-project/lotus/build.NetworkBundle=devnet
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/4=0%
+
+all: build
+#  Phony target (prerequisite of .PHONY).
+#  Command-line target.
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/7=0%
+
+lotus-fountain:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 169):
+	rm -f lotus-fountain
+	go build $(GOFLAGS) -o lotus-fountain ./cmd/lotus-fountain
+	go run github.com/GeertJohan/go.rice/rice append --exec lotus-fountain -i ./cmd/lotus-fountain -i ./build
+	
+
+.PHONY: all ffi-version-check deps build-devnets lotus lotus-miner lotus-worker lotus-shed lotus-gateway build lotus-seed benchmarks lotus-pond lotus-pond-front lotus-pond-app lotus-fountain lotus-bench lotus-stats lotus-pcr lotus-health lotus-wallet lotus-keygen testground tvx lotus-sim clean dist-clean api-gen docsgen docsgen-md-bin docsgen-openrpc-bin gen docsgen-cli
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+lotus-pond: 2k
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 157):
+	$(GOCC) build -o lotus-pond ./lotuspond
+	
+
+install-services: install-main-services
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+docsgen-openrpc-worker: docsgen-openrpc-bin
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 345):
+	./docgen-openrpc "api/api_worker.go" "Worker" "api" "./api" -gzip > build/openrpc/worker.json.gz
+	
+
+lotus-worker: build/.filecoin-install ffi-version-check
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 104):
+	rm -f lotus-worker
+	$(GOCC) build $(GOFLAGS) -o lotus-worker ./cmd/lotus-worker
+	
+
+lotus-stats:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 182):
+	rm -f lotus-stats
+	$(GOCC) build $(GOFLAGS) -o lotus-stats ./cmd/lotus-stats
+	
+
+docsgen-md-storage: docsgen-md-bin
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+ 
+#  commands to execute (from `Makefile', line 334):
+	./docgen-md "api/api_storage.go" "StorageMiner" "api" "./api" > documentation/en/api-v0-methods-miner.md
+	
+
+lotus-wallet:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 200):
+	rm -f lotus-wallet
+	$(GOCC) build -o lotus-wallet ./cmd/lotus-wallet
+	
+
+deps: build/.filecoin-install ffi-version-check
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+
+benchmarks:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 151):
+	$(GOCC) run github.com/whyrusleeping/bencher ./... > bench.json
+	@echo Submitting results
+	@curl -X POST 'http://benchmark.kittyhawk.wtf/benchmark' -d '@bench.json' -u "${benchmark_http_cred}"
+	
+
+docsgen-md-bin: api-gen actors-gen
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 324):
+	$(GOCC) build $(GOFLAGS) -o docgen-md ./api/docgen/cmd
+	
+
+lotus-bench:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 176):
+	rm -f lotus-bench
+	$(GOCC) build -o lotus-bench ./cmd/lotus-bench
+	
+
+lotus-sim: build/.filecoin-install ffi-version-check
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 224):
+	rm -f lotus-sim
+	$(GOCC) build $(GOFLAGS) -o lotus-sim ./cmd/lotus-sim
+	
+
+install-all-services: install-main-services
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+install-completions:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 276):
+	mkdir -p /usr/share/bash-completion/completions /usr/local/share/zsh/site-functions/
+	install -C ./scripts/bash-completion/lotus /usr/share/bash-completion/completions/lotus
+	install -C ./scripts/zsh-completion/lotus /usr/local/share/zsh/site-functions/_lotus
+	
+
+build/.filecoin-install: extern/filecoin-ffi/
+#  Implicit rule search has not been done.
+#  Implicit/static pattern stem: `'
+#  Last modified 1970-01-01 07:59:56
+#  File has been updated.
+#  Failed to be updated.
+# automatic
+# @ := build/.filecoin-install
+# automatic
+# % := 
+# automatic
+# * := 
+# automatic
+# + := extern/filecoin-ffi/
+# automatic
+# | := 
+# automatic
+# < := extern/filecoin-ffi/
+# automatic
+# ^ := extern/filecoin-ffi/
+# automatic
+# ? := extern/filecoin-ffi/
+# variable set hash-table stats:
+# Load=8/32=25%, Rehash=0, Collisions=2/16=12%
+#  commands to execute (from `Makefile', line 39):
+	$(MAKE) -C $(FFI_PATH) $(FFI_DEPS:$(FFI_PATH)%=%)
+	@touch $@
+	
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-05-23 16:24:58
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+install-app:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 139):
+	install -C ./$(APP) /usr/local/bin/$(APP)
+	
+
+install-daemon-service: install-daemon
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 232):
+	mkdir -p /etc/systemd/system
+	mkdir -p /var/log/lotus
+	install -C -m 0644 ./scripts/lotus-daemon.service /etc/systemd/system/lotus-daemon.service
+	systemctl daemon-reload
+	@echo
+	@echo "lotus-daemon service installed. Don't forget to run 'sudo systemctl start lotus-daemon' to start it and 'sudo systemctl enable lotus-daemon' for it to be enabled on startup."
+	
+
+lotus-shed: build/.filecoin-install ffi-version-check
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 110):
+	rm -f lotus-shed
+	$(GOCC) build $(GOFLAGS) -o lotus-shed ./cmd/lotus-shed
+	
+
+debug: build-devnets
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+# makefile (from `Makefile', line 71)
+# GOFLAGS += -tags=debug -ldflags=-X=github.com/filecoin-project/lotus/build.NetworkBundle=devnet
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/4=0%
+
+install-miner:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 133):
+	install -C ./lotus-miner /usr/local/bin/lotus-miner
+	
+
+docsgen: docsgen-md docsgen-openrpc
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+
+build: lotus lotus-miner lotus-worker
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/7=0%
+#  commands to execute (from `Makefile', line 122):
+	@[[ $$(type -P "lotus") ]] && echo "Caution: you have \
+	an existing lotus binary in your PATH. This may cause problems if you don't run 'sudo make install'" || true
+	
+
+docsgen-openrpc: docsgen-openrpc-full docsgen-openrpc-storage docsgen-openrpc-worker
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+docsgen-openrpc-full: docsgen-openrpc-bin
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 341):
+	./docgen-openrpc "api/api_full.go" "FullNode" "api" "./api" -gzip > build/openrpc/full.json.gz
+	
+
+cfgdoc-gen:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 310):
+	$(GOCC) run ./node/config/cfgdocgen > ./node/config/doc_gen.go
+	
+
+clean-miner-service:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 260):
+	-systemctl stop lotus-miner
+	-systemctl disable lotus-miner
+	rm -f /etc/systemd/system/lotus-miner.service
+	systemctl daemon-reload
+	
+
+lotus: build/.filecoin-install ffi-version-check
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/7=0%
+#  commands to execute (from `Makefile', line 91):
+	rm -f lotus
+	$(GOCC) build $(GOFLAGS) -o lotus ./cmd/lotus
+	
+
+clean-daemon-service: clean-miner-service
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 254):
+	-systemctl stop lotus-daemon
+	-systemctl disable lotus-daemon
+	rm -f /etc/systemd/system/lotus-daemon.service
+	systemctl daemon-reload
+	
+ 
+
+testground:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 212):
+	$(GOCC) build -tags testground -o /dev/null ./cmd/lotus
+	
+
+snap: lotus lotus-miner lotus-worker
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 356):
+	snapcraft
+	# snapcraft upload ./lotus_*.snap
+	
+
+jen: gen
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+build-devnets: build lotus-seed lotus-shed lotus-wallet lotus-gateway lotus-fountain lotus-stats
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+
+lotus-pond-app: lotus-pond-front lotus-pond
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+
+docsgen-openrpc-storage: docsgen-openrpc-bin
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 343):
+	./docgen-openrpc "api/api_storage.go" "StorageMiner" "api" "./api" -gzip > build/openrpc/miner.json.gz
+	
+
+docsgen-openrpc-bin: api-gen actors-gen
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 326):
+	$(GOCC) build $(GOFLAGS) -o docgen-openrpc ./api/docgen-openrpc/cmd
+	
+
+buildall: lotus lotus-miner lotus-worker lotus-shed lotus-gateway lotus-seed lotus-pond lotus-fountain lotus-bench lotus-stats lotus-pcr lotus-health lotus-wallet lotus-keygen testground tvx lotus-sim
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+clean-main-services: clean-daemon-service
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+circleci:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 370):
+	go generate -x ./.circleci
+	
+
+lotus-keygen:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 206):
+	rm -f lotus-keygen
+	$(GOCC) build -o lotus-keygen ./cmd/lotus-keygen
+	
+
+type-gen: api-gen
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 291):
+	$(GOCC) run ./gen/main.go
+	$(GOCC) generate -x ./...
+	goimports -w api/
+	
+
+actors-gen:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 299):
+	$(GOCC) run ./gen/inline-gen . gen/inlinegen-data.json
+	$(GOCC) run ./chain/actors/agen
+	$(GOCC) fmt ./...
+	
+
+# Not a target:
+.DEFAULT:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+dist-clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 286):
+	git clean -xdff
+	git submodule deinit --all -f
+	
+
+method-gen: api-gen
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 296):
+	(cd ./lotuspond/front/src/chain && $(GOCC) run ./methodgen.go)
+	
+
+clean:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 281):
+	rm -rf $(CLEAN) $(BINS)
+	-$(MAKE) -C $(FFI_PATH) clean
+	
+
+docsgen-cli: lotus lotus-miner lotus-worker
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 361):
+	python ./scripts/generate-lotus-cli.py
+	./lotus config default > documentation/en/default-lotus-config.toml
+	./lotus-miner config default > documentation/en/default-lotus-miner-config.toml
+	
+
+lotus-pcr:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 188):
+	rm -f lotus-pcr
+	$(GOCC) build $(GOFLAGS) -o lotus-pcr ./cmd/lotus-pcr
+	
+
+install-miner-service: install-miner install-daemon-service
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 240):
+	mkdir -p /etc/systemd/system
+	mkdir -p /var/log/lotus
+	install -C -m 0644 ./scripts/lotus-miner.service /etc/systemd/system/lotus-miner.service
+	systemctl daemon-reload
+	@echo
+	@echo "lotus-miner service installed. Don't forget to run 'sudo systemctl start lotus-miner' to start it and 'sudo systemctl enable lotus-miner' for it to be enabled on startup."
+	
+
+lotus-gateway: build/.filecoin-install ffi-version-check
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 116):
+	rm -f lotus-gateway
+	$(GOCC) build $(GOFLAGS) -o lotus-gateway ./cmd/lotus-gateway
+	
+
+lotus-miner: build/.filecoin-install ffi-version-check
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 98):
+	rm -f lotus-miner
+	$(GOCC) build $(GOFLAGS) -o lotus-miner ./cmd/lotus-miner
+	
+
+calibnet: build-devnets
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+# makefile (from `Makefile', line 79)
+# GOFLAGS += -tags=calibnet -ldflags=-X=github.com/filecoin-project/lotus/build.NetworkBundle=calibnet
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/4=0%
+
+lotus-health:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 194):
+	rm -f lotus-health
+	$(GOCC) build -o lotus-health ./cmd/lotus-health
+	
+
+install-worker:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 136):
+	install -C ./lotus-worker /usr/local/bin/lotus-worker
+	
+
+extern/filecoin-ffi/.install-filcrypto: build/.filecoin-install
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 36):
+	
+
+docsgen-md-worker: docsgen-md-bin
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 336):
+	./docgen-md "api/api_worker.go" "Worker" "api" "./api" > documentation/en/api-v0-methods-worker.md
+	
+
+clean-services: clean-all-services
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+appimage: lotus
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 313):
+	rm -rf appimage-builder-cache || true
+	rm AppDir/io.filecoin.lotus.desktop || true
+	rm AppDir/icon.svg || true
+	rm Appdir/AppRun || true
+	mkdir -p AppDir/usr/bin
+	cp ./lotus AppDir/usr/bin/
+	appimage-builder
+	
+
+tvx:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 218):
+	rm -f tvx
+	$(GOCC) build -o tvx ./cmd/tvx
+	
+
+ 
+install-main-services: install-miner-service
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+ffi-version-check:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 47):
+	@[[ "$$(awk '/const Version/{print $$5}' extern/filecoin-ffi/version.go)" -eq 3 ]] || (echo "FFI version mismatch, update submodules"; exit 1)
+	
+
+install-daemon:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 130):
+	install -C ./lotus /usr/local/bin/lotus
+	
+
+clean-all-services: clean-main-services
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+gen: actors-gen type-gen method-gen cfgdoc-gen docsgen api-gen circleci
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 350):
+	@echo ">>> IF YOU'VE MODIFIED THE CLI OR CONFIG, REMEMBER TO ALSO MAKE docsgen-cli"
+	
+
+interopnet: build-devnets
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+# makefile (from `Makefile', line 87)
+# GOFLAGS += -tags=interopnet -ldflags=-X=github.com/filecoin-project/lotus/build.NetworkBundle=interopnet
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/4=0%
+
+butterflynet: build-devnets
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+# makefile (from `Makefile', line 83)
+# GOFLAGS += -tags=butterflynet -ldflags=-X=github.com/filecoin-project/lotus/build.NetworkBundle=butterflynet
+# variable set hash-table stats:
+# Load=1/32=3%, Rehash=0, Collisions=0/4=0%
+
+extern/filecoin-ffi/: build/.update-modules
+#  Implicit rule search has not been done.
+#  Last modified 1970-01-01 07:59:56
+#  File has been updated.
+#  Successfully updated.
+#  commands to execute (from `Makefile', line 52):
+	
+
+install: install-daemon install-miner install-worker
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# files hash-table stats:
+# Load=79/1024=8%, Rehash=0, Collisions=6/275=2%
+# VPATH Search Paths
+
+# No `vpath' search paths.
+
+# No general (`VPATH' variable) search path.
+
+# # of strings in strcache: 1
+# # of strcache buffers: 1
+# strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
+# strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
+
+# Finished Make data base on Thu Jun  2 08:40:25 2022
+
+ 

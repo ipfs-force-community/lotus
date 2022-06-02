@@ -1,0 +1,24 @@
+make: Entering directory `/Users/haoziyan/Desktop/code/github.com/ipfs-force-community/lotus'
+git submodule update --init --recursive
+touch build/.update-modules
+ 
+/Library/Developer/CommandLineTools/usr/bin/make -C extern/filecoin-ffi/ .install-filcrypto
+ 
+make[1]: Entering directory `/Users/haoziyan/Desktop/code/github.com/ipfs-force-community/lotus/extern/filecoin-ffi'
+go clean -cache -testcache .
+./install-filcrypto
+touch .install-filcrypto
+make[1]: Leaving directory `/Users/haoziyan/Desktop/code/github.com/ipfs-force-community/lotus/extern/filecoin-ffi'
+ 
+touch build/.filecoin-install
+[[ "$(awk '/const Version/{print $5}' extern/filecoin-ffi/version.go)" -eq 3 ]] || (echo "FFI version mismatch, update submodules"; exit 1)
+rm -f lotus
+go build  -ldflags="-X=github.com/filecoin-project/lotus/build.CurrentCommit=+git.d782c2a9d" -o lotus ./cmd/lotus
+rm -f lotus-miner
+go build  -ldflags="-X=github.com/filecoin-project/lotus/build.CurrentCommit=+git.d782c2a9d" -o lotus-miner ./cmd/lotus-miner
+rm -f lotus-worker
+go build  -ldflags="-X=github.com/filecoin-project/lotus/build.CurrentCommit=+git.d782c2a9d" -o lotus-worker ./cmd/lotus-worker
+[[ $(type -P "lotus") ]] && echo "Caution: you have \
+an existing lotus binary in your PATH. This may cause problems if you don't run 'sudo make install'" || true
+make: Leaving directory `/Users/haoziyan/Desktop/code/github.com/ipfs-force-community/lotus'
+ 
