@@ -338,7 +338,7 @@ func evalMessage(ctx context.Context, smgr *stmgr.StateManager, cstore *store.Ch
 		if err != stmgr.ErrExpensiveFork {
 			break
 		}
-		ts, err = cstore.GetTipSetFromKey(ts.Parents())
+		ts, err = cstore.GetTipSetFromKey(ctx, ts.Parents())
 		if err != nil {
 			return -1, xerrors.Errorf("getting parent tipset: %w", err)
 		}
@@ -412,7 +412,7 @@ func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMess
 		return nil, nil
 	}
 
-	ts, err := m.Chain.GetTipSetFromKey(tsk)
+	ts, err := m.Chain.GetTipSetFromKey(ctx, tsk)
 	if err != nil {
 		return nil, xerrors.Errorf("getting tipset: %w", err)
 	}
