@@ -949,6 +949,8 @@ type VenusAPIStruct struct {
 
 		ChainGetRandomnessFromTickets func(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) `perm:"read"`
 
+		BeaconGetEntry func(p0 context.Context, p1 abi.ChainEpoch) (*types.BeaconEntry, error) `perm:"read"`
+
 		GasBatchEstimateMessageGas func(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) `perm:"read"`
 
 		MpoolPublishByAddr func(p0 context.Context, p1 address.Address) error `perm:"write"`
@@ -5561,6 +5563,18 @@ func (s *VenusAPIStruct) ChainGetRandomnessFromTickets(p0 context.Context, p1 ty
 
 func (s *VenusAPIStub) ChainGetRandomnessFromTickets(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
 	return *new(abi.Randomness), ErrNotSupported
+}
+
+
+func (s *VenusAPIStruct) BeaconGetEntry(p0 context.Context, p1 abi.ChainEpoch) (*types.BeaconEntry, error) {
+	if s.Internal.BeaconGetEntry == nil {
+		return &types.BeaconEntry{}, ErrNotSupported
+	}
+	return s.Internal.BeaconGetEntry(p0, p1)
+}
+
+func (s *VenusAPIStub) BeaconGetEntry(p0 context.Context, p1 abi.ChainEpoch) (*types.BeaconEntry, error) {
+	return &types.BeaconEntry{}, ErrNotSupported
 }
 
 func (s *VenusAPIStruct) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
