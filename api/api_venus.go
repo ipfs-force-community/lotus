@@ -26,4 +26,8 @@ type VenusAPI interface {
 	// ChainGetRandomnessFromBeacon is used to sample the beacon for randomness.
 	ChainGetRandomnessFromBeacon(ctx context.Context, tsk types.TipSetKey, personalization crypto.DomainSeparationTag, randEpoch abi.ChainEpoch, entropy []byte) (abi.Randomness, error) //perm:read
 
+	// BeaconGetEntry returns the beacon entry for the given filecoin epoch. If
+	// the entry has not yet been produced, the call will block until the entry
+	// becomes available
+	BeaconGetEntry(ctx context.Context, epoch abi.ChainEpoch) (*types.BeaconEntry, error) //perm:read
 }

@@ -317,6 +317,21 @@ func (mr *MockFullNodeMockRecorder) ChainGetRandomnessFromTickets(arg0, arg1, ar
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChainGetRandomnessFromTickets", reflect.TypeOf((*MockFullNode)(nil).ChainGetRandomnessFromTickets), arg0, arg1, arg2, arg3, arg4)
 }
 
+// BeaconGetEntry mocks base method.
+func (m *MockFullNode) BeaconGetEntry(arg0 context.Context, arg1 abi.ChainEpoch) (*types.BeaconEntry, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BeaconGetEntry", arg0, arg1)
+	ret0, _ := ret[0].(*types.BeaconEntry)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BeaconGetEntry indicates an expected call of BeaconGetEntry.
+func (mr *MockFullNodeMockRecorder) BeaconGetEntry(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeaconGetEntry", reflect.TypeOf((*MockFullNode)(nil).BeaconGetEntry), arg0, arg1)
+}
+
 // ChainGetTipSet mocks base method.
 func (m *MockFullNode) ChainGetTipSet(arg0 context.Context, arg1 types.TipSetKey) (*types.TipSet, error) {
 	m.ctrl.T.Helper()
