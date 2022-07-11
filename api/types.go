@@ -58,6 +58,7 @@ type MessageSendSpec struct {
 	MaxFee            abi.TokenAmount
 	MsgUuid           uuid.UUID
 	GasOverEstimation float64
+	GasOverPremium    float64
 }
 
 // GraphSyncDataTransfer provides diagnostics on a data transfer happening over graphsync
