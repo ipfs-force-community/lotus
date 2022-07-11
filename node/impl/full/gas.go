@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	stdbig "math/big"
 	"math/rand"
 	"os"
 	"sort"
@@ -437,12 +438,17 @@ func evalMessage(ctx context.Context, smgr *stmgr.StateManager, cstore *store.Ch
 }
 
 func (m *GasModule) GasEstimateMessageGas(ctx context.Context, msg *types.Message, spec *api.MessageSendSpec, _ types.TipSetKey) (*types.Message, error) {
+	log.Debugf("call GasEstimateMessageGas %v, send spec: %v", msg, spec)
 	if msg.GasLimit == 0 {
 		gasLimit, err := m.GasEstimateGasLimit(ctx, msg, types.EmptyTSK)
 		if err != nil {
 			return nil, err
 		}
-		msg.GasLimit = int64(float64(gasLimit) * m.Mpool.GetConfig().GasLimitOverestimation)
+		gasLimitOverestimation := m.Mpool.GetConfig().GasLimitOverestimation
+		if spec != nil && spec.GasOverEstimation > 0 {
+			gasLimitOverestimation = spec.GasOverEstimation
+		}
+		msg.GasLimit = int64(float64(gasLimit) * gasLimitOverestimation)
 
 		// Gas overestimation can cause us to exceed the block gas limit, cap it.
 		if msg.GasLimit > build.BlockGasLimit {
@@ -454,6 +460,12 @@ func (m *GasModule) GasEstimateMessageGas(ctx context.Context, msg *types.Messag
 		gasPremium, err := m.GasEstimateGasPremium(ctx, 10, msg.From, msg.GasLimit, types.EmptyTSK)
 		if err != nil {
 			return nil, xerrors.Errorf("estimating gas price: %w", err)
+		}
+		if spec != nil && spec.GasOverPremium > 0 {
+			olgGasPremium := gasPremium
+			newGasPremium, _ := new(stdbig.Float).Mul(new(stdbig.Float).SetInt(stdbig.NewInt(gasPremium.Int64())), stdbig.NewFloat(spec.GasOverPremium)).Int(nil)
+			log.Debugf("call GasEstimateMessageGas old premium %v, new premium %v, premium ration %f", olgGasPremium, newGasPremium, spec.GasOverPremium)
+			gasPremium = big.NewFromGo(newGasPremium)
 		}
 		msg.GasPremium = gasPremium
 	}
@@ -497,10 +509,7 @@ func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMess
 		estimateMsg := estimateMessage.Msg
 		estimateMsg.Nonce = fromNonce
 
-		if estimateMessage.Spec != nil {
-			log.Infof("GasBatchEstimateMessageGas from %s, nonce %d, gas limit %d, gas fee cap %s, max fee %s",
-				estimateMsg.From, estimateMsg.Nonce, estimateMsg.GasLimit, estimateMsg.GasFeeCap, estimateMessage.Spec.MaxFee)
-		}
+		log.Debugf("call GasBatchEstimateMessageGas msg %v, spec %v", estimateMsg, estimateMessage.Spec)
 
 		if estimateMsg.GasLimit == 0 {
 			gasUsed, err := evalMessage(ctx, m.Stmgr, m.Chain, estimateMsg, priorMsgs, ts)
@@ -512,7 +521,11 @@ func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMess
 				})
 				continue
 			}
-			estimateMsg.GasLimit = int64(float64(gasUsed) * estimateMessage.Spec.GasOverEstimation)
+			gasLimitOverestimation := m.Mpool.GetConfig().GasLimitOverestimation
+			if estimateMessage.Spec != nil && estimateMessage.Spec.GasOverEstimation > 0 {
+				gasLimitOverestimation = estimateMessage.Spec.GasOverEstimation
+			}
+			estimateMsg.GasLimit = int64(float64(gasUsed) * gasLimitOverestimation)
 		}
 
 		if estimateMsg.GasPremium == types.EmptyInt || types.BigCmp(estimateMsg.GasPremium, types.NewInt(0)) == 0 {
@@ -524,6 +537,12 @@ func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMess
 					Err: fmt.Sprintf("estimating gas price: %v", err),
 				})
 				continue
+			}
+			if estimateMessage.Spec != nil && estimateMessage.Spec.GasOverPremium > 0 {
+				olgGasPremium := gasPremium
+				newGasPremium, _ := new(stdbig.Float).Mul(new(stdbig.Float).SetInt(stdbig.NewInt(gasPremium.Int64())), stdbig.NewFloat(estimateMessage.Spec.GasOverPremium)).Int(nil)
+				gasPremium = big.NewFromGo(newGasPremium)
+				log.Debugf("call GasBatchEstimateMessageGas old premium %v, new premium %v, premium ration %f", olgGasPremium, newGasPremium, estimateMessage.Spec.GasOverPremium)
 			}
 			estimateMsg.GasPremium = gasPremium
 		}
