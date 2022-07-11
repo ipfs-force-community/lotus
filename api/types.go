@@ -60,6 +60,7 @@ type MessageSendSpec struct {
 	MaxFee            abi.TokenAmount
 	MsgUuid           uuid.UUID
 	GasOverEstimation float64
+	GasOverPremium    float64
 }
 
 type MpoolMessageWhole struct {
