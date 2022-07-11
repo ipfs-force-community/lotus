@@ -6856,40 +6856,6 @@ func (s *StorageMinerStub) WorkerStats(p0 context.Context) (map[uuid.UUID]storif
 	return *new(map[uuid.UUID]storiface.WorkerStats), ErrNotSupported
 }
 
-func (s *VenusAPIStruct) ChainGetRandomnessFromBeacon(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
-	if s.Internal.ChainGetRandomnessFromBeacon == nil {
-		return *new(abi.Randomness), ErrNotSupported
-	}
-	return s.Internal.ChainGetRandomnessFromBeacon(p0, p1, p2, p3, p4)
-}
-
-func (s *VenusAPIStub) ChainGetRandomnessFromBeacon(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
-	return *new(abi.Randomness), ErrNotSupported
-}
-
-func (s *VenusAPIStruct) ChainGetRandomnessFromTickets(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
-	if s.Internal.ChainGetRandomnessFromTickets == nil {
-		return *new(abi.Randomness), ErrNotSupported
-	}
-	return s.Internal.ChainGetRandomnessFromTickets(p0, p1, p2, p3, p4)
-}
-
-func (s *VenusAPIStub) ChainGetRandomnessFromTickets(p0 context.Context, p1 types.TipSetKey, p2 crypto.DomainSeparationTag, p3 abi.ChainEpoch, p4 []byte) (abi.Randomness, error) {
-	return *new(abi.Randomness), ErrNotSupported
-}
-
-
-func (s *VenusAPIStruct) BeaconGetEntry(p0 context.Context, p1 abi.ChainEpoch) (*types.BeaconEntry, error) {
-	if s.Internal.BeaconGetEntry == nil {
-		return &types.BeaconEntry{}, ErrNotSupported
-	}
-	return s.Internal.BeaconGetEntry(p0, p1)
-}
-
-func (s *VenusAPIStub) BeaconGetEntry(p0 context.Context, p1 abi.ChainEpoch) (*types.BeaconEntry, error) {
-	return &types.BeaconEntry{}, ErrNotSupported
-}
-
 func (s *VenusAPIStruct) GasBatchEstimateMessageGas(p0 context.Context, p1 []*EstimateMessage, p2 uint64, p3 types.TipSetKey) ([]*EstimateResult, error) {
 	if s.Internal.GasBatchEstimateMessageGas == nil {
 		return *new([]*EstimateResult), ErrNotSupported
