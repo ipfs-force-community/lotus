@@ -56,6 +56,7 @@ type PubsubScore struct {
 type MessageSendSpec struct {
 	MaxFee            abi.TokenAmount
 	GasOverEstimation float64
+	GasOverPremium    float64
 }
 
 // GraphSyncDataTransfer provides diagnostics on a data transfer happening over graphsync
