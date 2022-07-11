@@ -252,7 +252,9 @@ func FullNodeProxy[T api.FullNode](ins []T, outstr *api.FullNodeStruct) {
 			}
 
 			rProxyInternal.Field(f).Set(reflect.MakeFunc(field.Type, func(args []reflect.Value) (results []reflect.Value) {
-				errorsToRetry := []error{&jsonrpc.RPCConnectionError{}, &jsonrpc.ErrClient{}}
+				// todo: add api.RPCErrors
+				// errorsToRetry := []error{&jsonrpc.RPCConnectionError{}, &jsonrpc.ErrClient{}}
+				errorsToRetry := []error{&jsonrpc.ErrClient{}}
 				initialBackoff, err := time.ParseDuration("1s")
 				if err != nil {
 					return nil
