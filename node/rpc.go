@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"strconv"
 
-	"github.com/filecoin-project/venus-auth/cmd/jwtclient"
+	"github.com/filecoin-project/venus-auth/jwtclient"
 	"github.com/gorilla/mux"
 	"github.com/ipfs/go-cid"
 	logging "github.com/ipfs/go-log/v2"
@@ -75,7 +75,9 @@ func FullNodeHandler(a v1api.FullNode, permissioned bool, authEndpoint string, o
 	}
 
 	serveRpc := func(path string, hnd interface{}) {
-		rpcServer := jsonrpc.NewServer(append(opts, jsonrpc.WithServerErrors(api.RPCErrors))...)
+		// todo: add api.RPCErrors
+		// rpcServer := jsonrpc.NewServer(append(opts, jsonrpc.WithServerErrors(api.RPCErrors))...)
+		rpcServer := jsonrpc.NewServer(opts...)
 		rpcServer.Register("Filecoin", hnd)
 		rpcServer.AliasMethod("rpc.discover", "Filecoin.Discover")
 
@@ -141,7 +143,9 @@ func MinerHandler(a api.StorageMiner, permissioned bool) (http.Handler, error) {
 	}
 
 	readerHandler, readerServerOpt := rpcenc.ReaderParamDecoder()
-	rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(api.RPCErrors), readerServerOpt)
+	// todo: add api.RPCErrors
+	// rpcServer := jsonrpc.NewServer(jsonrpc.WithServerErrors(api.RPCErrors), readerServerOpt)
+	rpcServer := jsonrpc.NewServer(readerServerOpt)
 	rpcServer.Register("Filecoin", mapi)
 	rpcServer.AliasMethod("rpc.discover", "Filecoin.Discover")
 

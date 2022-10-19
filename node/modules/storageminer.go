@@ -37,7 +37,6 @@ import (
 	storageimpl "github.com/filecoin-project/go-fil-markets/storagemarket/impl"
 	"github.com/filecoin-project/go-fil-markets/storagemarket/impl/storedask"
 	smnet "github.com/filecoin-project/go-fil-markets/storagemarket/network"
-	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-jsonrpc/auth"
 	"github.com/filecoin-project/go-paramfetch"
 	"github.com/filecoin-project/go-state-types/abi"
@@ -89,7 +88,9 @@ func (a *UuidWrapper) MpoolPushMessage(ctx context.Context, msg *types.Message, 
 		spec = new(api.MessageSendSpec)
 	}
 	spec.MsgUuid = uuid.New()
-	errorsToRetry := []error{&jsonrpc.RPCConnectionError{}}
+	// todo: add api.RPCErrors
+	// errorsToRetry := []error{&jsonrpc.RPCConnectionError{}}
+	errorsToRetry := []error{}
 	initialBackoff, err := time.ParseDuration("1s")
 	if err != nil {
 		return nil, err
