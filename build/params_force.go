@@ -21,6 +21,7 @@ const GenesisFile = ""
 
 var NetworkBundle = "testing"
 var BundleOverrides map[actorstypes.Version]string
+var ActorDebugging = true
 
 const GenesisNetworkVersion = network.Version18
 
@@ -139,5 +140,9 @@ const SlashablePowerDelay = 20
 const InteractivePoRepConfidence = 6
 
 const BootstrapPeerThreshold = 1
+
+// ChainId defines the chain ID used in the Ethereum JSON-RPC endpoint.
+// As per https://github.com/ethereum-lists/chains
+const Eip155ChainId = 31415926
 
 var WhitelistedBlock = cid.Undef
