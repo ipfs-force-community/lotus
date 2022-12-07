@@ -19,7 +19,7 @@ import (
 const BootstrappersFile = ""
 const GenesisFile = ""
 
-var NetworkBundle = "devnet"
+var NetworkBundle = "testing"
 var BundleOverrides map[actorstypes.Version]string
 
 const GenesisNetworkVersion = network.Version16
