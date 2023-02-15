@@ -384,7 +384,7 @@ func gasEstimateGasLimit(
 	return ret, nil
 }
 
-func evalMessage(ctx context.Context, smgr *stmgr.StateManager, cstore *store.ChainStore, msgIn *types.Message, priorMsgs []types.ChainMsg, ts *types.TipSet) (int64, error) {
+func evalMessageGasLimit(ctx context.Context, smgr *stmgr.StateManager, cstore *store.ChainStore, msgIn *types.Message, priorMsgs []types.ChainMsg, ts *types.TipSet) (int64, error) {
 	msg := *msgIn
 	msg.GasLimit = build.BlockGasLimit
 	msg.GasFeeCap = types.NewInt(uint64(build.MinimumBaseFee) + 1)
@@ -410,31 +410,70 @@ func evalMessage(ctx context.Context, smgr *stmgr.StateManager, cstore *store.Ch
 		return -1, xerrors.Errorf("message execution failed: exit %s, reason: %s", res.MsgRct.ExitCode, res.Error)
 	}
 
+	ret := res.MsgRct.GasUsed
+
+	log.Infow("evalMessageGasLimit CallWithGas Result", "GasUsed", ret, "ExitCode", res.MsgRct.ExitCode)
+
+	transitionalMulti := 1.0
+	// Overestimate gas around the upgrade
+	if ts.Height() <= build.UpgradeHyggeHeight && (build.UpgradeHyggeHeight-ts.Height() <= 20) {
+		func() {
+
+			// Bare transfers get about 3x more expensive: https://github.com/filecoin-project/FIPs/blob/master/FIPS/fip-0057.md#product-considerations
+			if msgIn.Method == builtin.MethodSend {
+				transitionalMulti = 3.0
+				return
+			}
+
+			st, err := smgr.ParentState(ts)
+			if err != nil {
+				return
+			}
+			act, err := st.GetActor(msg.To)
+			if err != nil {
+				return
+			}
+
+			if lbuiltin.IsStorageMinerActor(act.Code) {
+				switch msgIn.Method {
+				case 3:
+					transitionalMulti = 1.92
+				case 4:
+					transitionalMulti = 1.72
+				case 6:
+					transitionalMulti = 1.06
+				case 7:
+					transitionalMulti = 1.2
+				case 16:
+					transitionalMulti = 1.19
+				case 18:
+					transitionalMulti = 1.73
+				case 23:
+					transitionalMulti = 1.73
+				case 26:
+					transitionalMulti = 1.15
+				case 27:
+					transitionalMulti = 1.18
+				default:
+				}
+			}
+		}()
+	}
+	ret = (ret * int64(transitionalMulti*1024)) >> 10
+
 	// Special case for PaymentChannel collect, which is deleting actor
+	// We ignore errors in this special case since they CAN occur,
+	// and we just want to detect existing payment channel actors
 	st, err := smgr.ParentState(ts)
-	if err != nil {
-		_ = err
-		// somewhat ignore it as it can happen and we just want to detect
-		// an existing PaymentChannel actor
-		return res.MsgRct.GasUsed, nil
-	}
-	act, err := st.GetActor(msg.To)
-	if err != nil {
-		_ = err
-		// somewhat ignore it as it can happen and we just want to detect
-		// an existing PaymentChannel actor
-		return res.MsgRct.GasUsed, nil
+	if err == nil {
+		act, err := st.GetActor(msg.To)
+		if err == nil && lbuiltin.IsPaymentChannelActor(act.Code) && msgIn.Method == builtin.MethodsPaych.Collect {
+			// add the refunded gas for DestroyActor back into the gas used
+			ret += 76e3
+		}
 	}
 
-	if !lbuiltin.IsPaymentChannelActor(act.Code) {
-		return res.MsgRct.GasUsed, nil
-	}
-	if msg.Method != builtin.MethodsPaych.Collect {
-		return res.MsgRct.GasUsed, nil
-	}
-
-	// return GasUsed without the refund for DestoryActor
-	return res.MsgRct.GasUsed + 76e3, nil
+	return ret, nil
 }
 
 func (m *GasModule) GasEstimateMessageGas(ctx context.Context, msg *types.Message, spec *api.MessageSendSpec, _ types.TipSetKey) (*types.Message, error) {
@@ -493,7 +532,7 @@ func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMess
 		return nil, xerrors.Errorf("getting tipset: %w", err)
 	}
 
-	fromA, err := m.Stmgr.ResolveToKeyAddress(ctx, estimateMessages[0].Msg.From, ts)
+	fromA, err := m.Stmgr.ResolveToDeterministicAddress(ctx, estimateMessages[0].Msg.From, ts)
 	if err != nil {
 		return nil, xerrors.Errorf("getting key address: %w", err)
 	}
@@ -512,7 +551,7 @@ func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMess
 		log.Debugf("call GasBatchEstimateMessageGas msg %v, spec %v", estimateMsg, estimateMessage.Spec)
 
 		if estimateMsg.GasLimit == 0 {
-			gasUsed, err := evalMessage(ctx, m.Stmgr, m.Chain, estimateMsg, priorMsgs, ts)
+			gasUsed, err := evalMessageGasLimit(ctx, m.Stmgr, m.Chain, estimateMsg, priorMsgs, ts)
 			if err != nil {
 				estimateMsg.Nonce = 0
 				estimateResults = append(estimateResults, &api.EstimateResult{

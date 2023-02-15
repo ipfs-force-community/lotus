@@ -43,7 +43,7 @@ func CreateRPCServer(t *testing.T, handler http.Handler, listener net.Listener) 
 	return testServ, maddr, closer
 }
 
-func fullRpc(t *testing.T, f *TestFullNode) *TestFullNode {
+func fullRpc(t *testing.T, f *TestFullNode) (*TestFullNode, Closer) {
 	handler, err := node.FullNodeHandler(f.FullNode, false, "")
 	require.NoError(t, err)
 
