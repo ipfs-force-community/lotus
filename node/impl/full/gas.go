@@ -488,7 +488,7 @@ func (m *GasModule) GasBatchEstimateMessageGas(ctx context.Context, estimateMess
 		return nil, xerrors.Errorf("getting tipset: %w", err)
 	}
 
-	fromA, err := m.Stmgr.ResolveToKeyAddress(ctx, estimateMessages[0].Msg.From, ts)
+	fromA, err := m.Stmgr.ResolveToDeterministicAddress(ctx, estimateMessages[0].Msg.From, ts)
 	if err != nil {
 		return nil, xerrors.Errorf("getting key address: %w", err)
 	}
