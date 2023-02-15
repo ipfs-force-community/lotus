@@ -579,3 +579,7 @@ func (gw *Node) WalletBalance(ctx context.Context, k address.Address) (types.Big
 	}
 	return gw.target.WalletBalance(ctx, k)
 }
+
+func (gw *Node) GasBatchEstimateMessageGas(ctx context.Context, estimateMessages []*api.EstimateMessage, fromNonce uint64, tsk types.TipSetKey) ([]*api.EstimateResult, error) {
+	return gw.target.GasBatchEstimateMessageGas(ctx, estimateMessages, fromNonce, tsk)
+}
