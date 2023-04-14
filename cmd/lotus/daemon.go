@@ -91,6 +91,10 @@ var DaemonCmd = &cli.Command{
 			Value: "",
 		},
 		&cli.StringFlag{
+			Name:  "auth-token",
+			Value: "",
+		},
+		&cli.StringFlag{
 			Name:   makeGenFlag,
 			Value:  "",
 			Hidden: true,
@@ -372,8 +376,11 @@ var DaemonCmd = &cli.Command{
 			serverOptions = append(serverOptions, jsonrpc.WithMaxRequestSize(int64(maxRequestSize)))
 		}
 
+		authURL := cctx.String("auth-url")
+		authToken := cctx.String("auth-token")
+		log.Infof("auth url: %v, auth token: %v", authURL, authToken)
 		// Instantiate the full node handler.
-		h, err := node.FullNodeHandler(api, true, cctx.String("auth-url"), serverOptions...)
+		h, err := node.FullNodeHandler(api, true, authURL, authToken, serverOptions...)
 		if err != nil {
 			return fmt.Errorf("failed to instantiate rpc handler: %s", err)
 		}
