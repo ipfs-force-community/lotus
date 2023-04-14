@@ -72,12 +72,16 @@ func ServeRPC(h http.Handler, id string, addr multiaddr.Multiaddr) (StopFunc, er
 }
 
 // FullNodeHandler returns a full node handler, to be mounted as-is on the server.
-func FullNodeHandler(a v1api.FullNode, permissioned bool, authEndpoint string, opts ...jsonrpc.ServerOption) (http.Handler, error) {
+func FullNodeHandler(a v1api.FullNode, permissioned bool, authEndpoint, authToken string, opts ...jsonrpc.ServerOption) (http.Handler, error) {
 	m := mux.NewRouter()
 
 	var remoteJwtCli *jwtclient.AuthClient
+	var err error
 	if len(authEndpoint) > 0 {
-		remoteJwtCli, _ = jwtclient.NewAuthClient(authEndpoint)
+		remoteJwtCli, err = jwtclient.NewAuthClient(authEndpoint, authToken)
+		if err != nil {
+			return nil, fmt.Errorf("new auth client error: %v", err)
+		}
 	}
 
 	serveRpc := func(path string, hnd interface{}) {
