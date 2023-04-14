@@ -19,10 +19,10 @@ import (
 const BootstrappersFile = ""
 const GenesisFile = ""
 
-var NetworkBundle = "devnet"
+var NetworkBundle = "testing"
 var BundleOverrides map[actorstypes.Version]string
 
-const GenesisNetworkVersion = network.Version16
+const GenesisNetworkVersion = network.Version18
 
 var UpgradeBreezeHeight = abi.ChainEpoch(-1)
 
@@ -56,7 +56,13 @@ var UpgradeOhSnapHeight = abi.ChainEpoch(-18)
 
 var UpgradeSkyrHeight = abi.ChainEpoch(-19)
 
-var UpgradeSharkHeight = abi.ChainEpoch(100)
+var UpgradeSharkHeight = abi.ChainEpoch(-20)
+
+var UpgradeHyggeHeight = abi.ChainEpoch(-21)
+
+var UpgradeLightningHeight = abi.ChainEpoch(30)
+
+var UpgradeThunderHeight = abi.ChainEpoch(1000)
 
 var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 	0: DrandMainnet,
@@ -65,6 +71,7 @@ var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 var SupportedProofTypes = []abi.RegisteredSealProof{
 	abi.RegisteredSealProof_StackedDrg8MiBV1,
 	abi.RegisteredSealProof_StackedDrg512MiBV1,
+	abi.RegisteredSealProof_StackedDrg32GiBV1,
 }
 var ConsensusMinerMinPower = abi.NewStoragePower(2048)
 var MinVerifiedDealSize = abi.NewStoragePower(256)
@@ -110,6 +117,9 @@ func init() {
 	UpgradeOhSnapHeight = getUpgradeHeight("LOTUS_OHSNAP_HEIGHT", UpgradeOhSnapHeight)
 	UpgradeSkyrHeight = getUpgradeHeight("LOTUS_SKYR_HEIGHT", UpgradeSkyrHeight)
 	UpgradeSharkHeight = getUpgradeHeight("LOTUS_SHARK_HEIGHT", UpgradeSharkHeight)
+	UpgradeHyggeHeight = getUpgradeHeight("LOTUS_HYGGE_HEIGHT", UpgradeHyggeHeight)
+	UpgradeLightningHeight = getUpgradeHeight("LOTUS_LIGHTNING_HEIGHT", UpgradeLightningHeight)
+	UpgradeThunderHeight = getUpgradeHeight("LOTUS_THUNDER_HEIGHT", UpgradeThunderHeight)
 
 	BuildType |= BuildForce
 
