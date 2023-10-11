@@ -4,6 +4,7 @@
 package build
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -21,8 +22,9 @@ const GenesisFile = ""
 
 var NetworkBundle = "testing"
 var BundleOverrides map[actorstypes.Version]string
+var ActorDebugging = true
 
-const GenesisNetworkVersion = network.Version18
+const GenesisNetworkVersion = network.Version20
 
 var UpgradeBreezeHeight = abi.ChainEpoch(-1)
 
@@ -60,9 +62,17 @@ var UpgradeSharkHeight = abi.ChainEpoch(-20)
 
 var UpgradeHyggeHeight = abi.ChainEpoch(-21)
 
-var UpgradeLightningHeight = abi.ChainEpoch(30)
+var UpgradeLightningHeight = abi.ChainEpoch(-22)
 
-var UpgradeThunderHeight = abi.ChainEpoch(1000)
+var UpgradeThunderHeight = abi.ChainEpoch(-23)
+
+var UpgradeWatermelonHeight = abi.ChainEpoch(200)
+
+// This fix upgrade only ran on calibrationnet
+var UpgradeWatermelonFixHeight = abi.ChainEpoch(-100)
+
+// This fix upgrade only ran on calibrationnet
+var UpgradeWatermelonFix2Height = abi.ChainEpoch(-101)
 
 var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 	0: DrandMainnet,
@@ -123,9 +133,15 @@ func init() {
 
 	BuildType |= BuildForce
 
+	newBlockDelaySecs := uint64(getUpgradeHeight("LOTUS_BLOCK_DELAY_SECS", 30))
+	if newBlockDelaySecs < BlockDelaySecs {
+		BlockDelaySecs = newBlockDelaySecs
+	}
+
+	fmt.Println("BlockDelaySecs:", BlockDelaySecs)
 }
 
-const BlockDelaySecs = uint64(30)
+var BlockDelaySecs = uint64(30)
 
 const PropagationDelaySecs = uint64(1)
 
@@ -139,5 +155,9 @@ const SlashablePowerDelay = 20
 const InteractivePoRepConfidence = 6
 
 const BootstrapPeerThreshold = 1
+
+// ChainId defines the chain ID used in the Ethereum JSON-RPC endpoint.
+// As per https://github.com/ethereum-lists/chains
+const Eip155ChainId = 31415926
 
 var WhitelistedBlock = cid.Undef

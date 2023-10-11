@@ -390,11 +390,16 @@ func evalMessageGasLimit(ctx context.Context, smgr *stmgr.StateManager, cstore *
 	msg.GasFeeCap = types.NewInt(uint64(build.MinimumBaseFee) + 1)
 	msg.GasPremium = types.NewInt(1)
 
+	applyTSMessages := true
+	if os.Getenv("LOTUS_SKIP_APPLY_TS_MESSAGE_CALL_WITH_GAS") == "1" {
+		applyTSMessages = false
+	}
+
 	// Try calling until we find a height with no migration.
 	var res *api.InvocResult
 	var err error
 	for {
-		res, err = smgr.CallWithGas(ctx, &msg, priorMsgs, ts)
+		res, err = smgr.CallWithGas(ctx, &msg, priorMsgs, ts, applyTSMessages)
 		if err != stmgr.ErrExpensiveFork {
 			break
 		}
