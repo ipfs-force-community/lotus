@@ -23,7 +23,7 @@ import (
 
 	"github.com/filecoin-project/go-jsonrpc"
 	"github.com/filecoin-project/go-jsonrpc/auth"
-	"github.com/filecoin-project/venus-auth/jwtclient"
+	"github.com/ipfs-force-community/sophon-auth/jwtclient"
 
 	"github.com/filecoin-project/lotus/api"
 	"github.com/filecoin-project/lotus/api/v0api"
@@ -329,6 +329,11 @@ type WrapClient struct {
 	a v1api.FullNode
 }
 
-func (w *WrapClient) Verify(ctx context.Context, token string) ([]auth.Permission, error) {
-	return w.a.AuthVerify(ctx, token)
+func (w *WrapClient) Verify(ctx context.Context, token string) (auth.Permission, error) {
+	permissions, err := w.a.AuthVerify(ctx, token)
+	if err != nil {
+		return "", nil
+	}
+
+	return permissions[len(permissions)-1], nil
 }

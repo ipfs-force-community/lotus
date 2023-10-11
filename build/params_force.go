@@ -21,8 +21,9 @@ const GenesisFile = ""
 
 var NetworkBundle = "testing"
 var BundleOverrides map[actorstypes.Version]string
+var ActorDebugging = true
 
-const GenesisNetworkVersion = network.Version18
+const GenesisNetworkVersion = network.Version20
 
 var UpgradeBreezeHeight = abi.ChainEpoch(-1)
 
@@ -60,9 +61,11 @@ var UpgradeSharkHeight = abi.ChainEpoch(-20)
 
 var UpgradeHyggeHeight = abi.ChainEpoch(-21)
 
-var UpgradeLightningHeight = abi.ChainEpoch(30)
+var UpgradeLightningHeight = abi.ChainEpoch(-22)
 
-var UpgradeThunderHeight = abi.ChainEpoch(1000)
+var UpgradeThunderHeight = abi.ChainEpoch(-23)
+
+var UpgradeWatermelonHeight = abi.ChainEpoch(200)
 
 var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 	0: DrandMainnet,
@@ -139,5 +142,9 @@ const SlashablePowerDelay = 20
 const InteractivePoRepConfidence = 6
 
 const BootstrapPeerThreshold = 1
+
+// ChainId defines the chain ID used in the Ethereum JSON-RPC endpoint.
+// As per https://github.com/ethereum-lists/chains
+const Eip155ChainId = 31415926
 
 var WhitelistedBlock = cid.Undef
