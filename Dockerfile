@@ -4,6 +4,8 @@ FROM filvenus/venus-buildenv:v1.14.0 AS buildenv
 
 WORKDIR /build
 
+ENV GOPROXY="https://goproxy.cn,direct"
+
 COPY ./go.mod /build/
 COPY ./exter[n] ./go.mod  /build/extern/
 RUN  go mod download
