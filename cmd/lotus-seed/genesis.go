@@ -57,16 +57,22 @@ var genesisNewCmd = &cli.Command{
 		if !cctx.Args().Present() {
 			return xerrors.New("seed genesis new [genesis.json]")
 		}
+		networkName := cctx.String("network-name")
+		if len(networkName) == 0 {
+			// If it is a force network, use forcenet as the network name.
+			if strings.Contains(build.UserVersion(), "force") {
+				networkName = "forcenet"
+			} else {
+				networkName = "localnet-" + uuid.New().String()
+			}
+		}
 		out := genesis.Template{
 			NetworkVersion:   build.GenesisNetworkVersion,
 			Accounts:         []genesis.Actor{},
 			Miners:           []genesis.Miner{},
 			VerifregRootKey:  gen.DefaultVerifregRootkeyActor,
 			RemainderAccount: gen.DefaultRemainderAccountActor,
-			NetworkName:      cctx.String("network-name"),
-		}
-		if out.NetworkName == "" {
-			out.NetworkName = "localnet-" + uuid.New().String()
+			NetworkName:      networkName,
 		}
 
 		genb, err := json.MarshalIndent(&out, "", "  ")
