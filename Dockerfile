@@ -21,8 +21,8 @@ ARG BUILD_TARGET=
 ENV VENUS_COMPONENT=${BUILD_TARGET}
 
 # copy the app from build env
-COPY --from=buildenv  /build/lotus /app/${BUILD_TARGET}
-COPY --from=buildenv  /build/lotus-miner /app/${BUILD_TARGET}
-COPY --from=buildenv  /build/lotus-seed /app/${BUILD_TARGET}
+COPY --from=buildenv  /build/lotus /lotus
+COPY --from=buildenv  /build/lotus-miner /lotus-miner
+COPY --from=buildenv  /build/lotus-seed /lotus-seed
 
-ENTRYPOINT ["/script/init.sh"]
+# ENTRYPOINT ["/script/init.sh"]
