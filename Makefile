@@ -388,32 +388,32 @@ docker: $(BUILD_DEPS)
 # 	curl -o dockerfile https://raw.githubusercontent.com/filecoin-project/venus-docs/master/script/docker/dockerfile
 # endif
 	docker build --build-arg HTTPS_PROXY=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=lotus -t lotus .
-	docker build --build-arg HTTPS_PROXY=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=lotus-miner -t lotus-miner .
-	docker build --build-arg HTTPS_PROXY=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=lotus-seed -t lotus-seed .
+	# docker build --build-arg HTTPS_PROXY=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=lotus-miner -t lotus-miner .
+	# docker build --build-arg HTTPS_PROXY=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=lotus-seed -t lotus-seed .
 	docker tag lotus filvenus/lotus:$(TAG)
-	docker tag lotus-miner filvenus/lotus-miner:$(TAG)
-	docker tag lotus-seed filvenus/lotus-seed:$(TAG)
+	# docker tag lotus-miner filvenus/lotus-miner:$(TAG)
+	# docker tag lotus-seed filvenus/lotus-seed:$(TAG)
 ifdef PRIVATE_REGISTRY
 	docker tag lotus $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG)
-	docker tag lotus-miner $(PRIVATE_REGISTRY)/filvenus/lotus-miner:$(TAG)
-	docker tag lotus-seed $(PRIVATE_REGISTRY)/filvenus/lotus-seed:$(TAG)
+	# docker tag lotus-miner $(PRIVATE_REGISTRY)/filvenus/lotus-miner:$(TAG)
+	# docker tag lotus-seed $(PRIVATE_REGISTRY)/filvenus/lotus-seed:$(TAG)
 endif
 .PHONY: docker
 
 docker-push: docker
 ifdef PRIVATE_REGISTRY
 	docker push $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG)
-	docker push $(PRIVATE_REGISTRY)/filvenus/lotus-miner:$(TAG)
-	docker push $(PRIVATE_REGISTRY)/filvenus/lotus-seed:$(TAG)
+	# docker push $(PRIVATE_REGISTRY)/filvenus/lotus-miner:$(TAG)
+	# docker push $(PRIVATE_REGISTRY)/filvenus/lotus-seed:$(TAG)
 else
 	docker push filvenus/lotus:$(TAG)
 	docker tag filvenus/lotus:$(TAG) filvenus/lotus:latest
 	docker push filvenus/lotus:latest
-	docker push filvenus/lotus-miner:$(TAG)
-	docker tag filvenus/lotus-miner:$(TAG) filvenus/lotus-miner:latest
-	docker push filvenus/lotus-miner:latest
-	docker push filvenus/lotus-seed:$(TAG)
-	docker tag filvenus/lotus-seed:$(TAG) filvenus/lotus-seed:latest
-	docker push filvenus/lotus-seed:latest
+	# docker push filvenus/lotus-miner:$(TAG)
+	# docker tag filvenus/lotus-miner:$(TAG) filvenus/lotus-miner:latest
+	# docker push filvenus/lotus-miner:latest
+	# docker push filvenus/lotus-seed:$(TAG)
+	# docker tag filvenus/lotus-seed:$(TAG) filvenus/lotus-seed:latest
+	# docker push filvenus/lotus-seed:latest
 endif
 .PHONY: docker-push
