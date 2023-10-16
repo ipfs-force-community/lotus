@@ -9,6 +9,8 @@ COPY ./exter[n] ./go.mod  /build/extern/
 RUN  go mod download
 
 COPY . /build
+RUN make dist-clean
+RUN make deps
 RUN make force
 
 FROM filvenus/venus-runtime:${RUNTIME_TAG}
