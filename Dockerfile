@@ -15,9 +15,11 @@ RUN make dist-clean
 RUN make deps
 RUN make force
 
-FROM filvenus/venus-runtime:${RUNTIME_TAG}
+# FROM filvenus/venus-runtime:${RUNTIME_TAG}
+FROM ubnutu:20.04
 
-RUN apt update -y && apt install procps -y
+RUN apt update -y
+RUN apt install libhwloc-dev -y
 
 ARG BUILD_TARGET=
 ENV VENUS_COMPONENT=${BUILD_TARGET}
