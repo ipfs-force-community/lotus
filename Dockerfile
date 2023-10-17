@@ -15,7 +15,7 @@ RUN make dist-clean
 RUN make deps
 RUN make force
 
-FROM ubuntu:20.04
+FROM filvenus/venus-runtime:${RUNTIME_TAG}
 
 RUN apt update -y && apt install procps -y
 
