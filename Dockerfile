@@ -17,6 +17,8 @@ RUN make force
 
 FROM filvenus/venus-runtime:${RUNTIME_TAG}
 
+RUN apt update --y && apt install procps -y
+
 ARG BUILD_TARGET=
 ENV VENUS_COMPONENT=${BUILD_TARGET}
 
