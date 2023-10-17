@@ -16,7 +16,7 @@ RUN make deps
 RUN make force
 
 # FROM filvenus/venus-runtime:${RUNTIME_TAG}
-FROM ubnutu:20.04
+FROM ubuntu:20.04
 
 RUN apt update -y
 RUN apt install libhwloc-dev -y
