@@ -15,11 +15,7 @@ RUN make dist-clean
 RUN make deps
 RUN make force
 
-# FROM filvenus/venus-runtime:${RUNTIME_TAG}
-FROM ubuntu:20.04
-
-RUN apt update -y
-RUN apt install libhwloc-dev -y
+FROM filvenus/venus-runtime:${RUNTIME_TAG}
 
 ARG BUILD_TARGET=
 ENV VENUS_COMPONENT=${BUILD_TARGET}
