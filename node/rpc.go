@@ -335,5 +335,5 @@ func (w *WrapClient) Verify(ctx context.Context, token string) (auth.Permission,
 		return "", nil
 	}
 
-	return permissions[len(permissions)-1], nil
+	return permissions[0], nil
 }
