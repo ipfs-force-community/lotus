@@ -135,7 +135,7 @@ func init() {
 	fmt.Println("BlockDelaySecs:", BlockDelaySecs)
 }
 
-var BlockDelaySecs = uint64(30)
+var BlockDelaySecs = uint64(4)
 
 const PropagationDelaySecs = uint64(1)
 
