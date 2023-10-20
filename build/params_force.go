@@ -127,7 +127,7 @@ func init() {
 
 	BuildType |= BuildForce
 
-	newBlockDelaySecs = uint64(getUpgradeHeight("LOTUS_BLOCK_DELAY_SECS", 30))
+	newBlockDelaySecs := uint64(getUpgradeHeight("LOTUS_BLOCK_DELAY_SECS", 30))
 	if newBlockDelaySecs < BlockDelaySecs {
 		BlockDelaySecs = newBlockDelaySecs
 	}
