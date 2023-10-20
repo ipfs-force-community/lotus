@@ -387,4 +387,4 @@ replace github.com/filecoin-project/test-vectors => ./extern/test-vectors
 
 replace github.com/filecoin-project/go-jsonrpc => github.com/ipfs-force-community/go-jsonrpc v0.1.8
 
-replace github.com/filecoin-project/go-state-types => github.com/simlecode/go-state-types v0.0.0-20231020091519-bb0498cba440
+replace github.com/filecoin-project/go-state-types => github.com/simlecode/go-state-types v0.0.0-20231020115657-757d627e6736
