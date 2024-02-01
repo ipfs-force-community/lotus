@@ -326,6 +326,7 @@ func (c *client) GetBlocks(ctx context.Context, tsk types.TipSetKey, count int) 
 			Options: Headers,
 		}
 
+		log.Infof("start get blocks: %s", start)
 		validRes, err := c.doRequest(ctx, req, nil, nil)
 		if err != nil {
 			return nil, xerrors.Errorf("failed to doRequest: %w", err)
@@ -334,6 +335,8 @@ func (c *client) GetBlocks(ctx context.Context, tsk types.TipSetKey, count int) 
 		if len(validRes.tipsets) == 0 {
 			return nil, xerrors.Errorf("doRequest fetched zero tipsets: %w", err)
 		}
+
+		log.Infof("end get blocks: %s, result: %v, %d-%d", start, len(validRes.tipsets), validRes.tipsets[len(validRes.tipsets)-1].Height(), validRes.tipsets[0].Height())
 
 		ret = append(ret, validRes.tipsets...)
 
