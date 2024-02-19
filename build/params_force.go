@@ -24,7 +24,7 @@ var NetworkBundle = "testing"
 var BundleOverrides map[actorstypes.Version]string
 var ActorDebugging = true
 
-const GenesisNetworkVersion = network.Version20
+const GenesisNetworkVersion = network.Version21
 
 var UpgradeBreezeHeight = abi.ChainEpoch(-1)
 
@@ -66,7 +66,11 @@ var UpgradeLightningHeight = abi.ChainEpoch(-22)
 
 var UpgradeThunderHeight = abi.ChainEpoch(-23)
 
-var UpgradeWatermelonHeight = abi.ChainEpoch(200)
+var UpgradeWatermelonHeight = abi.ChainEpoch(-24)
+
+var UpgradeDragonHeight = abi.ChainEpoch(20)
+
+var UpgradePhoenixHeight = UpgradeDragonHeight + 120
 
 // This fix upgrade only ran on calibrationnet
 var UpgradeWatermelonFixHeight = abi.ChainEpoch(-100)
@@ -75,7 +79,8 @@ var UpgradeWatermelonFixHeight = abi.ChainEpoch(-100)
 var UpgradeWatermelonFix2Height = abi.ChainEpoch(-101)
 
 var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
-	0: DrandMainnet,
+	0:                    DrandMainnet,
+	UpgradePhoenixHeight: DrandQuicknet,
 }
 
 var SupportedProofTypes = []abi.RegisteredSealProof{
@@ -130,6 +135,7 @@ func init() {
 	UpgradeHyggeHeight = getUpgradeHeight("LOTUS_HYGGE_HEIGHT", UpgradeHyggeHeight)
 	UpgradeLightningHeight = getUpgradeHeight("LOTUS_LIGHTNING_HEIGHT", UpgradeLightningHeight)
 	UpgradeThunderHeight = getUpgradeHeight("LOTUS_THUNDER_HEIGHT", UpgradeThunderHeight)
+	UpgradeDragonHeight = getUpgradeHeight("LOTUS_DRAGON_HEIGHT", UpgradeDragonHeight)
 
 	BuildType |= BuildForce
 
@@ -144,6 +150,8 @@ func init() {
 var BlockDelaySecs = uint64(30)
 
 const PropagationDelaySecs = uint64(1)
+
+var EquivocationDelaySecs = uint64(0)
 
 // SlashablePowerDelay is the number of epochs after ElectionPeriodStart, after
 // which the miner is slashed
