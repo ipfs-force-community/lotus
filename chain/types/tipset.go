@@ -137,6 +137,12 @@ func NewTipSet(blks []*BlockHeader) (*TipSet, error) {
 	return &ts, nil
 }
 
+// Defined checks whether the tipset is defined.
+// Invoking any other methods on an undefined tipset will result in undefined behaviour (c.f. cid.Undef)
+func (ts *TipSet) Defined() bool {
+	return ts != nil && len(ts.blks) > 0
+}
+
 func (ts *TipSet) Cids() []cid.Cid {
 	return ts.cids
 }
@@ -149,7 +155,11 @@ func (ts *TipSet) Key() TipSetKey {
 }
 
 func (ts *TipSet) Height() abi.ChainEpoch {
-	return ts.height
+	if ts.Defined() {
+		return ts.height
+	}
+
+	return 0
 }
 
 func (ts *TipSet) Parents() TipSetKey {
