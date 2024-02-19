@@ -19,6 +19,7 @@ import (
 	"github.com/filecoin-project/go-state-types/network"
 
 	"github.com/filecoin-project/lotus/blockstore"
+	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/build/buildconstants"
 	"github.com/filecoin-project/lotus/chain/gen"
 	genesis2 "github.com/filecoin-project/lotus/chain/gen/genesis"
@@ -60,7 +61,7 @@ var genesisNewCmd = &cli.Command{
 		networkName := cctx.String("network-name")
 		if len(networkName) == 0 {
 			// If it is a force network, use forcenet as the network name.
-			if strings.Contains(build.NodeUserVersion(), "force") {
+			if strings.Contains(string(build.NodeUserVersion()), "force") {
 				networkName = "forcenet"
 			} else {
 				networkName = "localnet-" + uuid.New().String()
