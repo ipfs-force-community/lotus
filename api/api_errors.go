@@ -49,17 +49,17 @@ var (
 	// should back off and try again later.
 	ErrF3NotReady = &errF3NotReady{}
 
-	_ error                 = (*ErrOutOfGas)(nil)
-	_ error                 = (*ErrActorNotFound)(nil)
-	_ error                 = (*errF3Disabled)(nil)
-	_ error                 = (*errF3ParticipationTicketInvalid)(nil)
-	_ error                 = (*errF3ParticipationTicketExpired)(nil)
-	_ error                 = (*errF3ParticipationIssuerMismatch)(nil)
-	_ error                 = (*errF3NotReady)(nil)
-	_ error                 = (*ErrExecutionReverted)(nil)
-	_ jsonrpc.RPCErrorCodec = (*ErrExecutionReverted)(nil)
-	_ error                 = (*ErrNullRound)(nil)
-	_ jsonrpc.RPCErrorCodec = (*ErrNullRound)(nil)
+	_ error = (*ErrOutOfGas)(nil)
+	_ error = (*ErrActorNotFound)(nil)
+	_ error = (*errF3Disabled)(nil)
+	_ error = (*errF3ParticipationTicketInvalid)(nil)
+	_ error = (*errF3ParticipationTicketExpired)(nil)
+	_ error = (*errF3ParticipationIssuerMismatch)(nil)
+	_ error = (*errF3NotReady)(nil)
+	_ error = (*ErrExecutionReverted)(nil)
+	// _ jsonrpc.RPCErrorCodec = (*ErrExecutionReverted)(nil)
+	_ error = (*ErrNullRound)(nil)
+	// _ jsonrpc.RPCErrorCodec = (*ErrNullRound)(nil)
 )
 
 func init() {
@@ -136,29 +136,29 @@ type ErrExecutionReverted struct {
 func (e *ErrExecutionReverted) Error() string { return e.Message }
 
 // FromJSONRPCError converts a JSONRPCError to ErrExecutionReverted.
-func (e *ErrExecutionReverted) FromJSONRPCError(jerr jsonrpc.JSONRPCError) error {
-	if jerr.Code != EExecutionReverted || jerr.Message == "" || jerr.Data == nil {
-		return invalidExecutionRevertedMsg
-	}
+// func (e *ErrExecutionReverted) FromJSONRPCError(jerr jsonrpc.JSONRPCError) error {
+// 	if jerr.Code != EExecutionReverted || jerr.Message == "" || jerr.Data == nil {
+// 		return invalidExecutionRevertedMsg
+// 	}
 
-	data, ok := jerr.Data.(string)
-	if !ok {
-		return xerrors.Errorf("expected string data in execution reverted error, got %T", jerr.Data)
-	}
+// 	data, ok := jerr.Data.(string)
+// 	if !ok {
+// 		return xerrors.Errorf("expected string data in execution reverted error, got %T", jerr.Data)
+// 	}
 
-	e.Message = jerr.Message
-	e.Data = data
-	return nil
-}
+// 	e.Message = jerr.Message
+// 	e.Data = data
+// 	return nil
+// }
 
 // ToJSONRPCError converts ErrExecutionReverted to a JSONRPCError.
-func (e *ErrExecutionReverted) ToJSONRPCError() (jsonrpc.JSONRPCError, error) {
-	return jsonrpc.JSONRPCError{
-		Code:    EExecutionReverted,
-		Message: e.Message,
-		Data:    e.Data,
-	}, nil
-}
+// func (e *ErrExecutionReverted) ToJSONRPCError() (jsonrpc.JSONRPCError, error) {
+// 	return jsonrpc.JSONRPCError{
+// 		Code:    EExecutionReverted,
+// 		Message: e.Message,
+// 		Data:    e.Data,
+// 	}, nil
+// }
 
 // NewErrExecutionReverted creates a new ErrExecutionReverted with the given reason.
 func NewErrExecutionReverted(exitCode exitcode.ExitCode, error, reason string, data []byte) *ErrExecutionReverted {
@@ -184,28 +184,28 @@ func (e *ErrNullRound) Error() string {
 	return e.Message
 }
 
-func (e *ErrNullRound) FromJSONRPCError(jerr jsonrpc.JSONRPCError) error {
-	if jerr.Code != ENullRound {
-		return fmt.Errorf("unexpected error code: %d", jerr.Code)
-	}
+// func (e *ErrNullRound) FromJSONRPCError(jerr jsonrpc.JSONRPCError) error {
+// 	if jerr.Code != ENullRound {
+// 		return fmt.Errorf("unexpected error code: %d", jerr.Code)
+// 	}
 
-	epoch, ok := jerr.Data.(float64)
-	if !ok {
-		return fmt.Errorf("expected number data in null round error, got %T", jerr.Data)
-	}
+// 	epoch, ok := jerr.Data.(float64)
+// 	if !ok {
+// 		return fmt.Errorf("expected number data in null round error, got %T", jerr.Data)
+// 	}
 
-	e.Epoch = abi.ChainEpoch(epoch)
-	e.Message = jerr.Message
-	return nil
-}
+// 	e.Epoch = abi.ChainEpoch(epoch)
+// 	e.Message = jerr.Message
+// 	return nil
+// }
 
-func (e *ErrNullRound) ToJSONRPCError() (jsonrpc.JSONRPCError, error) {
-	return jsonrpc.JSONRPCError{
-		Code:    ENullRound,
-		Message: e.Message,
-		Data:    e.Epoch,
-	}, nil
-}
+// func (e *ErrNullRound) ToJSONRPCError() (jsonrpc.JSONRPCError, error) {
+// 	return jsonrpc.JSONRPCError{
+// 		Code:    ENullRound,
+// 		Message: e.Message,
+// 		Data:    e.Epoch,
+// 	}, nil
+// }
 
 // Is performs a non-strict type check, we only care if the target is an ErrNullRound
 // and will ignore the contents (specifically there is no matching on Epoch).
