@@ -11,6 +11,8 @@ const (
 	BuildInteropnet
 	unusedFormerNerpanet // removed in https://github.com/filecoin-project/lotus/pull/7373/files#diff-4592eccb93b506c1e7e175be9b631c7ccdeed4c1c5c4173a1ecd6d974e105190L15
 	BuildButterflynet
+
+	BuildForce = 100
 )
 
 var BuildType int
@@ -31,6 +33,8 @@ func BuildTypeString() string {
 		return "+interopnet"
 	case BuildButterflynet:
 		return "+butterflynet"
+	case BuildForce:
+		return "+force"
 	default:
 		return "+huh?"
 	}
