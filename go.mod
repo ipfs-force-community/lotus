@@ -75,7 +75,7 @@ require (
 	github.com/icza/backscanner v0.0.0-20210726202459-ac2ffc679f94
 	github.com/influxdata/influxdb1-client v0.0.0-20200827194710-b269163b24ab
 	github.com/invopop/jsonschema v0.12.0
-	github.com/ipfs-force-community/sophon-auth v1.14.0
+	github.com/ipfs-force-community/sophon-auth v1.15.0
 	github.com/ipfs/bbloom v0.0.4
 	github.com/ipfs/boxo v0.20.0
 	github.com/ipfs/go-block-format v0.2.0
@@ -245,7 +245,7 @@ require (
 	github.com/iancoleman/orderedmap v0.1.0 // indirect
 	github.com/influxdata/influxdb-client-go/v2 v2.2.2 // indirect
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
-	github.com/ipfs-force-community/metrics v1.0.1-0.20231011024528-8c881d456601 // indirect
+	github.com/ipfs-force-community/metrics v1.0.1-0.20231205060849-0b0d16ed0e8d // indirect
 	github.com/ipfs/go-blockservice v0.5.2 // indirect
 	github.com/ipfs/go-ipfs-blockstore v1.3.1 // indirect
 	github.com/ipfs/go-ipfs-delay v0.0.1 // indirect
