@@ -94,7 +94,7 @@ func DefaultFullNode() *FullNode {
 			SimultaneousTransfersForRetrieval: DefaultSimultaneousTransfers,
 		},
 		Chainstore: Chainstore{
-			EnableSplitstore: true,
+			EnableSplitstore: false,
 			Splitstore: Splitstore{
 				ColdStoreType: "discard",
 				HotStoreType:  "badger",
