@@ -1636,7 +1636,7 @@ var StateNtwkInfoCmd = &cli.Command{
 		}
 		fmt.Println("BlockDelaySecs:", params.BlockDelaySecs)
 		fmt.Println("PreCommitChallengeDelay:", params.PreCommitChallengeDelay)
-		// fmt.Println("Chain ID:", params.Eip155ChainID)
+		fmt.Println("Chain ID:", params.Eip155ChainID)
 
 		return nil
 	},
