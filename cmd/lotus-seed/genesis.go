@@ -60,7 +60,7 @@ var genesisNewCmd = &cli.Command{
 		networkName := cctx.String("network-name")
 		if len(networkName) == 0 {
 			// If it is a force network, use forcenet as the network name.
-			if strings.Contains(build.NodeUserVersion(), "force") {
+			if strings.Contains(string(build.NodeUserVersion()), "force") {
 				networkName = "forcenet"
 			} else {
 				networkName = "localnet-" + uuid.New().String()
