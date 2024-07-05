@@ -4,7 +4,6 @@
 package build
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -24,7 +23,7 @@ var NetworkBundle = "testing"
 var BundleOverrides map[actorstypes.Version]string
 var ActorDebugging = true
 
-const GenesisNetworkVersion = network.Version21
+const GenesisNetworkVersion = network.Version22
 
 var UpgradeBreezeHeight = abi.ChainEpoch(-1)
 
@@ -68,9 +67,11 @@ var UpgradeThunderHeight = abi.ChainEpoch(-23)
 
 var UpgradeWatermelonHeight = abi.ChainEpoch(-24)
 
-var UpgradeDragonHeight = abi.ChainEpoch(20)
+var UpgradeDragonHeight = abi.ChainEpoch(-25)
 
-var UpgradePhoenixHeight = UpgradeDragonHeight + 120
+var UpgradePhoenixHeight = abi.ChainEpoch(-26)
+
+var UpgradeWaffleHeight = abi.ChainEpoch(200)
 
 // This fix upgrade only ran on calibrationnet
 var UpgradeWatermelonFixHeight = abi.ChainEpoch(-100)
@@ -82,8 +83,7 @@ var UpgradeWatermelonFix2Height = abi.ChainEpoch(-101)
 const UpgradeCalibrationDragonFixHeight = -102
 
 var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
-	0:                    DrandMainnet,
-	UpgradePhoenixHeight: DrandQuicknet,
+	0: DrandQuicknet,
 }
 
 var SupportedProofTypes = []abi.RegisteredSealProof{
@@ -139,6 +139,12 @@ func init() {
 	UpgradeLightningHeight = getUpgradeHeight("LOTUS_LIGHTNING_HEIGHT", UpgradeLightningHeight)
 	UpgradeThunderHeight = getUpgradeHeight("LOTUS_THUNDER_HEIGHT", UpgradeThunderHeight)
 	UpgradeDragonHeight = getUpgradeHeight("LOTUS_DRAGON_HEIGHT", UpgradeDragonHeight)
+	UpgradeWaffleHeight = getUpgradeHeight("LOTUS_WAFFLE_HEIGHT", UpgradeWaffleHeight)
+
+	UpgradePhoenixHeight = getUpgradeHeight("LOTUS_PHOENIX_HEIGHT", UpgradePhoenixHeight)
+	DrandSchedule = map[abi.ChainEpoch]DrandEnum{
+		0: DrandQuicknet,
+	}
 
 	BuildType |= BuildForce
 
@@ -146,8 +152,6 @@ func init() {
 	if newBlockDelaySecs < BlockDelaySecs {
 		BlockDelaySecs = newBlockDelaySecs
 	}
-
-	fmt.Println("BlockDelaySecs:", BlockDelaySecs)
 }
 
 var BlockDelaySecs = uint64(30)
@@ -172,3 +176,7 @@ const BootstrapPeerThreshold = 1
 const Eip155ChainId = 31415926
 
 var WhitelistedBlock = cid.Undef
+
+const f3Enabled = true
+const ManifestServerID = "12D3KooWHcNBkqXEBrsjoveQvj6zDF3vK5S9tAfqyYaQF1LGSJwG"
+const F3BootstrapEpoch abi.ChainEpoch = 100
