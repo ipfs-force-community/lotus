@@ -77,7 +77,7 @@ require (
 	github.com/icza/backscanner v0.0.0-20210726202459-ac2ffc679f94
 	github.com/influxdata/influxdb1-client v0.0.0-20200827194710-b269163b24ab
 	github.com/invopop/jsonschema v0.12.0
-	github.com/ipfs-force-community/sophon-auth v1.15.0
+	github.com/ipfs-force-community/sophon-auth v1.16.0-rc1
 	github.com/ipfs/bbloom v0.0.4
 	github.com/ipfs/boxo v0.20.0
 	github.com/ipfs/go-block-format v0.2.0
