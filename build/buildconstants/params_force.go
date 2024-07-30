@@ -1,29 +1,26 @@
 //go:build force
 // +build force
 
-package build
+package buildconstants
 
 import (
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/ipfs/go-cid"
 
 	"github.com/filecoin-project/go-state-types/abi"
-	actorstypes "github.com/filecoin-project/go-state-types/actors"
 	"github.com/filecoin-project/go-state-types/network"
-
-	"github.com/filecoin-project/lotus/chain/actors/policy"
 )
 
 const BootstrappersFile = ""
 const GenesisFile = ""
 
 var NetworkBundle = "testing"
-var BundleOverrides map[actorstypes.Version]string
 var ActorDebugging = true
 
-const GenesisNetworkVersion = network.Version22
+var GenesisNetworkVersion = network.Version23
 
 var UpgradeBreezeHeight = abi.ChainEpoch(-1)
 
@@ -67,17 +64,24 @@ var UpgradeThunderHeight = abi.ChainEpoch(-23)
 
 var UpgradeWatermelonHeight = abi.ChainEpoch(-24)
 
-var UpgradeDragonHeight = abi.ChainEpoch(-25)
+var UpgradeDragonHeight = abi.ChainEpoch(-24)
 
-var UpgradePhoenixHeight = abi.ChainEpoch(-26)
+var UpgradePhoenixHeight = abi.ChainEpoch(-25)
 
-var UpgradeWaffleHeight = abi.ChainEpoch(200)
+var UpgradeWaffleHeight = abi.ChainEpoch(-26)
+
+var UpgradeTuktukHeight = abi.ChainEpoch(200)
+
+// FIP-0081: for the power actor state for pledge calculations.
+// UpgradeTuktukPowerRampDurationEpochs ends up in the power actor state after
+// Tuktuk migration. along with a RampStartEpoch matching the upgrade height.
+var UpgradeTuktukPowerRampDurationEpochs uint64 = 200
 
 // This fix upgrade only ran on calibrationnet
-var UpgradeWatermelonFixHeight = abi.ChainEpoch(-100)
+const UpgradeWatermelonFixHeight = -100
 
 // This fix upgrade only ran on calibrationnet
-var UpgradeWatermelonFix2Height = abi.ChainEpoch(-101)
+const UpgradeWatermelonFix2Height = -101
 
 // This fix upgrade only ran on calibrationnet
 const UpgradeCalibrationDragonFixHeight = -102
@@ -87,19 +91,39 @@ var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 }
 
 var SupportedProofTypes = []abi.RegisteredSealProof{
+	abi.RegisteredSealProof_StackedDrg2KiBV1,
 	abi.RegisteredSealProof_StackedDrg8MiBV1,
 	abi.RegisteredSealProof_StackedDrg512MiBV1,
 	abi.RegisteredSealProof_StackedDrg32GiBV1,
 }
 var ConsensusMinerMinPower = abi.NewStoragePower(2048)
-var MinVerifiedDealSize = abi.NewStoragePower(256)
 var PreCommitChallengeDelay = abi.ChainEpoch(10)
 
 func init() {
-	policy.SetSupportedProofTypes(SupportedProofTypes...)
-	policy.SetConsensusMinerMinPower(ConsensusMinerMinPower)
-	policy.SetMinVerifiedDealSize(MinVerifiedDealSize)
-	policy.SetPreCommitChallengeDelay(PreCommitChallengeDelay)
+	getGenesisNetworkVersion := func(ev string, def network.Version) network.Version {
+		hs, found := os.LookupEnv(ev)
+		if found {
+			h, err := strconv.Atoi(hs)
+			if err != nil {
+				log.Panicf("failed to parse %s env var", ev)
+			}
+
+			return network.Version(h)
+		}
+
+		return def
+	}
+
+	GenesisNetworkVersion = getGenesisNetworkVersion("LOTUS_GENESIS_NETWORK_VERSION", GenesisNetworkVersion)
+
+	getBoolean := func(ev string, def bool) bool {
+		hs, found := os.LookupEnv(ev)
+		if found {
+			return hs == "1" || strings.ToLower(hs) == "true"
+		}
+
+		return def
+	}
 
 	getUpgradeHeight := func(ev string, def abi.ChainEpoch) abi.ChainEpoch {
 		hs, found := os.LookupEnv(ev)
@@ -138,23 +162,24 @@ func init() {
 	UpgradeHyggeHeight = getUpgradeHeight("LOTUS_HYGGE_HEIGHT", UpgradeHyggeHeight)
 	UpgradeLightningHeight = getUpgradeHeight("LOTUS_LIGHTNING_HEIGHT", UpgradeLightningHeight)
 	UpgradeThunderHeight = getUpgradeHeight("LOTUS_THUNDER_HEIGHT", UpgradeThunderHeight)
+	UpgradeWatermelonHeight = getUpgradeHeight("LOTUS_WATERMELON_HEIGHT", UpgradeWatermelonHeight)
 	UpgradeDragonHeight = getUpgradeHeight("LOTUS_DRAGON_HEIGHT", UpgradeDragonHeight)
 	UpgradeWaffleHeight = getUpgradeHeight("LOTUS_WAFFLE_HEIGHT", UpgradeWaffleHeight)
-
 	UpgradePhoenixHeight = getUpgradeHeight("LOTUS_PHOENIX_HEIGHT", UpgradePhoenixHeight)
+	UpgradeTuktukHeight = getUpgradeHeight("LOTUS_TUKTUK_HEIGHT", UpgradeTuktukHeight)
+
 	DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 		0: DrandQuicknet,
 	}
 
+	F3Enabled = getBoolean("LOTUS_F3_ENABLED", F3Enabled)
+	F3BootstrapEpoch = getUpgradeHeight("LOTUS_F3_BOOTSTRAP_EPOCH", F3BootstrapEpoch)
+
 	BuildType |= BuildForce
 
-	newBlockDelaySecs := uint64(getUpgradeHeight("LOTUS_BLOCK_DELAY_SECS", 30))
-	if newBlockDelaySecs < BlockDelaySecs {
-		BlockDelaySecs = newBlockDelaySecs
-	}
 }
 
-var BlockDelaySecs = uint64(30)
+const BlockDelaySecs = uint64(30)
 
 const PropagationDelaySecs = uint64(1)
 
@@ -177,6 +202,15 @@ const Eip155ChainId = 31415926
 
 var WhitelistedBlock = cid.Undef
 
-const f3Enabled = true
-const ManifestServerID = "12D3KooWHcNBkqXEBrsjoveQvj6zDF3vK5S9tAfqyYaQF1LGSJwG"
-const F3BootstrapEpoch abi.ChainEpoch = 1000
+var F3Enabled = true
+
+var F3ManifestServerID = MustParseID("12D3KooWHcNBkqXEBrsjoveQvj6zDF3vK5S9tAfqyYaQF1LGSJwG")
+
+// The initial F3 power table CID.
+var F3InitialPowerTableCID cid.Cid = cid.Undef
+
+var F3BootstrapEpoch abi.ChainEpoch = 1000
+
+// F3Consensus set whether F3 should checkpoint tipsets finalized by F3. This
+// flag has no effect if F3 is not enabled.
+const F3Consensus = true

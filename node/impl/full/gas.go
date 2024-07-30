@@ -386,8 +386,8 @@ func gasEstimateGasLimit(
 
 func evalMessageGasLimit(ctx context.Context, smgr *stmgr.StateManager, cstore *store.ChainStore, msgIn *types.Message, priorMsgs []types.ChainMsg, ts *types.TipSet) (int64, error) {
 	msg := *msgIn
-	msg.GasLimit = build.BlockGasLimit
-	msg.GasFeeCap = types.NewInt(uint64(build.MinimumBaseFee) + 1)
+	msg.GasLimit = buildconstants.BlockGasLimit
+	msg.GasFeeCap = types.NewInt(uint64(buildconstants.MinimumBaseFee) + 1)
 	msg.GasPremium = types.NewInt(1)
 
 	applyTSMessages := true
@@ -421,7 +421,7 @@ func evalMessageGasLimit(ctx context.Context, smgr *stmgr.StateManager, cstore *
 
 	transitionalMulti := 1.0
 	// Overestimate gas around the upgrade
-	if ts.Height() <= build.UpgradeHyggeHeight && (build.UpgradeHyggeHeight-ts.Height() <= 20) {
+	if ts.Height() <= buildconstants.UpgradeHyggeHeight && (buildconstants.UpgradeHyggeHeight-ts.Height() <= 20) {
 		func() {
 
 			// Bare transfers get about 3x more expensive: https://github.com/filecoin-project/FIPs/blob/master/FIPS/fip-0057.md#product-considerations
