@@ -9,11 +9,9 @@ import (
 	"io"
 	"math"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/ipfs/boxo/blockservice"
 	offline "github.com/ipfs/boxo/exchange/offline"
@@ -598,7 +596,8 @@ func (a ChainAPI) ChainExportRangeInternal(ctx context.Context, head, tail types
 		return xerrors.Errorf("Height of head-tipset (%d) must be greater or equal to the height of the tail-tipset (%d)", headTs.Height(), tailTs.Height())
 	}
 
-	fileName := filepath.Join(a.Repo.Path(), fmt.Sprintf("snapshot_%d_%d_%d.car", tailTs.Height(), headTs.Height(), time.Now().Unix()))
+	// fileName := filepath.Join(a.Repo.Path(), fmt.Sprintf("snapshot_%d_%d_%d.car", tailTs.Height(), headTs.Height(), time.Now().Unix()))
+	fileName := cfg.Filepath
 	f, err := os.Create(fileName)
 	if err != nil {
 		return err
