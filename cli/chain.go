@@ -1161,32 +1161,34 @@ var ChainExportCmd = &cli.Command{
 var ChainExportRangeCmd = &cli.Command{
 	Name:      "export-range",
 	Usage:     "export chain to a car file",
-	ArgsUsage: "",
+	ArgsUsage: "[outputPath]",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "head",
 			Usage: "specify tipset to start the export from (higher epoch)",
 			Value: "@head",
 		},
-		&cli.StringFlag{
-			Name:  "tail",
-			Usage: "specify tipset to end the export at (lower epoch)",
-			Value: "@tail",
+		&cli.Int64Flag{
+			Name:  "recent-stateroots",
+			Usage: "specify the number of recent state roots to include in the export",
 		},
 		&cli.BoolFlag{
-			Name:  "messages",
-			Usage: "specify if messages should be include",
-			Value: false,
+			Name:   "messages",
+			Usage:  "specify if messages should be include",
+			Value:  false,
+			Hidden: true,
 		},
 		&cli.BoolFlag{
-			Name:  "receipts",
-			Usage: "specify if receipts should be include",
-			Value: false,
+			Name:   "receipts",
+			Usage:  "specify if receipts should be include",
+			Value:  false,
+			Hidden: true,
 		},
 		&cli.BoolFlag{
-			Name:  "stateroots",
-			Usage: "specify if stateroots should be include",
-			Value: false,
+			Name:   "stateroots",
+			Usage:  "specify if stateroots should be include",
+			Value:  true,
+			Hidden: true,
 		},
 		&cli.IntFlag{
 			Name:  "workers",
@@ -1226,17 +1228,22 @@ var ChainExportRangeCmd = &cli.Command{
 				return fmt.Errorf("parsing head: %w", err)
 			}
 		}
-		tailstr := cctx.String("tail")
-		if tailstr == "@tail" {
-			tail, err = api.ChainGetGenesis(ctx)
-			if err != nil {
-				return err
-			}
-		} else {
-			tail, err = ParseTipSetRef(ctx, api, tailstr)
-			if err != nil {
-				return fmt.Errorf("parsing tail: %w", err)
-			}
+		recentStateroots := cctx.Int64("recent-stateroots")
+		// tailstr := cctx.String("tail")
+		// if tailstr == "@tail" {
+		// 	tail, err = api.ChainGetGenesis(ctx)
+		// 	if err != nil {
+		// 		return err
+		// 	}
+		// } else {
+		// 	tail, err = ParseTipSetRef(ctx, api, tailstr)
+		// 	if err != nil {
+		// 		return fmt.Errorf("parsing tail: %w", err)
+		// 	}
+		// }
+		tail, err = api.ChainGetTipSetByHeight(ctx, head.Height()-abi.ChainEpoch(recentStateroots), types.EmptyTSK)
+		if err != nil {
+			return err
 		}
 
 		if head.Height() < tail.Height() {
@@ -1247,7 +1254,12 @@ var ChainExportRangeCmd = &cli.Command{
 			return errors.New("Non-internal exports are not implemented")
 		}
 
+		if !cctx.Args().Present() {
+			return errors.New("output path must be specified")
+		}
+
 		err = api.ChainExportRangeInternal(ctx, head.Key(), tail.Key(), lapi.ChainExportConfig{
+			Filepath:          cctx.Args().First(),
 			WriteBufferSize:   cctx.Int("write-buffer"),
 			NumWorkers:        cctx.Int("workers"),
 			IncludeMessages:   cctx.Bool("messages"),

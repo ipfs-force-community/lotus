@@ -197,6 +197,7 @@ type ForkUpgradeParams struct {
 
 // ChainExportConfig holds configuration for chain ranged exports.
 type ChainExportConfig struct {
+	Filepath          string
 	WriteBufferSize   int
 	NumWorkers        int
 	IncludeMessages   bool
