@@ -1165,13 +1165,13 @@ var ChainExportRangeCmd = &cli.Command{
 		&cli.BoolFlag{
 			Name:   "messages",
 			Usage:  "specify if messages should be include",
-			Value:  false,
+			Value:  true,
 			Hidden: true,
 		},
 		&cli.BoolFlag{
 			Name:   "receipts",
 			Usage:  "specify if receipts should be include",
-			Value:  false,
+			Value:  true,
 			Hidden: true,
 		},
 		&cli.BoolFlag{
@@ -1219,18 +1219,10 @@ var ChainExportRangeCmd = &cli.Command{
 			}
 		}
 		recentStateroots := cctx.Int64("recent-stateroots")
-		// tailstr := cctx.String("tail")
-		// if tailstr == "@tail" {
-		// 	tail, err = api.ChainGetGenesis(ctx)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// } else {
-		// 	tail, err = ParseTipSetRef(ctx, api, tailstr)
-		// 	if err != nil {
-		// 		return fmt.Errorf("parsing tail: %w", err)
-		// 	}
-		// }
+		if recentStateroots < int64(policy.ChainFinality) {
+			return fmt.Errorf("recent-stateroots has to be greater than %d", policy.ChainFinality)
+		}
+
 		tail, err = api.ChainGetTipSetByHeight(ctx, head.Height()-abi.ChainEpoch(recentStateroots), types.EmptyTSK)
 		if err != nil {
 			return err

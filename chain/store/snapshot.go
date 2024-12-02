@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sort"
 	"sync"
 	"time"
 
@@ -214,8 +215,11 @@ type taskFifo struct {
 }
 
 type taskResult struct {
-	c cid.Cid
-	b blocks.Block
+	c       cid.Cid
+	b       blocks.Block
+	h       abi.ChainEpoch
+	pb      cid.Cid
+	isBlock bool
 }
 
 func newTaskFifo(bufferLen int) *taskFifo {
@@ -307,6 +311,85 @@ type walkScheduler struct {
 	seen sync.Map
 }
 
+type heightCIDs struct {
+	h    abi.ChainEpoch
+	cids []cid.Cid
+}
+
+type blkInfo struct {
+	rawdata []byte
+	pb      cid.Cid
+	h       abi.ChainEpoch
+}
+
+func (s *walkScheduler) writeBlock(hcs []heightCIDs, seen map[cid.Cid]struct{}, blks map[cid.Cid]blkInfo) error {
+	sort.Slice(hcs, func(i, j int) bool {
+		return hcs[i].h > hcs[j].h
+	})
+	for _, hc := range hcs {
+		for _, c := range hc.cids {
+			if _, ok := seen[c]; ok {
+				continue
+			}
+
+			bi := blks[c]
+			if err := carutil.LdWrite(s.writer, c.Bytes(), bi.rawdata); err != nil {
+				return err
+			}
+			seen[c] = struct{}{}
+			delete(blks, c)
+		}
+	}
+
+	return nil
+}
+
+func (s *walkScheduler) handleBlock(head *types.TipSet,
+	hbs map[abi.ChainEpoch][]cid.Cid,
+	blks map[cid.Cid]blkInfo,
+	seen map[cid.Cid]struct{},
+) func(r taskResult) error {
+	currentHight := head.Height()
+	nextTailCid := head.Cids()[0]
+
+	return func(r taskResult) error {
+		hbs[r.h] = append(hbs[r.h], r.c)
+		blks[r.c] = blkInfo{
+			rawdata: r.b.RawData(),
+			pb:      r.pb,
+			h:       r.h,
+		}
+
+		if len(blks) < 1000 {
+			return nil
+		}
+		for {
+			bi, ok := blks[nextTailCid]
+			if !ok {
+				break
+			}
+			currentHight = bi.h
+			nextTailCid = bi.pb
+			if bi.h%10000 == 0 {
+				log.Infof("exporting block %d", bi.h)
+			}
+		}
+
+		var hcs []heightCIDs
+		for h, cids := range hbs {
+			if h >= currentHight {
+				hcs = append(hcs, heightCIDs{
+					h:    h,
+					cids: cids,
+				})
+				delete(hbs, h)
+			}
+		}
+
+		return s.writeBlock(hcs, seen, blks)
+	}
+}
+
 func newWalkScheduler(ctx context.Context, store bstore.Blockstore, cfg walkSchedulerConfig, w io.Writer) (*walkScheduler, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	workers, ctx := errgroup.WithContext(ctx)
@@ -324,13 +407,40 @@ func newWalkScheduler(ctx context.Context, store bstore.Blockstore, cfg walkSche
 
 	go func() {
 		defer close(s.writeErrorChan)
+
+		hbs := make(map[abi.ChainEpoch][]cid.Cid, 0)
+		blks := make(map[cid.Cid]blkInfo, 0)
+		seen := make(map[cid.Cid]struct{}, 0)
+		handleBlkFunc := s.handleBlock(cfg.head, hbs, blks, seen)
+
 		for r := range s.results {
-			// Write
-			if err := carutil.LdWrite(s.writer, r.c.Bytes(), r.b.RawData()); err != nil {
-				// abort operations
-				cancel()
-				s.writeErrorChan <- err
+			if r.isBlock {
+				if err := handleBlkFunc(r); err != nil {
+					// abort operations
+					cancel()
+					s.writeErrorChan <- err
+				}
+			} else {
+				// Write
+				if err := carutil.LdWrite(s.writer, r.c.Bytes(), r.b.RawData()); err != nil {
+					// abort operations
+					cancel()
+					s.writeErrorChan <- err
+				}
 			}
+		}
+
+		var hcs []heightCIDs
+		for h, cids := range hbs {
+			hcs = append(hcs, heightCIDs{
+				h:    h,
+				cids: cids,
+			})
+		}
+		if err := s.writeBlock(hcs, seen, blks); err != nil {
+			// abort operations
+			cancel()
+			s.writeErrorChan <- err
 		}
 	}()
 
@@ -472,10 +582,21 @@ func (s *walkScheduler) processTask(t walkTask, workerN int) error {
 			t.c, t.taskType, t.topLevelTaskType, t.blockCid, t.epoch, err)
 	}
 
-	s.results <- taskResult{
+	res := taskResult{
 		c: t.c,
 		b: blk,
 	}
+	rawData := blk.RawData()
+	if t.taskType == blockTask {
+		res.isBlock = true
+		var b types.BlockHeader
+		if err := b.UnmarshalCBOR(bytes.NewBuffer(rawData)); err != nil {
+			return xerrors.Errorf("unmarshalling block header (cid=%s): %w", blk, err)
+		}
+		res.h = b.Height
+		res.pb = b.Parents[0]
+	}
+	s.results <- res
 
 	// We exported the ipld block. If it wasn't a CBOR block, there's nothing
 	// else to do and we can bail out early as it won't have any links
@@ -485,19 +606,13 @@ func (s *walkScheduler) processTask(t walkTask, workerN int) error {
 		return nil
 	}
 
-	rawData := blk.RawData()
-
 	// extract relevant dags to walk from the block
 	if t.taskType == blockTask {
 		var b types.BlockHeader
 		if err := b.UnmarshalCBOR(bytes.NewBuffer(rawData)); err != nil {
 			return xerrors.Errorf("unmarshalling block header (cid=%s): %w", blk, err)
 		}
-		if b.Height%1_000 == 0 {
-			log.Infow("block export", "height", b.Height)
-		}
 		if b.Height == 0 {
-			log.Info("exporting genesis block")
 			for i := range b.Parents {
 				s.enqueueIfNew(walkTask{
 					c:                b.Parents[i],
@@ -507,6 +622,7 @@ func (s *walkScheduler) processTask(t walkTask, workerN int) error {
 					epoch:            0,
 				})
 			}
+			log.Infof("exporting genesis block: %v, parents: %v, parent state root: %v", t.c, b.Parents, b.ParentStateRoot)
 			s.enqueueIfNew(walkTask{
 				c:                b.ParentStateRoot,
 				taskType:         stateTask,
@@ -603,7 +719,9 @@ func (cs *ChainStore) ExportRange(
 	start := time.Now()
 	log.Infow("walking snapshot range",
 		"head", head.Key(),
+		"head height", head.Height(),
 		"tail", tail.Key(),
+		"tail height", tail.Height(),
 		"messages", messages,
 		"receipts", receipts,
 		"stateroots",
