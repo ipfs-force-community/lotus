@@ -88,6 +88,12 @@ const UpgradeWatermelonFix2Height = -101
 // This fix upgrade only ran on calibrationnet
 const UpgradeCalibrationDragonFixHeight = -102
 
+var UpgradeTeepHeight = abi.ChainEpoch(200)
+
+var UpgradeTeepInitialFilReserved = wholeFIL(1_400_000_000) // FIP-0100: 300M -> 1.4B FIL
+
+var UpgradeTockHeight = abi.ChainEpoch(300)
+
 var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 	0: DrandQuicknet,
 }
@@ -213,6 +219,4 @@ var F3InitialPowerTableCID cid.Cid = cid.Undef
 
 var F3BootstrapEpoch abi.ChainEpoch = 1000
 
-// F3Consensus set whether F3 should checkpoint tipsets finalized by F3. This
-// flag has no effect if F3 is not enabled.
-const F3Consensus = true
+var F3ParamsAddress = ""
