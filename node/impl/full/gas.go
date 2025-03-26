@@ -9,7 +9,6 @@ import (
 	"os"
 	"sort"
 
-	lru "github.com/hashicorp/golang-lru/v2"
 	"go.uber.org/fx"
 	"golang.org/x/xerrors"
 
@@ -26,6 +25,7 @@ import (
 	"github.com/filecoin-project/lotus/chain/stmgr"
 	"github.com/filecoin-project/lotus/chain/store"
 	"github.com/filecoin-project/lotus/chain/types"
+	"github.com/filecoin-project/lotus/node/impl/gasutils"
 	"github.com/filecoin-project/lotus/node/modules/dtypes"
 )
 
@@ -46,7 +46,7 @@ type GasModule struct {
 	Mpool     *messagepool.MessagePool
 	GetMaxFee dtypes.DefaultMaxFeeFunc
 
-	PriceCache *GasPriceCache
+	PriceCache *gasutils.GasPriceCache
 }
 
 var _ GasModuleAPI = (*GasModule)(nil)
@@ -60,52 +60,7 @@ type GasAPI struct {
 	Chain *store.ChainStore
 	Mpool *messagepool.MessagePool
 
-	PriceCache *GasPriceCache
-}
-
-func NewGasPriceCache() *GasPriceCache {
-	// 50 because we usually won't access more than 40
-	c, err := lru.New2Q[types.TipSetKey, []GasMeta](50)
-	if err != nil {
-		// err only if parameter is bad
-		panic(err)
-	}
-
-	return &GasPriceCache{
-		c: c,
-	}
-}
-
-type GasPriceCache struct {
-	c *lru.TwoQueueCache[types.TipSetKey, []GasMeta]
-}
-
-type GasMeta struct {
-	Price big.Int
-	Limit int64
-}
-
-func (g *GasPriceCache) GetTSGasStats(ctx context.Context, cstore *store.ChainStore, ts *types.TipSet) ([]GasMeta, error) {
-	i, has := g.c.Get(ts.Key())
-	if has {
-		return i, nil
-	}
-
-	var prices []GasMeta
-	msgs, err := cstore.MessagesForTipset(ctx, ts)
-	if err != nil {
-		return nil, xerrors.Errorf("loading messages: %w", err)
-	}
-	for _, msg := range msgs {
-		prices = append(prices, GasMeta{
-			Price: msg.VMMessage().GasPremium,
-			Limit: msg.VMMessage().GasLimit,
-		})
-	}
-
-	g.c.Add(ts.Key(), prices)
-
-	return prices, nil
+	PriceCache *gasutils.GasPriceCache
 }
 
 const MinGasPremium = 100e3
@@ -144,7 +99,7 @@ func gasEstimateFeeCap(cstore *store.ChainStore, msg *types.Message, maxqueueblk
 }
 
 // finds 55th percntile instead of median to put negative pressure on gas price
-func medianGasPremium(prices []GasMeta, blocks int) abi.TokenAmount {
+func medianGasPremium(prices []gasutils.GasMeta, blocks int) abi.TokenAmount {
 	sort.Slice(prices, func(i, j int) bool {
 		// sort desc by price
 		return prices[i].Price.GreaterThan(prices[j].Price)
@@ -187,12 +142,12 @@ func (m *GasModule) GasEstimateGasPremium(
 ) (types.BigInt, error) {
 	return gasEstimateGasPremium(ctx, m.Chain, m.PriceCache, nblocksincl)
 }
-func gasEstimateGasPremium(ctx context.Context, cstore *store.ChainStore, cache *GasPriceCache, nblocksincl uint64) (types.BigInt, error) {
+func gasEstimateGasPremium(ctx context.Context, cstore *store.ChainStore, cache *gasutils.GasPriceCache, nblocksincl uint64) (types.BigInt, error) {
 	if nblocksincl == 0 {
 		nblocksincl = 1
 	}
 
-	var prices []GasMeta
+	var prices []gasutils.GasMeta
 	var blocks int
 
 	ts := cstore.GetHeaviestTipSet()
