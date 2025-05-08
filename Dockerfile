@@ -1,6 +1,6 @@
-ARG RUNTIME_TAG=v1.14.0
+ARG RUNTIME_TAG=latest
 
-FROM filvenus/venus-buildenv:v1.14.0 AS buildenv
+FROM filvenus/venus-buildenv:${RUNTIME_TAG} AS buildenv
 
 WORKDIR /build
 
@@ -24,5 +24,4 @@ ENV VENUS_COMPONENT=${BUILD_TARGET}
 COPY --from=buildenv  /build/lotus /lotus
 COPY --from=buildenv  /build/lotus-miner /lotus-miner
 COPY --from=buildenv  /build/lotus-seed /lotus-seed
-
-# ENTRYPOINT ["/script/init.sh"]
+COPY --from=buildenv  /build/lotus-shed /lotus-shed
