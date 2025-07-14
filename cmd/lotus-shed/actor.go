@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -889,9 +890,9 @@ var actorProposeChangeWorkerAndControl = &cli.Command{
 			Usage:    "specify the new worker address",
 			Required: true,
 		},
-		&cli.StringSliceFlag{
+		&cli.StringFlag{
 			Name:     "control",
-			Usage:    "specify the new control addresses",
+			Usage:    "specify the new control addresses, eg. --control t010001,t010002,t010003",
 			Required: true,
 		},
 	},
@@ -930,7 +931,7 @@ var actorProposeChangeWorkerAndControl = &cli.Command{
 		}
 
 		contorlAddrs := make([]address.Address, 0)
-		for _, c := range cctx.StringSlice("control") {
+		for _, c := range strings.Split(cctx.String("control"), ",") {
 			controlAddr, err := address.NewFromString(c)
 			if err != nil {
 				return err
