@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/libp2p/go-libp2p/core/peer"
@@ -37,6 +38,7 @@ var actorCmd = &cli.Command{
 		actorSetOwnerCmd,
 		actorControl,
 		actorProposeChangeWorker,
+		actorProposeChangeWorkerAndControl,
 		actorConfirmChangeWorker,
 		actorGetMethodNum,
 		actorProposeChangeBeneficiary,
@@ -864,6 +866,135 @@ var actorProposeChangeWorker = &cli.Command{
 
 		_, _ = fmt.Fprintf(cctx.App.Writer, "Worker key change to %s successfully proposed.\n", na)
 		_, _ = fmt.Fprintf(cctx.App.Writer, "Call 'confirm-change-worker' at or after height %d to complete.\n", mi.WorkerChangeEpoch)
+
+		return nil
+	},
+}
+
+var actorProposeChangeWorkerAndControl = &cli.Command{
+	Name:  "change-worker-and-control",
+	Usage: "Propose a worker address and control addresses change",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:     "actor",
+			Usage:    "specify the address of miner actor",
+			Required: true,
+		},
+		&cli.BoolFlag{
+			Name:  "really-do-it",
+			Usage: "Actually send transaction performing the action",
+			Value: false,
+		},
+		&cli.StringFlag{
+			Name:     "worker",
+			Usage:    "specify the new worker address",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     "control",
+			Usage:    "specify the new control addresses, eg. --control t010001,t010002,t010003",
+			Required: true,
+		},
+	},
+	Action: func(cctx *cli.Context) error {
+		if !cctx.Bool("really-do-it") {
+			_, _ = fmt.Fprintln(cctx.App.Writer, "Pass --really-do-it to actually execute this action")
+			return nil
+		}
+
+		var maddr address.Address
+		if act := cctx.String("actor"); act != "" {
+			var err error
+			maddr, err = address.NewFromString(act)
+			if err != nil {
+				return fmt.Errorf("parsing address %s: %w", act, err)
+			}
+		}
+
+		nodeAPI, acloser, err := lcli.GetFullNodeAPI(cctx)
+		if err != nil {
+			return err
+		}
+		defer acloser()
+
+		ctx := lcli.ReqContext(cctx)
+
+		workerAddr, err := address.NewFromString(cctx.String("worker"))
+		if err != nil {
+			return err
+		}
+		_, _ = fmt.Fprintf(cctx.App.Writer, "worker address: %+v\n", workerAddr)
+
+		newWorkerID, err := nodeAPI.StateLookupID(ctx, workerAddr, types.EmptyTSK)
+		if err != nil {
+			return err
+		}
+
+		contorlAddrs := make([]address.Address, 0)
+		for _, c := range strings.Split(cctx.String("control"), ",") {
+			controlAddr, err := address.NewFromString(c)
+			if err != nil {
+				return err
+			}
+			contorlAddrs = append(contorlAddrs, controlAddr)
+		}
+		_, _ = fmt.Fprintf(cctx.App.Writer, "control address: %+v\n", contorlAddrs)
+
+		mi, err := nodeAPI.StateMinerInfo(ctx, maddr, types.EmptyTSK)
+		if err != nil {
+			return err
+		}
+
+		if mi.NewWorker != address.Undef && mi.NewWorker != newWorkerID {
+			_, _ = fmt.Fprintf(cctx.App.Writer, "WARNING: has a pending worker address %s, will not change\n", mi.NewWorker)
+		}
+
+		cwp := &miner2.ChangeWorkerAddressParams{
+			NewWorker:       newWorkerID,
+			NewControlAddrs: contorlAddrs,
+		}
+
+		sp, err := actors.SerializeParams(cwp)
+		if err != nil {
+			return xerrors.Errorf("serializing params: %w", err)
+		}
+
+		smsg, err := nodeAPI.MpoolPushMessage(ctx, &types.Message{
+			From:   mi.Owner,
+			To:     maddr,
+			Method: builtin.MethodsMiner.ChangeWorkerAddress,
+			Value:  big.Zero(),
+			Params: sp,
+		}, nil)
+		if err != nil {
+			return xerrors.Errorf("mpool push: %w", err)
+		}
+
+		_, _ = fmt.Fprintln(cctx.App.Writer, "Propose Message CID:", smsg.Cid())
+
+		// wait for it to get mined into a block
+		wait, err := nodeAPI.StateWaitMsg(ctx, smsg.Cid(), buildconstants.MessageConfidence)
+		if err != nil {
+			return err
+		}
+
+		// check it executed successfully
+		if wait.Receipt.ExitCode.IsError() {
+			_, _ = fmt.Fprintln(cctx.App.Writer, "Propose worker change failed!")
+			return err
+		}
+
+		mi, err = nodeAPI.StateMinerInfo(ctx, maddr, wait.TipSet)
+		if err != nil {
+			return err
+		}
+
+		_, _ = fmt.Fprintf(cctx.App.Writer, "Current worker address %s\n", mi.Worker)
+		_, _ = fmt.Fprintf(cctx.App.Writer, "Current Control addresses %+v.\n", mi.ControlAddresses)
+		if mi.NewWorker != address.Undef {
+			_, _ = fmt.Fprintf(cctx.App.Writer, "Pending worker address %s.\n", mi.NewWorker)
+			_, _ = fmt.Fprintf(cctx.App.Writer, "Call 'confirm-change-worker' at or after height %d to complete.\n", mi.WorkerChangeEpoch)
+		}
 
 		return nil
 	},
