@@ -945,7 +945,7 @@ var actorProposeChangeWorkerAndControl = &cli.Command{
 			return err
 		}
 
-		if mi.NewWorker != newWorkerID {
+		if mi.NewWorker != address.Undef && mi.NewWorker != newWorkerID {
 			_, _ = fmt.Fprintf(cctx.App.Writer, "WARNING: has a pending worker address %s, will not change\n", mi.NewWorker)
 		}
 
