@@ -230,7 +230,7 @@ type WrapClient struct {
 func (w *WrapClient) Verify(ctx context.Context, token string) (auth.Permission, error) {
 	permissions, err := w.a.AuthVerify(ctx, token)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	return permissions[len(permissions)-1], nil
