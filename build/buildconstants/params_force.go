@@ -4,6 +4,7 @@
 package buildconstants
 
 import (
+	_ "embed"
 	"os"
 	"strconv"
 	"strings"
@@ -20,7 +21,7 @@ const GenesisFile = ""
 var NetworkBundle = "testing"
 var ActorDebugging = true
 
-var GenesisNetworkVersion = network.Version24
+var GenesisNetworkVersion = network.Version26
 
 var UpgradeBreezeHeight = abi.ChainEpoch(-1)
 
@@ -72,7 +73,7 @@ var UpgradeWaffleHeight = abi.ChainEpoch(-26)
 
 var UpgradeTuktukHeight = abi.ChainEpoch(-27)
 
-var UpgradeTeepHeight = abi.ChainEpoch(200)
+var UpgradeTeepHeight = abi.ChainEpoch(-28)
 
 // FIP-0081: for the power actor state for pledge calculations.
 // UpgradeTuktukPowerRampDurationEpochs ends up in the power actor state after
@@ -90,9 +91,11 @@ const UpgradeCalibrationDragonFixHeight = -102
 
 var UpgradeTeepInitialFilReserved = wholeFIL(1_400_000_000) // FIP-0100: 300M -> 1.4B FIL
 
-var UpgradeTockHeight = abi.ChainEpoch(300)
+var UpgradeTockHeight = abi.ChainEpoch(-30)
 
-var UpgradeTockFixHeight = abi.ChainEpoch(-28)
+var UpgradeTockFixHeight = abi.ChainEpoch(-103)
+
+var UpgradeGoldenWeekHeight = abi.ChainEpoch(200)
 
 var DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 	0: DrandQuicknet,
@@ -175,13 +178,13 @@ func init() {
 	UpgradeWaffleHeight = getUpgradeHeight("LOTUS_WAFFLE_HEIGHT", UpgradeWaffleHeight)
 	UpgradePhoenixHeight = getUpgradeHeight("LOTUS_PHOENIX_HEIGHT", UpgradePhoenixHeight)
 	UpgradeTuktukHeight = getUpgradeHeight("LOTUS_TUKTUK_HEIGHT", UpgradeTuktukHeight)
+	UpgradeGoldenWeekHeight = getUpgradeHeight("LOTUS_GOLDEN_WEEK_HEIGHT", UpgradeGoldenWeekHeight)
 
 	DrandSchedule = map[abi.ChainEpoch]DrandEnum{
 		0: DrandQuicknet,
 	}
 
 	F3Enabled = getBoolean("LOTUS_F3_ENABLED", F3Enabled)
-	F3BootstrapEpoch = getUpgradeHeight("LOTUS_F3_BOOTSTRAP_EPOCH", F3BootstrapEpoch)
 
 	BuildType |= BuildForce
 
@@ -212,11 +215,5 @@ var WhitelistedBlock = cid.Undef
 
 var F3Enabled = true
 
-var F3ManifestServerID = MustParseID("12D3KooWHcNBkqXEBrsjoveQvj6zDF3vK5S9tAfqyYaQF1LGSJwG")
-
-// The initial F3 power table CID.
-var F3InitialPowerTableCID cid.Cid = cid.Undef
-
-var F3BootstrapEpoch abi.ChainEpoch = 1000
-
-var F3ParamsAddress = ""
+//go:embed f3manifest_2k.json
+var F3ManifestBytes []byte
