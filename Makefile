@@ -76,6 +76,7 @@ TWOK_FLAGS=-tags=2k
 CALIBNET_FLAGS=-tags=calibnet
 BUTTERFLYNET_FLAGS=-tags=butterflynet
 INTEROPNET_FLAGS=-tags=interopnet
+FORCE_FLAGS=-tags=force
 
 # Network-specific pattern rules
 debug-%:
@@ -88,6 +89,8 @@ butterflynet-%:
 	$(MAKE) $* GOFLAGS="$(GOFLAGS) $(BUTTERFLYNET_FLAGS)"
 interopnet-%:
 	$(MAKE) $* GOFLAGS="$(GOFLAGS) $(INTEROPNET_FLAGS)"
+force-%:
+	$(MAKE) $* GOFLAGS="$(GOFLAGS) $(FORCE_FLAGS)"
 
 build-devnets: build lotus-seed lotus-shed
 .PHONY: build-devnets

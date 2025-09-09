@@ -56,8 +56,10 @@ func NewFullNodeRPCV1(ctx context.Context, addr string, requestHeader http.Heade
 // NewFullNodeRPCV2 creates a new http jsonrpc client for the /v2 API.
 func NewFullNodeRPCV2(ctx context.Context, addr string, requestHeader http.Header, opts ...jsonrpc.Option) (v2api.FullNode, jsonrpc.ClientCloser, error) {
 	var res v2api.FullNodeStruct
+	// closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
+	// 	api.GetInternalStructs(&res), requestHeader, append([]jsonrpc.Option{jsonrpc.WithErrors(api.RPCErrors)}, opts...)...)
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
-		api.GetInternalStructs(&res), requestHeader, append([]jsonrpc.Option{jsonrpc.WithErrors(api.RPCErrors)}, opts...)...)
+		api.GetInternalStructs(&res), requestHeader, opts...)
 
 	return &res, closer, err
 }
@@ -152,10 +154,15 @@ func NewGatewayRPCV1(ctx context.Context, addr string, requestHeader http.Header
 // NewGatewayRPCV2 creates a new http jsonrpc client for a gateway node.
 func NewGatewayRPCV2(ctx context.Context, addr string, requestHeader http.Header, opts ...jsonrpc.Option) (v2api.Gateway, jsonrpc.ClientCloser, error) {
 	var res v2api.GatewayStruct
+	// closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
+	// 	api.GetInternalStructs(&res),
+	// 	requestHeader,
+	// 	append(opts, jsonrpc.WithErrors(api.RPCErrors))...,
+	// )
 	closer, err := jsonrpc.NewMergeClient(ctx, addr, "Filecoin",
 		api.GetInternalStructs(&res),
 		requestHeader,
-		append(opts, jsonrpc.WithErrors(api.RPCErrors))...,
+		opts...,
 	)
 
 	return &res, closer, err

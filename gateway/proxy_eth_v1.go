@@ -724,9 +724,9 @@ func (pv1 *reverseProxyV1) addUserFilterLimited(
 }
 
 func getStatefulTrackerV1(ctx context.Context) (*statefulCallTracker, error) {
-	if jsonrpc.GetConnectionType(ctx) != jsonrpc.ConnectionTypeWS {
-		return nil, xerrors.New("stateful methods are only available on websocket connections")
-	}
+	// if jsonrpc.GetConnectionType(ctx) != jsonrpc.ConnectionTypeWS {
+	// 	return nil, xerrors.New("stateful methods are only available on websocket connections")
+	// }
 
 	if ct, ok := ctx.Value(statefulCallTrackerKeyV1).(*statefulCallTracker); !ok {
 		return nil, xerrors.New("stateful tracking is not available for this call")

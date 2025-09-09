@@ -110,11 +110,12 @@ func FullNodeHandler(v1 v1api.FullNode, v2 v2api.FullNode, permissioned bool, au
 	if permissioned {
 		// v1Proxy = api.PermissionedFullAPI(v1Proxy)
 		// v2Proxy = v2api.PermissionedFullAPI(v2Proxy)
-		// fnapi = api.PermissionedFullAPI(fnapi)
 		var out api.FullNodeStruct
 		PermissionProxy(v1Proxy, &out)
-		var out2 api.FullNodeStruct
+		v1Proxy = &out
+		var out2 v2api.FullNodeStruct
 		PermissionProxy(v2Proxy, &out2)
+		v2Proxy = &out2
 	}
 	v0Proxy := &v0api.WrapperV1Full{FullNode: v1Proxy}
 
