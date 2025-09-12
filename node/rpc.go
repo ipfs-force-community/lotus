@@ -107,7 +107,7 @@ func FullNodeHandler(v1 v1api.FullNode, v2 v2api.FullNode, permissioned bool, au
 
 	v1Proxy := proxy.MetricedFullAPI(v1)
 	v2Proxy := proxy.MetricedFullV2API(v2)
-	if permissioned {
+	if permissioned && remoteJwtCli != nil {
 		// v1Proxy = api.PermissionedFullAPI(v1Proxy)
 		// v2Proxy = v2api.PermissionedFullAPI(v2Proxy)
 		var out api.FullNodeStruct
