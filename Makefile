@@ -422,3 +422,29 @@ help:  ## Display this help message
 	@printf "  \033[36mmake calibnet-lotus\033[0m              Build the Lotus daemon for Calibnet\n"
 	@printf "  \033[36mmake calibnet-lotus-miner\033[0m        Build the Lotus miner for Calibnet\n"
 	@printf "  \033[36mmake butterflynet-lotus-gateway\033[0m  Build the Lotus gateway for Butterflynet\n"
+
+TAG:=test
+docker: $(BUILD_DEPS)
+# ifdef DOCKERFILE
+# 	cp $(DOCKERFILE) ./dockerfile
+# else
+# 	curl -o dockerfile https://raw.githubusercontent.com/filecoin-project/venus-docs/master/script/docker/dockerfile
+# endif
+	docker build --build-arg HTTPS_PROXY=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=lotus -t lotus .
+	docker tag lotus filvenus/lotus:$(TAG)
+ifdef PRIVATE_REGISTRY
+	docker tag lotus $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG)
+endif
+.PHONY: docker
+
+docker-push: docker
+ifdef PRIVATE_REGISTRY
+	docker push $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG)
+	docker tag $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG) $(PRIVATE_REGISTRY)/filvenus/lotus:latest
+	docker push $(PRIVATE_REGISTRY)/filvenus/lotus:latest
+else
+	docker push filvenus/lotus:$(TAG)
+	docker tag filvenus/lotus:$(TAG) filvenus/lotus:latest
+	docker push filvenus/lotus:latest
+endif
+.PHONY: docker-push

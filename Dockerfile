@@ -1,10 +1,17 @@
-ARG RUNTIME_TAG=v1.14.0
+ARG RUNTIME_TAG=latest
+ARG BUILDENV_TAG=latest
 
-FROM filvenus/venus-buildenv:v1.14.0 AS buildenv
+FROM filvenus/venus-buildenv:${BUILDENV_TAG} AS buildenv
+
+ARG GOOS
+ARG GOARCH
+ARG GOPROXY
+
+ENV GOOS=${GOOS:-linux}
+ENV GOARCH=${GOARCH:-amd64}
+ENV GOPROXY=${GOPROXY:-https://goproxy.cn,direct}
 
 WORKDIR /build
-
-ENV GOPROXY="https://goproxy.cn,direct"
 
 COPY ./go.mod /build/
 COPY ./exter[n] ./go.mod  /build/extern/
@@ -24,5 +31,6 @@ ENV VENUS_COMPONENT=${BUILD_TARGET}
 COPY --from=buildenv  /build/lotus /lotus
 COPY --from=buildenv  /build/lotus-miner /lotus-miner
 COPY --from=buildenv  /build/lotus-seed /lotus-seed
+COPY --from=buildenv  /build/lotus-shed /lotus-shed
 
 # ENTRYPOINT ["/script/init.sh"]
