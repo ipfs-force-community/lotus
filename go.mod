@@ -230,7 +230,6 @@ require (
 	github.com/go-redis/redis/v7 v7.0.0-beta // indirect
 	github.com/go-redis/redis_rate/v7 v7.0.1 // indirect
 	github.com/go-resty/resty/v2 v2.16.5 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
@@ -353,7 +352,6 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/mysql v1.1.1 // indirect
 	gorm.io/gorm v1.31.0 // indirect
 	howett.net/plist v0.0.0-20181124034731-591f970eefbb // indirect; dependency-check-ignore: required by github.com/elastic/go-sysinfo
 	lukechampine.com/blake3 v1.4.1 // indirect
@@ -368,6 +366,7 @@ replace github.com/filecoin-project/go-jsonrpc => github.com/ipfs-force-communit
 replace github.com/kilic/bls12-381 v0.1.1-0.20220929213557-ca162e8a70f4 => github.com/kilic/bls12-381 v0.1.0 // to fix bls signature validation issue from https://github.com/filecoin-project/lotus/issues/12467
 
 require (
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/deepmap/oapi-codegen v1.3.13 // indirect
@@ -382,6 +381,7 @@ require (
 	github.com/go-openapi/swag/stringutils v0.25.4 // indirect
 	github.com/go-openapi/swag/typeutils v0.25.4 // indirect
 	github.com/go-openapi/swag/yamlutils v0.25.4 // indirect
+	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/ipfs/go-cidutil v0.1.1 // indirect
 	github.com/ipfs/go-dsqueue v0.2.0 // indirect
@@ -410,4 +410,5 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/telemetry v0.0.0-20260209163413-e7419c687ee4 // indirect
 	google.golang.org/api v0.247.0 // indirect
+	gorm.io/driver/mysql v1.6.0 // indirect
 )
