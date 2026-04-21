@@ -48,9 +48,8 @@ bin/tmp/*
 .idea
 .vscode
 scratchpad
-
-build/builtin-actors/v*
-build/builtin-actors/*.car
+lotus.log*
+.trunk
 
 dist/
 # deprecated
@@ -67,3 +66,7 @@ release_body.md
 # in dirty git state if removed from the docker context
 !extern/filecoin-ffi/rust/filecoin.pc
 !extern/test-vectors
+
+localnet.json
+
+devgen.car
