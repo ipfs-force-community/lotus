@@ -76,6 +76,7 @@ TWOK_FLAGS=-tags=2k
 CALIBNET_FLAGS=-tags=calibnet
 BUTTERFLYNET_FLAGS=-tags=butterflynet
 INTEROPNET_FLAGS=-tags=interopnet
+FORCE_FLAGS=-tags=force
 
 # Network-specific pattern rules
 debug-%:
@@ -87,7 +88,9 @@ calibnet-%:
 butterflynet-%:
 	$(MAKE) $* GOFLAGS='$(GOFLAGS) $(BUTTERFLYNET_FLAGS)'
 interopnet-%:
-	$(MAKE) $* GOFLAGS='$(GOFLAGS) $(INTEROPNET_FLAGS)'
+	$(MAKE) $* GOFLAGS="$(GOFLAGS) $(INTEROPNET_FLAGS)"
+force-%:
+	$(MAKE) $* GOFLAGS="$(GOFLAGS) $(FORCE_FLAGS)"
 
 build-devnets: build lotus-seed lotus-shed
 .PHONY: build-devnets
@@ -104,6 +107,12 @@ debug:
 	@printf "Example: make 2k-lotus 2k-lotus-miner\n\n"
 	$(MAKE) 2k-lotus 2k-lotus-miner 2k-lotus-worker 2k-lotus-seed 2k-lotus-shed
 .PHONY: 2k
+
+force: 
+	@printf "\033[33m'make force' builds all devnet binaries. Use 'make force-<binary>' targets for individual binaries.\033[0m\n"
+	@printf "Example: make force-lotus force-lotus-miner\n\n"
+	$(MAKE) force-lotus force-lotus-miner force-lotus-worker force-lotus-seed force-lotus-shed
+.PHONY: force
 
 calibnet:
 	@printf "\033[33m'make calibnet' builds all devnet binaries. Use 'make calibnet-<binary>' targets for individual binaries.\033[0m\n"
@@ -413,3 +422,29 @@ help:  ## Display this help message
 	@printf "  \033[36mmake calibnet-lotus\033[0m              Build the Lotus daemon for Calibnet\n"
 	@printf "  \033[36mmake calibnet-lotus-miner\033[0m        Build the Lotus miner for Calibnet\n"
 	@printf "  \033[36mmake butterflynet-lotus-gateway\033[0m  Build the Lotus gateway for Butterflynet\n"
+
+TAG:=test
+docker: $(BUILD_DEPS)
+# ifdef DOCKERFILE
+# 	cp $(DOCKERFILE) ./dockerfile
+# else
+# 	curl -o dockerfile https://raw.githubusercontent.com/filecoin-project/venus-docs/master/script/docker/dockerfile
+# endif
+	docker build --build-arg HTTPS_PROXY=$(BUILD_DOCKER_PROXY) --build-arg BUILD_TARGET=lotus -t lotus .
+	docker tag lotus filvenus/lotus:$(TAG)
+ifdef PRIVATE_REGISTRY
+	docker tag lotus $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG)
+endif
+.PHONY: docker
+
+docker-push: docker
+ifdef PRIVATE_REGISTRY
+	docker push $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG)
+	docker tag $(PRIVATE_REGISTRY)/filvenus/lotus:$(TAG) $(PRIVATE_REGISTRY)/filvenus/lotus:latest
+	docker push $(PRIVATE_REGISTRY)/filvenus/lotus:latest
+else
+	docker push filvenus/lotus:$(TAG)
+	docker tag filvenus/lotus:$(TAG) filvenus/lotus:latest
+	docker push filvenus/lotus:latest
+endif
+.PHONY: docker-push

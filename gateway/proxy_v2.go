@@ -663,9 +663,9 @@ func (pv2 *reverseProxyV2) Discover(context.Context) (apitypes.OpenRPCDocument, 
 }
 
 func getStatefulTrackerV2(ctx context.Context) (*statefulCallTracker, error) {
-	if jsonrpc.GetConnectionType(ctx) != jsonrpc.ConnectionTypeWS {
-		return nil, xerrors.New("stateful methods are only available on websocket connections")
-	}
+	// if jsonrpc.GetConnectionType(ctx) != jsonrpc.ConnectionTypeWS {
+	// 	return nil, xerrors.New("stateful methods are only available on websocket connections")
+	// }
 
 	if ct, ok := ctx.Value(statefulCallTrackerKeyV2).(*statefulCallTracker); !ok {
 		return nil, xerrors.New("stateful tracking is not available for this call")
