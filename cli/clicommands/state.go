@@ -42,7 +42,7 @@ var StateCmd = &cli.Command{
 		StateMinerInfo,
 		lcli.StateMarketCmd,
 		lcli.StateExecTraceCmd,
-		lcli.StateNtwkVersionCmd,
+		lcli.StateNtwkInfoCmd,
 		lcli.StateMinerProvingDeadlineCmd,
 		lcli.StateSysActorCIDsCmd,
 		lcli.StateRewardCmd,

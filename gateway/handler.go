@@ -111,8 +111,9 @@ func Handler(gateway *Node, options ...HandlerOption) (ShutdownHandler, error) {
 	}
 
 	m := mux.NewRouter()
-
-	rpcopts := append(opts.jsonrpcServerOptions, jsonrpc.WithReverseClient[lapi.EthSubscriberMethods]("Filecoin"), jsonrpc.WithServerErrors(lapi.RPCErrors))
+	// todo: add api.RPCErrors
+	// rpcopts := append(opts.jsonrpcServerOptions, jsonrpc.WithReverseClient[lapi.EthSubscriberMethods]("Filecoin"), jsonrpc.WithServerErrors(lapi.RPCErrors))
+	rpcopts := append(opts.jsonrpcServerOptions, jsonrpc.WithReverseClient[lapi.EthSubscriberMethods]("Filecoin"))
 	serveRpc := func(path string, hnd interface{}) {
 		rpcServer := jsonrpc.NewServer(rpcopts...)
 		rpcServer.Register("Filecoin", hnd)
