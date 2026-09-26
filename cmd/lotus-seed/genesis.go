@@ -20,6 +20,7 @@ import (
 	"github.com/filecoin-project/go-state-types/network"
 
 	"github.com/filecoin-project/lotus/blockstore"
+	"github.com/filecoin-project/lotus/build"
 	"github.com/filecoin-project/lotus/build/buildconstants"
 	"github.com/filecoin-project/lotus/chain/gen"
 	genesis2 "github.com/filecoin-project/lotus/chain/gen/genesis"
@@ -64,16 +65,24 @@ var genesisNewCmd = &cli.Command{
 		if !cctx.Args().Present() {
 			return xerrors.New("seed genesis new [genesis.json]")
 		}
+		networkName := cctx.String("network-name")
+		if len(networkName) == 0 {
+			// If it is a force network, use forcenet as the network name.
+			if strings.Contains(string(build.NodeUserVersion()), "force") {
+				networkName = "forcenet"
+			} else {
+				networkName = "localnet-" + uuid.New().String()
+			}
+		}
 		out := genesis.Template{
 			NetworkVersion:   buildconstants.GenesisNetworkVersion,
 			Accounts:         []genesis.Actor{},
 			Miners:           []genesis.Miner{},
 			VerifregRootKey:  gen.DefaultVerifregRootkeyActor,
 			RemainderAccount: gen.DefaultRemainderAccountActor,
-			NetworkName:      cctx.String("network-name"),
-		}
-		if out.NetworkName == "" {
-			out.NetworkName = "localnet-" + uuid.New().String()
+			NetworkName:      networkName,
+			// 让第一个块的时间是 00 秒或者 30 秒
+			Timestamp: uint64(build.Clock.Now().Unix()) / 30 * 30,
 		}
 		if cctx.IsSet("timestamp") {
 			out.Timestamp = uint64(cctx.Timestamp("timestamp").Unix())

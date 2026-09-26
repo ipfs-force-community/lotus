@@ -56,15 +56,23 @@ func (mp *MessagePool) SelectMessages(ctx context.Context, ts *types.TipSet, tq 
 		}
 	}
 
+	// Load messages for the target tipset; if it is the same as the current tipset in the mpool
+	//    then this is just the pending messages
+	pending, err := mp.getPendingMessages(ctx, mp.curTs, ts)
+	if err != nil {
+		return nil, err
+	}
+	if len(pending) == 0 {
+		return nil, nil
+	}
 	// if the ticket quality is high enough that the first block has higher probability
 	// than any other block, then we don't bother with optimal selection because the
 	// first block will always have higher effective performance
 	var sm *selectedMessages
-	var err error
 	if tq > 0.84 {
-		sm, err = mp.selectMessagesGreedy(ctx, mp.curTs, ts)
+		sm, err = mp.selectMessagesGreedy(ctx, mp.curTs, ts, pending)
 	} else {
-		sm, err = mp.selectMessagesOptimal(ctx, mp.curTs, ts, tq)
+		sm, err = mp.selectMessagesOptimal(ctx, mp.curTs, ts, tq, pending)
 	}
 
 	if err != nil {
@@ -208,23 +216,12 @@ func (sm *selectedMessages) trimChain(mc *msgChain, mp *MessagePool, baseFee typ
 	}
 }
 
-func (mp *MessagePool) selectMessagesOptimal(ctx context.Context, curTs, ts *types.TipSet, tq float64) (*selectedMessages, error) {
+func (mp *MessagePool) selectMessagesOptimal(ctx context.Context, curTS, ts *types.TipSet, tq float64, pending map[address.Address]map[uint64]*types.SignedMessage) (*selectedMessages, error) {
 	start := time.Now()
 
 	baseFee, err := mp.api.ChainComputeBaseFee(context.TODO(), ts)
 	if err != nil {
 		return nil, xerrors.Errorf("computing basefee: %w", err)
-	}
-
-	// 0. Load messages from the target tipset; if it is the same as the current tipset in
-	//    the mpool, then this is just the pending messages
-	pending, err := mp.getPendingMessages(ctx, curTs, ts)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(pending) == 0 {
-		return nil, nil
 	}
 
 	// defer only here so if we have no pending messages we don't spam
@@ -456,23 +453,12 @@ tailLoop:
 	return result, nil
 }
 
-func (mp *MessagePool) selectMessagesGreedy(ctx context.Context, curTs, ts *types.TipSet) (*selectedMessages, error) {
+func (mp *MessagePool) selectMessagesGreedy(ctx context.Context, curTs, ts *types.TipSet, pending map[address.Address]map[uint64]*types.SignedMessage) (*selectedMessages, error) {
 	start := time.Now()
 
 	baseFee, err := mp.api.ChainComputeBaseFee(context.TODO(), ts)
 	if err != nil {
 		return nil, xerrors.Errorf("computing basefee: %w", err)
-	}
-
-	// 0. Load messages for the target tipset; if it is the same as the current tipset in the mpool
-	//    then this is just the pending messages
-	pending, err := mp.getPendingMessages(ctx, curTs, ts)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(pending) == 0 {
-		return nil, nil
 	}
 
 	// defer only here so if we have no pending messages we don't spam
@@ -703,7 +689,7 @@ tailLoop:
 	return result
 }
 
-func (mp *MessagePool) getPendingMessages(ctx context.Context, curTs, ts *types.TipSet) (map[address.Address]map[uint64]*types.SignedMessage, error) {
+func (mp *MessagePool) getPendingMessages(ctx context.Context, curTS, ts *types.TipSet) (map[address.Address]map[uint64]*types.SignedMessage, error) {
 	start := time.Now()
 
 	result := make(map[address.Address]map[uint64]*types.SignedMessage)
@@ -715,7 +701,7 @@ func (mp *MessagePool) getPendingMessages(ctx context.Context, curTs, ts *types.
 
 	// are we in sync?
 	inSync := false
-	if curTs.Height() == ts.Height() && curTs.Equals(ts) {
+	if curTS.Height() == ts.Height() && curTS.Equals(ts) {
 		inSync = true
 	}
 
@@ -739,7 +725,7 @@ func (mp *MessagePool) getPendingMessages(ctx context.Context, curTs, ts *types.
 		return result, nil
 	}
 
-	if err := mp.runHeadChange(ctx, curTs, ts, result); err != nil {
+	if err := mp.runHeadChange(ctx, curTS, ts, result); err != nil {
 		return nil, xerrors.Errorf("failed to process difference between mpool head and given head: %w", err)
 	}
 
@@ -1022,4 +1008,74 @@ func shuffleChains(lst []*msgChain) {
 		j := rand.Intn(i + 1)
 		lst[i], lst[j] = lst[j], lst[i]
 	}
+}
+
+func deleteSelectedMessages(pending map[address.Address]map[uint64]*types.SignedMessage, msgs []*types.SignedMessage) map[address.Address]map[uint64]*types.SignedMessage {
+	// messages from the same wallet cannot be scattered in multiple blocks in a cycle, eg b1{nonce: 20~30}, b2{nonce: 31~40}
+	for _, msg := range msgs {
+		delete(pending, msg.Message.From)
+	}
+
+	return pending
+}
+
+// select the message multiple times and try not to repeat it each time
+func (mp *MessagePool) MultipleSelectMessages(ctx context.Context, ts *types.TipSet, tqs []float64) (msgss [][]*types.SignedMessage, err error) {
+	mp.curTsLk.Lock()
+	defer mp.curTsLk.Unlock()
+
+	mp.lk.Lock()
+	defer mp.lk.Unlock()
+
+	// Load messages for the target tipset; if it is the same as the current tipset in the mpool
+	//    then this is just the pending messages
+	pending, err := mp.getPendingMessages(ctx, mp.curTs, ts)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(pending) == 0 {
+		return nil, nil
+	}
+
+	msgss = make([][]*types.SignedMessage, len(tqs))
+
+	for idx, tq := range tqs {
+		if len(pending) == 0 {
+			break
+		}
+
+		var selMsg *selectedMessages
+		if tq > 0.84 {
+			selMsg, err = mp.multiSelectMessagesGreedy(ctx, mp.curTs, ts, tq, pending)
+		} else {
+			selMsg, err = mp.multiSelectMessagesOptimal(ctx, mp.curTs, ts, tq, pending)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		msgss[idx] = selMsg.msgs
+
+		// delete the selected message from pending
+		pending = deleteSelectedMessages(pending, selMsg.msgs)
+	}
+
+	// if no message is selected for a block, msgss[0] is filled by default
+	for i := 1; i < len(msgss); i++ {
+		if len(msgss[i]) == 0 {
+			msgss[i] = msgss[0]
+		}
+	}
+
+	return msgss, nil
+}
+
+func (mp *MessagePool) multiSelectMessagesGreedy(ctx context.Context, curTS, ts *types.TipSet, tq float64, pending map[address.Address]map[uint64]*types.SignedMessage) (*selectedMessages, error) {
+	return mp.selectMessagesGreedy(ctx, curTS, ts, pending)
+}
+
+func (mp *MessagePool) multiSelectMessagesOptimal(ctx context.Context, curTS, ts *types.TipSet, tq float64, pending map[address.Address]map[uint64]*types.SignedMessage) (*selectedMessages, error) {
+	return mp.selectMessagesOptimal(ctx, curTS, ts, tq, pending)
 }
