@@ -63,22 +63,22 @@ var (
 	// ErrPaymentChannelDisabled signals that payment channel operations are disabled.
 	ErrPaymentChannelDisabled = &errPaymentChannelDisabled{}
 
-	_ error                 = (*ErrOutOfGas)(nil)
-	_ error                 = (*ErrActorNotFound)(nil)
-	_ error                 = (*errF3Disabled)(nil)
-	_ error                 = (*errF3ParticipationTicketInvalid)(nil)
-	_ error                 = (*errF3ParticipationTicketExpired)(nil)
-	_ error                 = (*errF3ParticipationIssuerMismatch)(nil)
-	_ error                 = (*errF3NotReady)(nil)
-	_ error                 = (*ErrExecutionReverted)(nil)
-	_ jsonrpc.RPCErrorCodec = (*ErrExecutionReverted)(nil)
-	_ error                 = (*ErrNullRound)(nil)
-	_ jsonrpc.RPCErrorCodec = (*ErrNullRound)(nil)
-	_ error                 = (*errPaymentChannelDisabled)(nil)
-	_ error                 = (*ErrBlockRangeExceeded)(nil)
-	_ jsonrpc.RPCErrorCodec = (*ErrBlockRangeExceeded)(nil)
-	_ error                 = (*ErrExpensiveFork)(nil)
-	_ jsonrpc.RPCErrorCodec = (*ErrExpensiveFork)(nil)
+	_ error = (*ErrOutOfGas)(nil)
+	_ error = (*ErrActorNotFound)(nil)
+	_ error = (*errF3Disabled)(nil)
+	_ error = (*errF3ParticipationTicketInvalid)(nil)
+	_ error = (*errF3ParticipationTicketExpired)(nil)
+	_ error = (*errF3ParticipationIssuerMismatch)(nil)
+	_ error = (*errF3NotReady)(nil)
+	_ error = (*ErrExecutionReverted)(nil)
+	// _ jsonrpc.RPCErrorCodec = (*ErrExecutionReverted)(nil)
+	_ error = (*ErrNullRound)(nil)
+	// _ jsonrpc.RPCErrorCodec = (*ErrNullRound)(nil)
+	_ error = (*errPaymentChannelDisabled)(nil)
+	_ error = (*ErrBlockRangeExceeded)(nil)
+	// _ jsonrpc.RPCErrorCodec = (*ErrBlockRangeExceeded)(nil)
+	_ error = (*ErrExpensiveFork)(nil)
+	// _ jsonrpc.RPCErrorCodec = (*ErrExpensiveFork)(nil)
 )
 
 func init() {
@@ -276,25 +276,25 @@ func (e *ErrExpensiveFork) Error() string {
 	return e.Message
 }
 
-func (e *ErrExpensiveFork) FromJSONRPCError(jerr jsonrpc.JSONRPCError) error {
-	if jerr.Code != EExpensiveFork {
-		return fmt.Errorf("unexpected error code: %d", jerr.Code)
-	}
-	e.Message = jerr.Message
-	e.Epoch = -1
-	if epoch, ok := jerr.Data.(float64); ok {
-		e.Epoch = abi.ChainEpoch(epoch)
-	}
-	return nil
-}
+// func (e *ErrExpensiveFork) FromJSONRPCError(jerr jsonrpc.JSONRPCError) error {
+// 	if jerr.Code != EExpensiveFork {
+// 		return fmt.Errorf("unexpected error code: %d", jerr.Code)
+// 	}
+// 	e.Message = jerr.Message
+// 	e.Epoch = -1
+// 	if epoch, ok := jerr.Data.(float64); ok {
+// 		e.Epoch = abi.ChainEpoch(epoch)
+// 	}
+// 	return nil
+// }
 
-func (e *ErrExpensiveFork) ToJSONRPCError() (jsonrpc.JSONRPCError, error) {
-	return jsonrpc.JSONRPCError{
-		Code:    EExpensiveFork,
-		Message: e.Error(),
-		Data:    e.Epoch,
-	}, nil
-}
+// func (e *ErrExpensiveFork) ToJSONRPCError() (jsonrpc.JSONRPCError, error) {
+// 	return jsonrpc.JSONRPCError{
+// 		Code:    EExpensiveFork,
+// 		Message: e.Error(),
+// 		Data:    e.Epoch,
+// 	}, nil
+// }
 
 // Is performs a non-strict type check so errors.Is works regardless of the Epoch value.
 func (e *ErrExpensiveFork) Is(target error) bool {
